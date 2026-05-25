@@ -12,6 +12,7 @@ const STARTING_POSITION_LABELS = [
   "secteur nord central",
   "secteur sud central",
 ];
+const DUEL_POSITION_LABELS = ["moitié ouest", "moitié est"];
 
 const POWERS = [
   { name: "Déclarer la guerre", category: "Diplomatie", danger: 20, drawDanger: 10, noCounter: true, effect: "Le gagnant peut forcer une déclaration de guerre entre son royaume et une civilisation cible accessible par bateau ou frontière." },
@@ -2339,10 +2340,66 @@ function getParticipantNamesText() {
   return state.ais.map((ai) => ai.name).join(", ");
 }
 
+function isDuelMode() {
+  return state.ais.length === 2;
+}
+
 function getStartingPositionsText() {
+  if (isDuelMode()) {
+    return state.ais
+      .map((ai, index) => `${ai.name} : ${DUEL_POSITION_LABELS[index] ?? `moitié ${index + 1}`}`)
+      .join(" ; ");
+  }
   return state.ais
     .map((ai, index) => `${ai.name} : ${STARTING_POSITION_LABELS[index] ?? `zone ${index + 1}`}`)
     .join(" ; ");
+}
+
+function buildWorldRulesText() {
+  const sharedLines = [
+    `- Civilisations participantes (${state.ais.length}) : ${getParticipantNamesText()}.`,
+    "- Chaque civilisation commence avec 10 pièces et 10 population.",
+    `- Positions publiques de départ : ${getStartingPositionsText()}.`,
+    "- Ces positions sont connues par toutes les IA dès le briefing initial, sauf correction ultérieure du MJ.",
+  ];
+
+  const modeLines = isDuelMode()
+    ? [
+      "- Mode Duel Epsilon : la carte est divisée en deux grands territoires, une moitié par civilisation.",
+      "- Il n'y a pas d'îlot central, pas de zone neutre centrale surchargée et pas d'objectif central commun.",
+      "- Chaque IA doit raisonner comme dans une confrontation directe : frontière, profondeur défensive, ressources internes, accès maritime éventuel et pression sur l'unique rival.",
+      "- Les ressources rares existent seulement si le MJ les place dans une moitié, un biome ou une carte de pouvoir. Aucune réserve centrale gratuite n'est garantie.",
+      "- Les colons naturels sont autorisés : les royaumes peuvent développer leur moitié du monde et fonder des villes si WorldBox le permet.",
+      "- L'expansion dépend de WorldBox, des colons naturels, du terrain de chaque moitié et des conséquences des pouvoirs gagnés aux enchères.",
+    ]
+    : [
+      "- Îlot central majeur : une île neutre et vide existe au centre de la carte. Elle est volontairement surchargée en ressources : nourriture, arbres, Stone, Ore Deposit, Gold, Gems, Mythril et Adamantine.",
+      "- Posséder l'îlot central est un avantage game changer : seconde patrie, économie de guerre, accès aux meilleurs minerais et position centrale pour rayonner vers les autres territoires.",
+      "- Les colons naturels sont autorisés : les royaumes peuvent fonder de nouvelles villes sans carte, afin que leur territoire principal puisse se développer normalement.",
+      "- L'îlot central peut être atteint par colonisation naturelle si WorldBox le permet.",
+      "- L'expansion dépend de WorldBox, des colons naturels et des conséquences des pouvoirs gagnés aux enchères.",
+    ];
+
+  const territoryLines = [
+    "- La carte Territoire permet seulement d'ajouter de la terre attachée à une île existante. Elle ne crée jamais une île isolée.",
+    "- La terre ajoutée par Territoire reprend le biome de l'île à laquelle elle est collée.",
+    "- Territoire donne une petite extension de base. Le gagnant peut payer un supplément manuel pour l'agrandir : +1 incrément d'enchère = extension moyenne, +2 incréments = grande extension, +3 incréments = très grande extension.",
+    "- Ce supplément est payé en plus du prix d'enchère et doit être soustrait manuellement par le MJ avant le compte rendu.",
+  ];
+
+  const closingLines = [
+    ...(isDuelMode() ? [] : ["- L'îlot central reste un objectif stratégique 20/20 s'il est possédé durablement."]),
+    "- Dès l'an 0, chaque IA reçoit 2 choix de biome et doit sélectionner son biome de départ.",
+    "- Chaque choix de biome indique sa dangerosité /20, ses matériaux générés et sa lecture stratégique.",
+    `- Biomes autorisés : ${BIOMES.map(formatBiomeNameWithDanger).join(", ")}.`,
+    "- Les territoires sont séparés par des rivières traversables par bateau, pas par des murs absolus.",
+    "- Les guerres peuvent donc arriver vite si les royaumes se rencontrent naturellement.",
+    "- Le MJ désactive les onglets Guerre et Alliance dans WorldBox : ces actions existent seulement comme cartes d'enchère.",
+    "- Les colons naturels restent activés : l'expansion naturelle ne dépend pas d'une carte d'enchère.",
+    "- Le MJ peut stopper ou nettoyer une catastrophe incontrôlable si elle menace de détruire la simulation entière, mais ce n'est pas une garantie de sauvetage.",
+  ];
+
+  return [...sharedLines, ...modeLines, ...territoryLines, ...closingLines].join("\n");
 }
 
 function getThresholdExamplesText() {
@@ -2921,28 +2978,7 @@ Ordre de lancement à l'an 0 :
 5. À chaque tour d'enchère, tu réponds seulement pour la décision demandée : enchérir ou passer, puis action prévue si tu gagnes.
 
 Carte et monde :
-- Civilisations participantes (${state.ais.length}) : ${getParticipantNamesText()}.
-- Chaque civilisation commence avec 10 pièces et 10 population.
-- Positions publiques de départ : ${getStartingPositionsText()}.
-- Ces positions sont connues par toutes les IA dès le briefing initial, sauf correction ultérieure du MJ.
-- Îlot central majeur : une île neutre et vide existe au centre de la carte. Elle est volontairement surchargée en ressources : nourriture, arbres, Stone, Ore Deposit, Gold, Gems, Mythril et Adamantine.
-- Posséder l'îlot central est un avantage game changer : seconde patrie, économie de guerre, accès aux meilleurs minerais et position centrale pour rayonner vers les autres territoires.
-- Les colons naturels sont autorisés : les royaumes peuvent fonder de nouvelles villes sans carte, afin que leur territoire principal puisse se développer normalement.
-- L'îlot central peut être atteint par colonisation naturelle si WorldBox le permet.
-- L'expansion dépend de WorldBox, des colons naturels et des conséquences des pouvoirs gagnés aux enchères.
-- La carte Territoire permet seulement d'ajouter de la terre attachée à une île existante. Elle ne crée jamais une île isolée.
-- La terre ajoutée par Territoire reprend le biome de l'île à laquelle elle est collée.
-- Territoire donne une petite extension de base. Le gagnant peut payer un supplément manuel pour l'agrandir : +1 incrément d'enchère = extension moyenne, +2 incréments = grande extension, +3 incréments = très grande extension.
-- Ce supplément est payé en plus du prix d'enchère et doit être soustrait manuellement par le MJ avant le compte rendu.
-- L'îlot central reste un objectif stratégique 20/20 s'il est possédé durablement.
-- Dès l'an 0, chaque IA reçoit 2 choix de biome et doit sélectionner son biome de départ.
-- Chaque choix de biome indique sa dangerosité /20, ses matériaux générés et sa lecture stratégique.
-- Biomes autorisés : ${BIOMES.map(formatBiomeNameWithDanger).join(", ")}.
-- Les territoires sont séparés par des rivières traversables par bateau, pas par des murs absolus.
-- Les guerres peuvent donc arriver vite si les royaumes se rencontrent naturellement.
-- Le MJ désactive les onglets Guerre et Alliance dans WorldBox : ces actions existent seulement comme cartes d'enchère.
-- Les colons naturels restent activés : l'expansion naturelle ne dépend pas d'une carte d'enchère.
-- Le MJ peut stopper ou nettoyer une catastrophe incontrôlable si elle menace de détruire la simulation entière, mais ce n'est pas une garantie de sauvetage.
+${buildWorldRulesText()}
 
 Système d'enchères :
 - La simulation tourne en continu.
