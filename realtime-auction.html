@@ -107,12 +107,23 @@
               <strong id="incrementOutput">1 pièce</strong>
             </div>
             <div class="settings-grid">
+              <label>Mode monde <select id="worldModeSelect">
+                <option value="auto">Auto</option>
+                <option value="central">Classique - îlot central</option>
+                <option value="duel">Duel Epsilon - 2 moitiés</option>
+                <option value="zeta">Zeta - 9 blocs</option>
+              </select></label>
               <label>Revenu base <input id="incomeInput" type="number" min="0" step="1"></label>
               <label>Bonus faible MJ <input id="underdogInput" type="number" min="0" step="1"></label>
               <label>Seuil faible auto <input id="thresholdInput" type="text" readonly></label>
               <label>Bonus passe max <input id="passRewardInput" type="number" min="0" step="1"></label>
+              <label>Cartes visibles <select id="previewCardsSelect">
+                <option value="0">Masqué</option>
+                <option value="5">Voir les 5 prochaines</option>
+              </select></label>
               <label class="wide-setting">Carte forcée prochaine enchère <select id="forcedPowerSelect"></select></label>
             </div>
+            <div id="futureCardsPanel" class="future-cards-panel" hidden></div>
             <p class="hint">Le seuil faible vaut 100 divisé par le nombre d'IA vivantes. Le bonus faible MJ entre dans la formule progressive du comeback. Le bonus de passe descend jusqu'à 2 minimum.</p>
           </section>
 

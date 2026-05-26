@@ -13,6 +13,16 @@ const STARTING_POSITION_LABELS = [
   "secteur sud central",
 ];
 const DUEL_POSITION_LABELS = ["moitié ouest", "moitié est"];
+const ZETA_POSITION_LABELS = [
+  "bloc nord-ouest",
+  "bloc nord",
+  "bloc nord-est",
+  "bloc est",
+  "bloc sud-est",
+  "bloc sud",
+  "bloc sud-ouest",
+  "bloc ouest",
+];
 
 const POWERS = [
   { name: "Déclarer la guerre", category: "Diplomatie", danger: 20, drawDanger: 10, noCounter: true, effect: "Le gagnant peut forcer une déclaration de guerre entre son royaume et une civilisation cible accessible par bateau ou frontière." },
@@ -564,7 +574,10 @@ const els = {
   underdogInput: document.querySelector("#underdogInput"),
   thresholdInput: document.querySelector("#thresholdInput"),
   passRewardInput: document.querySelector("#passRewardInput"),
+  worldModeSelect: document.querySelector("#worldModeSelect"),
+  previewCardsSelect: document.querySelector("#previewCardsSelect"),
   forcedPowerSelect: document.querySelector("#forcedPowerSelect"),
+  futureCardsPanel: document.querySelector("#futureCardsPanel"),
   incrementOutput: document.querySelector("#incrementOutput"),
   eventReminders: document.querySelector("#eventReminders"),
 };
@@ -619,21 +632,31 @@ function handleParticipantCountChange() {
   saveAndRender();
 }
 
-["yearInput", "incomeInput", "underdogInput", "passRewardInput", "forcedPowerSelect"].forEach((key) => {
+["yearInput", "incomeInput", "underdogInput", "passRewardInput", "worldModeSelect", "previewCardsSelect", "forcedPowerSelect"].forEach((key) => {
   els[key].addEventListener("change", () => {
     pushUndo();
     state.settings = readSettings();
+    applyWorldModeParticipantPreset(key);
     handleAgeMilestones();
+    if (key === "previewCardsSelect" || key === "forcedPowerSelect") refreshCardForecast({ force: true });
     saveAndRender();
   });
 });
 
-["incomeInput", "underdogInput", "passRewardInput", "forcedPowerSelect"].forEach((key) => {
+["incomeInput", "underdogInput", "passRewardInput", "worldModeSelect", "previewCardsSelect", "forcedPowerSelect"].forEach((key) => {
   els[key].addEventListener("input", () => {
     state.settings = readSettings();
+    if (key === "previewCardsSelect" || key === "forcedPowerSelect") refreshCardForecast({ force: true });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   });
 });
+
+function applyWorldModeParticipantPreset(changedKey) {
+  if (changedKey !== "worldModeSelect") return;
+  if (state.settings.worldMode !== "zeta") return;
+  if (state.settings.year !== 0 || state.auction.card) return;
+  if (state.ais.length < MAX_PARTICIPANTS) resizeParticipants(MAX_PARTICIPANTS);
+}
 
 els.yearInput.addEventListener("input", () => {
   state.settings.year = readNumberInput(els.yearInput, 0, 0);
@@ -659,7 +682,7 @@ function loadState() {
       const parsed = JSON.parse(saved);
       return {
         ais: normalizeAis(parsed.ais ?? structuredClone(DEFAULT_AIS)),
-        settings: parsed.settings ?? defaultSettings(),
+        settings: normalizeSettings(parsed.settings),
         auction: normalizeAuction(parsed.auction ?? emptyAuction()),
         log: parsed.log ?? [],
         pendingCounters: parsed.pendingCounters ?? [],
@@ -668,6 +691,8 @@ function loadState() {
         usedBiomes: parsed.usedBiomes ?? [],
         biomeDraws: parsed.biomeDraws ?? {},
         biomeChoices: parsed.biomeChoices ?? {},
+        cardForecast: Array.isArray(parsed.cardForecast) ? parsed.cardForecast : [],
+        cardForecastKey: parsed.cardForecastKey ?? "",
         lastAuctionReport: parsed.lastAuctionReport ?? "",
         lastIncomeSummary: parsed.lastIncomeSummary ?? "",
         postIncomePromptYear: parsed.postIncomePromptYear ?? null,
@@ -688,6 +713,8 @@ function loadState() {
     usedBiomes: [],
     biomeDraws: {},
     biomeChoices: {},
+    cardForecast: [],
+    cardForecastKey: "",
     lastAuctionReport: "",
     lastIncomeSummary: "",
     postIncomePromptYear: null,
@@ -789,7 +816,18 @@ function defaultSettings() {
     passReward: 5,
     passMin: 2,
     warCivs: 0,
+    worldMode: "auto",
+    cardPreviewCount: 0,
     forcedPowerName: "",
+  };
+}
+
+function normalizeSettings(settings) {
+  return {
+    ...defaultSettings(),
+    ...(settings ?? {}),
+    worldMode: ["auto", "central", "duel", "zeta"].includes(settings?.worldMode) ? settings.worldMode : "auto",
+    cardPreviewCount: [0, 5].includes(Number(settings?.cardPreviewCount)) ? Number(settings.cardPreviewCount) : 0,
   };
 }
 
@@ -869,13 +907,17 @@ function syncRepresentativeNameDisplays(ai) {
 }
 
 function renderSettings() {
+  ensureCardForecast();
   renderForcedPowerSelect();
   els.yearInput.value = state.settings.year;
   els.incomeInput.value = state.settings.baseIncome;
   els.underdogInput.value = state.settings.underdogBonus;
   els.thresholdInput.value = `${formatPercent(getUnderdogThreshold() * 100)}%`;
   els.passRewardInput.value = state.settings.passReward;
+  els.worldModeSelect.value = getStoredWorldMode();
+  els.previewCardsSelect.value = String(getPreviewCardCount());
   els.forcedPowerSelect.value = getPowerByName(state.settings.forcedPowerName) ? state.settings.forcedPowerName : "";
+  renderFutureCardsPanel();
 }
 
 function renderForcedPowerSelect() {
@@ -902,6 +944,36 @@ function renderForcedPowerSelect() {
   });
 
   els.forcedPowerSelect.value = getPowerByName(selectedValue) ? selectedValue : "";
+}
+
+function renderFutureCardsPanel() {
+  if (!els.futureCardsPanel) return;
+  const count = getPreviewCardCount();
+  els.futureCardsPanel.hidden = !count;
+  els.futureCardsPanel.innerHTML = "";
+  if (!count) return;
+
+  const title = document.createElement("div");
+  title.className = "future-cards-title";
+  title.textContent = "Prochaines cartes visibles MJ";
+  els.futureCardsPanel.appendChild(title);
+
+  const list = document.createElement("ol");
+  list.className = "future-cards-list";
+  ensureCardForecast().slice(0, count).forEach((entry) => {
+    const power = getPowerByName(entry.cardName);
+    const item = document.createElement("li");
+    const name = power ? formatCardName(power) : entry.cardName;
+    const meta = power ? `${getCardCategoryLabel(power)}, danger ${power.danger}/20` : "carte inconnue";
+    item.innerHTML = `<strong>An ${entry.year} - ${name}</strong><span>${meta}${entry.forced ? " - forcée" : ""}${entry.counterSource ? ` - anti-${formatCardName(entry.counterSource)}` : ""}${entry.scheduledCounterDueIn ? ` - contre-pouvoir dans ${entry.scheduledCounterDueIn}` : ""}</span>`;
+    list.appendChild(item);
+  });
+  els.futureCardsPanel.appendChild(list);
+
+  const note = document.createElement("p");
+  note.className = "future-cards-note";
+  note.textContent = "Ces cartes sont une file MJ : la prochaine enchère consomme la première carte affichée, sauf si tu changes les paramètres ou forces une carte.";
+  els.futureCardsPanel.appendChild(note);
 }
 
 function renderAgeEvents() {
@@ -1787,6 +1859,8 @@ function readSettings() {
     passReward: readNumberInput(els.passRewardInput, 0, 0),
     passMin: state.settings?.passMin ?? 2,
     warCivs: Math.max(0, Math.min(state.ais.length, Math.floor(Number(state.settings?.warCivs) || 0))),
+    worldMode: ["auto", "central", "duel", "zeta"].includes(els.worldModeSelect.value) ? els.worldModeSelect.value : "auto",
+    cardPreviewCount: [0, 5].includes(Number(els.previewCardsSelect.value)) ? Number(els.previewCardsSelect.value) : 0,
     forcedPowerName: els.forcedPowerSelect.value,
   };
 }
@@ -1927,7 +2001,7 @@ function getEraInfo(year) {
   return { label, targetDanger: Math.round(targetDanger * 10) / 10 };
 }
 
-function drawWeightedPower(year) {
+function drawWeightedPower(year, randomFn = Math.random) {
   const target = getEraInfo(year).targetDanger;
   const sigma = 4.8;
   const floorChance = 0.025;
@@ -1940,7 +2014,7 @@ function drawWeightedPower(year) {
     return { power, weight };
   });
   const total = weighted.reduce((sum, item) => sum + item.weight, 0);
-  let roll = Math.random() * total;
+  let roll = randomFn() * total;
   for (const item of weighted) {
     roll -= item.weight;
     if (roll <= 0) return item.power;
@@ -1948,7 +2022,168 @@ function drawWeightedPower(year) {
   return weighted[weighted.length - 1].power;
 }
 
+function getPreviewCardCount() {
+  return [0, 5].includes(Number(state.settings?.cardPreviewCount)) ? Number(state.settings.cardPreviewCount) : 0;
+}
+
+function getNextForecastYear() {
+  const currentYear = Math.max(0, Math.floor(Number(state.settings.year) || 0));
+  return state.auction.card ? currentYear + 50 : currentYear;
+}
+
+function clonePendingCounters(counters = []) {
+  return counters.map((counter) => ({
+    source: counter.source,
+    dueIn: Math.max(0, Math.floor(Number(counter.dueIn) || 0)),
+  }));
+}
+
+function getCardForecastKey() {
+  return JSON.stringify({
+    year: getNextForecastYear(),
+    pendingCounters: clonePendingCounters(state.pendingCounters ?? []),
+    forcedPowerName: state.settings.forcedPowerName || "",
+  });
+}
+
+function refreshCardForecast({ force = false } = {}) {
+  const count = getPreviewCardCount();
+  if (!count) {
+    state.cardForecast = [];
+    state.cardForecastKey = "";
+    return [];
+  }
+
+  const key = getCardForecastKey();
+  if (force || state.cardForecastKey !== key || !Array.isArray(state.cardForecast)) {
+    state.cardForecast = buildCardForecast(count);
+    state.cardForecastKey = key;
+  }
+  extendCardForecastToCount(count);
+  return state.cardForecast;
+}
+
+function ensureCardForecast() {
+  return refreshCardForecast();
+}
+
+function buildCardForecast(count) {
+  const entries = [];
+  let year = getNextForecastYear();
+  let pendingCounters = clonePendingCounters(state.pendingCounters ?? []);
+
+  for (let index = 0; index < count; index += 1) {
+    const forcedName = index === 0 ? state.settings.forcedPowerName : "";
+    const entry = simulateForecastEntry(year, pendingCounters, forcedName);
+    entries.push(entry);
+    pendingCounters = clonePendingCounters(entry.pendingCountersAfterSchedule);
+    year += 50;
+  }
+
+  return entries;
+}
+
+function extendCardForecastToCount(count) {
+  state.cardForecast = Array.isArray(state.cardForecast) ? state.cardForecast : [];
+  while (state.cardForecast.length < count) {
+    const last = state.cardForecast[state.cardForecast.length - 1];
+    const year = last ? last.year + 50 : getNextForecastYear();
+    const pendingCounters = last ? clonePendingCounters(last.pendingCountersAfterSchedule) : clonePendingCounters(state.pendingCounters ?? []);
+    state.cardForecast.push(simulateForecastEntry(year, pendingCounters, ""));
+  }
+  if (state.cardForecast.length > count) state.cardForecast = state.cardForecast.slice(0, count);
+}
+
+function simulateForecastEntry(year, pendingCounters, forcedName = "") {
+  let card;
+  let counterSource = null;
+  let forced = false;
+  let pendingCountersAfterDraw = clonePendingCounters(pendingCounters);
+
+  const forcedPower = getPowerByName(forcedName);
+  if (forcedPower) {
+    card = { ...forcedPower };
+    counterSource = forcedPower.counterSource ?? null;
+    forced = true;
+  } else {
+    pendingCountersAfterDraw = clonePendingCounters(pendingCounters)
+      .map((counter) => ({ ...counter, dueIn: Math.max(0, counter.dueIn - 1) }));
+    const dueIndex = pendingCountersAfterDraw.findIndex((counter) => counter.dueIn <= 0);
+    if (dueIndex !== -1) {
+      const [counter] = pendingCountersAfterDraw.splice(dueIndex, 1);
+      card = chooseCounterCard(counter.source);
+      counterSource = counter.source;
+    } else {
+      card = { ...drawWeightedPower(year) };
+    }
+  }
+
+  const scheduledCounterDueIn = getScheduledCounterDueIn(card);
+  const pendingCountersAfterSchedule = clonePendingCounters(pendingCountersAfterDraw);
+  if (scheduledCounterDueIn !== null) {
+    pendingCountersAfterSchedule.push({ source: card.name, dueIn: scheduledCounterDueIn });
+  }
+
+  return {
+    year,
+    cardName: card.name,
+    counterSource,
+    forced,
+    scheduledCounterDueIn,
+    pendingCountersAfterDraw,
+    pendingCountersAfterSchedule,
+  };
+}
+
+function getScheduledCounterDueIn(card) {
+  if (!card || card.counterOnly || card.noCounter || card.danger < 16) return null;
+  return 1 + Math.floor(Math.random() * 3);
+}
+
+function consumeCardForecastEntry() {
+  if (!getPreviewCardCount()) return null;
+  refreshCardForecast();
+  const entry = state.cardForecast.shift() ?? null;
+  state.cardForecastKey = getCardForecastKey();
+  extendCardForecastToCount(getPreviewCardCount());
+  return entry;
+}
+
+function consumeMatchingForcedForecastEntry(forcedPowerName) {
+  if (!getPreviewCardCount()) return null;
+  refreshCardForecast();
+  const entry = state.cardForecast[0];
+  if (!entry || entry.cardName !== forcedPowerName || !entry.forced) return null;
+  state.cardForecast.shift();
+  state.cardForecastKey = getCardForecastKey();
+  extendCardForecastToCount(getPreviewCardCount());
+  return entry;
+}
+
+function alignCardForecastWithCurrentState() {
+  const count = getPreviewCardCount();
+  if (!count) return;
+  state.cardForecastKey = getCardForecastKey();
+  extendCardForecastToCount(count);
+}
+
 function drawNextCard(year) {
+  const forecastEntry = consumeCardForecastEntry();
+  if (forecastEntry) {
+    const forecastPower = getPowerByName(forecastEntry.cardName);
+    if (forecastPower) {
+      state.pendingCounters = clonePendingCounters(forecastEntry.pendingCountersAfterDraw ?? state.pendingCounters ?? []);
+      const card = forecastEntry.counterSource
+        ? { ...forecastPower, counterOnly: forecastPower.counterOnly ?? false, counterSource: forecastEntry.counterSource }
+        : { ...forecastPower };
+      return {
+        card,
+        counterSource: forecastEntry.counterSource ?? null,
+        scheduledCounterDueIn: forecastEntry.scheduledCounterDueIn ?? null,
+      };
+    }
+  }
+
   state.pendingCounters = (state.pendingCounters ?? [])
     .map((counter) => ({ ...counter, dueIn: Math.max(0, counter.dueIn - 1) }));
 
@@ -1959,10 +2194,11 @@ function drawNextCard(year) {
     return {
       card: chooseCounterCard(counter.source),
       counterSource: counter.source,
+      scheduledCounterDueIn: null,
     };
   }
 
-  return { card: drawWeightedPower(year), counterSource: null };
+  return { card: drawWeightedPower(year), counterSource: null, scheduledCounterDueIn: null };
 }
 
 function getSelectablePowers() {
@@ -1989,16 +2225,16 @@ function getPowerByName(name) {
   return getSelectablePowers().find((power) => power.name === name);
 }
 
-function scheduleCounterFor(card) {
+function scheduleCounterFor(card, plannedDueIn = null) {
   if (!card || card.counterOnly || card.noCounter || card.danger < 16) return null;
-  const dueIn = 1 + Math.floor(Math.random() * 3);
+  const dueIn = plannedDueIn ?? (1 + Math.floor(Math.random() * 3));
   const counter = { source: card.name, dueIn };
   state.pendingCounters = state.pendingCounters ?? [];
   state.pendingCounters.push(counter);
   return counter;
 }
 
-function chooseCounterCard(sourceName) {
+function chooseCounterCard(sourceName, randomFn = Math.random) {
   const byName = (name) => POWERS.find((power) => power.name === name) ?? COUNTER_CARDS.find((power) => power.name === name);
   const namedPools = {
     Dragon: ["Rain", "Rain Cloud", "Snow Cloud", "Shield", "Blood Rain", "Restauration de biome", "Life Eraser ciblé"],
@@ -2018,7 +2254,7 @@ function chooseCounterCard(sourceName) {
   };
   const fallback = ["Divine Light", "Shield", "Blessing", "Dispel", "Reconstruction contrôlée", "Restauration de biome"];
   const pool = (namedPools[sourceName] ?? fallback).map(byName).filter(Boolean);
-  const chosen = pool[Math.floor(Math.random() * pool.length)];
+  const chosen = pool[Math.floor(randomFn() * pool.length)];
   return { ...chosen, counterOnly: chosen.counterOnly ?? false, counterSource: sourceName };
 }
 
@@ -2041,17 +2277,19 @@ function newAuction() {
   if (shouldAdvanceTime) {
     state.settings.year = Math.max(0, Math.floor(Number(state.settings.year) || 0)) + 50;
     handleAgeMilestones();
+    state.auction = emptyAuction();
   }
   state.postIncomePromptYear = null;
   const era = getEraInfo(state.settings.year);
   const forcedPowerName = state.settings.forcedPowerName;
   const forcedPower = getPowerByName(forcedPowerName);
-  const { card, counterSource, forced } = forcedPower
-    ? { card: { ...forcedPower }, counterSource: forcedPower.counterSource ?? null, forced: true }
+  const forcedForecastEntry = forcedPower ? consumeMatchingForcedForecastEntry(forcedPowerName) : null;
+  const { card, counterSource, forced, scheduledCounterDueIn } = forcedPower
+    ? { card: { ...forcedPower }, counterSource: forcedPower.counterSource ?? null, forced: true, scheduledCounterDueIn: forcedForecastEntry?.scheduledCounterDueIn ?? null }
     : { ...drawNextCard(state.settings.year), forced: false };
   getAliveAis().forEach((ai) => { ai.coinsAtAuctionStart = ai.coins; });
   const revealLines = applyRevealProfileEffects(card);
-  const scheduledCounter = scheduleCounterFor(card);
+  const scheduledCounter = scheduleCounterFor(card, scheduledCounterDueIn);
   const order = getAuctionAis()
     .sort((a, b) => b.population - a.population || a.name.localeCompare(b.name))
     .map((ai) => ai.id);
@@ -2084,6 +2322,7 @@ function newAuction() {
   ].filter(Boolean);
   recordMemoryLines("Nouvelle enchère", state.log);
   state.settings.forcedPowerName = "";
+  alignCardForecastWithCurrentState();
   saveAndRender();
 }
 
@@ -2548,14 +2787,43 @@ function getParticipantNamesText() {
   return state.ais.map((ai) => ai.name).join(", ");
 }
 
+function getStoredWorldMode() {
+  return ["auto", "central", "duel", "zeta"].includes(state.settings?.worldMode) ? state.settings.worldMode : "auto";
+}
+
+function getWorldMode() {
+  const mode = getStoredWorldMode();
+  if (mode !== "auto") return mode;
+  return state.ais.length === 2 ? "duel" : "central";
+}
+
+function getWorldModeLabel() {
+  const labels = {
+    auto: "Auto",
+    central: "Classique - îlot central",
+    duel: "Duel Epsilon - 2 moitiés",
+    zeta: "Zeta - 9 blocs",
+  };
+  return labels[getWorldMode()] ?? labels.auto;
+}
+
 function isDuelMode() {
-  return state.ais.length === 2;
+  return getWorldMode() === "duel";
+}
+
+function isZetaMode() {
+  return getWorldMode() === "zeta";
 }
 
 function getStartingPositionsText() {
   if (isDuelMode()) {
     return state.ais
       .map((ai, index) => `${ai.name} : ${DUEL_POSITION_LABELS[index] ?? `moitié ${index + 1}`}`)
+      .join(" ; ");
+  }
+  if (isZetaMode()) {
+    return state.ais
+      .map((ai, index) => `${ai.name} : ${ZETA_POSITION_LABELS[index] ?? `bloc de bord ${index + 1}`}`)
       .join(" ; ");
   }
   return state.ais
@@ -2571,22 +2839,36 @@ function buildWorldRulesText() {
     "- Ces positions sont connues par toutes les IA dès le briefing initial, sauf correction ultérieure du MJ.",
   ];
 
-  const modeLines = isDuelMode()
-    ? [
+  let modeLines;
+  if (isDuelMode()) {
+    modeLines = [
       "- Mode Duel Epsilon : la carte est divisée en deux grands territoires, une moitié par civilisation.",
       "- Il n'y a pas d'îlot central, pas de zone neutre centrale surchargée et pas d'objectif central commun.",
       "- Chaque IA doit raisonner comme dans une confrontation directe : frontière, profondeur défensive, ressources internes, accès maritime éventuel et pression sur l'unique rival.",
       "- Les ressources rares existent seulement si le MJ les place dans une moitié, un biome ou une carte de pouvoir. Aucune réserve centrale gratuite n'est garantie.",
       "- Les colons naturels sont autorisés : les royaumes peuvent développer leur moitié du monde et fonder des villes si WorldBox le permet.",
       "- L'expansion dépend de WorldBox, des colons naturels, du terrain de chaque moitié et des conséquences des pouvoirs gagnés aux enchères.",
-    ]
-    : [
+    ];
+  } else if (isZetaMode()) {
+    modeLines = [
+      "- Mode Zeta : le monde est séparé en 9 blocs disposés en grille 3x3.",
+      "- Les 8 civilisations commencent sur les 8 blocs de bord. Le bloc central est une île centrale neutre, sans civilisation de départ.",
+      "- Ce mode est prévu pour 8 IA. Si le MJ lance avec moins de 8 IA, les blocs de bord non attribués restent neutres ou vides selon arbitrage MJ.",
+      "- Chaque bloc de bord donne une base territoriale propre, avec deux voisins directs sur l'anneau extérieur et une pression potentielle vers le centre.",
+      "- L'île centrale est l'objectif géographique commun : contrôle militaire, colonisation naturelle possible, base avancée, port ou zone tampon selon ce que WorldBox permet.",
+      "- Les ressources de l'île centrale ne sont pas gratuites par règle : elles existent seulement si le MJ les place, si le biome les génère, ou si une carte de pouvoir les ajoute.",
+      "- Les blocs sont séparés par des rivières, bras de mer ou canaux traversables par bateau, pas par des murs absolus.",
+      "- Chaque IA doit raisonner avec trois fronts possibles : défense de son bloc de bord, rivalités avec les voisins, et course ou refus de l'île centrale.",
+    ];
+  } else {
+    modeLines = [
       "- Îlot central majeur : une île neutre et vide existe au centre de la carte. Elle est volontairement surchargée en ressources : nourriture, arbres, Stone, Ore Deposit, Gold, Gems, Mythril et Adamantine.",
       "- Posséder l'îlot central est un avantage game changer : seconde patrie, économie de guerre, accès aux meilleurs minerais et position centrale pour rayonner vers les autres territoires.",
       "- Les colons naturels sont autorisés : les royaumes peuvent fonder de nouvelles villes sans carte, afin que leur territoire principal puisse se développer normalement.",
       "- L'îlot central peut être atteint par colonisation naturelle si WorldBox le permet.",
       "- L'expansion dépend de WorldBox, des colons naturels et des conséquences des pouvoirs gagnés aux enchères.",
     ];
+  }
 
   const territoryLines = [
     "- La carte Territoire permet seulement d'ajouter de la terre attachée à une île existante. Elle ne crée jamais une île isolée.",
@@ -2961,6 +3243,7 @@ function buildMemorySnapshot() {
   const total = getWorldPopulation();
   const lines = [
     `- Année actuelle : ${state.settings.year}.`,
+    `- Mode monde : ${getWorldModeLabel()}.`,
     `- Population mondiale visible : ${total}.`,
     state.auction.card
       ? `- Carte en cours : ${formatCardName(state.auction.card)} (${getCardCategoryLabel(state.auction.card)}, danger ${state.auction.card.danger}/20), enchère ${state.auction.currentBid}, leader ${state.auction.winner ? getAiName(state.auction.winner) : "personne"}.`
