@@ -1643,6 +1643,8 @@ function isImportantMemoryText(type, text) {
     "message mondial",
     "mj mondial",
     "moment clé",
+    "compte rendu d'enchère",
+    "état après revenus",
     "remporte",
     "déclare la guerre",
     "capitale",
@@ -2108,6 +2110,7 @@ function finishAuctionCycle() {
   expandedPromptGroups.add("États IA après revenus");
   recordLog(`An ${state.settings.year} - Fin de l'enchère : les populations saisies par le MJ servent aux revenus privés. Les 50 ans passeront au lancement de la nouvelle enchère.`, "Fin d'enchère");
   recordLog(incomeLine, "Revenus");
+  recordMemory("État après revenus", buildPostIncomeMemorySnapshot(), { important: true });
   saveAndRender();
 }
 
@@ -3229,6 +3232,59 @@ function buildPostIncomeStatePrompt(ai) {
   return lines.join("\n");
 }
 
+function buildPostIncomeMemorySnapshot() {
+  const total = getWorldPopulation();
+  const card = state.auction.card;
+  const winner = state.auction.winner ? getAi(state.auction.winner) : null;
+  const lines = [
+    `SNAPSHOT MJ APRÈS REVENUS - An ${state.settings.year}`,
+    "Entrée automatique créée quand le MJ clique sur Fin d'enchère. Elle contient les données privées nécessaires à la mémoire complète.",
+    "",
+    "Enchère clôturée :",
+    card
+      ? `- Carte : ${formatCardName(card)} (${getCardCategoryLabel(card)}, danger ${card.danger}/20).`
+      : "- Carte : aucune.",
+    winner
+      ? `- Vainqueur : ${winner.name} pour ${state.auction.currentBid} pièce${state.auction.currentBid > 1 ? "s" : ""}.`
+      : "- Vainqueur : aucun, tout le monde a passé.",
+    `- Résumé revenus : ${state.lastIncomeSummary || "non calculé"}`,
+    `- Population mondiale visible : ${total}.`,
+    "",
+    "Civilisations après revenus :",
+  ];
+
+  state.ais.forEach((ai) => {
+    const profile = getProfile(ai.activeProfile);
+    const status = ai.alive ? "vivante" : ai.ghostActive ? "exil actif" : ai.ghostReady ? "exil prêt" : "morte/retirée";
+    const share = getPopulationPercentForAi(ai);
+    const passBonus = getAiPassBonusLevel(ai);
+    lines.push("");
+    lines.push(`${ai.name} :`);
+    lines.push(`- Statut : ${status}.`);
+    lines.push(`- Population : ${ai.population} (${share}% du monde).`);
+    lines.push(`- Pièces : ${ai.coins}.`);
+    lines.push(`- Bonus de passe : +${passBonus}.`);
+    lines.push(`- Doctrine active : ${profile ? profile.name : "aucune"}.`);
+    lines.push(`- Soldats : ${ai.soldiers ?? 0}. Colonies ext. : ${ai.colonies ?? 0}. Population île natale : ${ai.homePopulation ?? 0}.`);
+    if (ai.lastIncomeBreakdown) {
+      const bd = ai.lastIncomeBreakdown;
+      lines.push("- Détail économique :");
+      lines.push(`  • Solde début enchère : ${bd.coinsAtAuctionStart}`);
+      lines.push(`  • Variation enchère : ${formatSigned(bd.auctionDelta)}`);
+      lines.push(`  • Solde avant revenus : ${bd.coinsBeforeIncome}`);
+      lines.push(`  • Revenu base : +${bd.baseIncome}`);
+      if (bd.underdogBonus) lines.push(`  • Bonus retardataire : +${bd.underdogBonus}`);
+      if (bd.doctrineEffect) lines.push(`  • Effet doctrine : ${formatSigned(bd.doctrineEffect)}`);
+      lines.push(`  • Revenu appliqué : ${formatSigned(bd.incomeApplied)}`);
+      lines.push(`  • Solde final : ${bd.finalCoins}`);
+    }
+  });
+
+  lines.push("");
+  lines.push("Lecture mémoire : cet état fait foi pour les revenus privés et les chiffres post-enchère de l'année.");
+  return lines.join("\n");
+}
+
 function buildPrompt(ai) {
   const profile = getProfile(ai.activeProfile);
   return `PROMPT PRIVÉ - BRIEFING INITIAL - ${ai.name}
@@ -3337,13 +3393,9 @@ function buildProfilesRulebook() {
 
 function copyLog() {
   const report = buildAuctionReportPrompt();
-  if (report !== state.lastAuctionReport) {
-    pushUndo();
-    recordMemory("Compte rendu d'enchère", report);
-    state.lastAuctionReport = report;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    renderMemoryPanel();
-  }
+  archiveMemoryIfNew("Compte rendu d'enchère", report, { important: state.auction.closed });
+  state.lastAuctionReport = report;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   copyText(report, "Compte rendu copié");
 }
 
