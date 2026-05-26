@@ -124,14 +124,43 @@
               </div>
               <button id="memoryCloseBtn" class="secondary" type="button">Fermer</button>
             </div>
-            <span id="memoryCount" class="memory-count">0 entrée</span>
+            <div class="memory-toolbar">
+              <span id="memoryCount" class="memory-count">0 entrée</span>
+              <label class="memory-search-field">
+                Rechercher
+                <input id="memorySearchInput" type="search" placeholder="année, carte, IA, événement...">
+              </label>
+            </div>
             <label class="memory-field">
               Message à archiver
               <textarea id="memoryInput" placeholder="Note, conséquence, événement ou décision à conserver dans la mémoire de simulation."></textarea>
             </label>
+            <div class="memory-meta-row">
+              <label>
+                Type
+                <select id="memoryTypeSelect">
+                  <option value="Mémoire">Mémoire MJ</option>
+                  <option value="Message mondial">Message mondial</option>
+                  <option value="MJ mondial">MJ mondial</option>
+                  <option value="MJ privé">MJ privé</option>
+                  <option value="Résultat WorldBox">Résultat WorldBox</option>
+                  <option value="Info narrative">Info narrative</option>
+                  <option value="Correction">Correction / arbitrage</option>
+                  <option value="Moment clé">Moment clé</option>
+                </select>
+              </label>
+              <label class="memory-important-field">
+                <input id="memoryImportantInput" type="checkbox">
+                Moment clé
+              </label>
+            </div>
             <div class="memory-actions">
               <button id="addMemoryBtn" type="button">Ajouter à la mémoire</button>
-              <button id="copyMemoryBtn" class="secondary" type="button">Copier mémoire MJ complète</button>
+              <button id="importMemoryBtn" class="secondary" type="button">Importer le texte</button>
+              <button id="copyMemoryBtn" class="secondary" type="button">Copier mémoire brute</button>
+              <button id="copyCleanMemoryBtn" class="secondary" type="button">Copier mémoire nettoyée</button>
+              <button id="copyEpicMemoryBtn" class="secondary" type="button">Prompt chronique épique</button>
+              <button id="dedupeMemoryBtn" class="secondary" type="button">Nettoyer doublons</button>
             </div>
             <div id="memoryPreview" class="memory-preview"></div>
           </section>

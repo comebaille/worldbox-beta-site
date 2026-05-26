@@ -544,10 +544,17 @@ const els = {
   auctionLog: document.querySelector("#auctionLog"),
   winnerActionInput: document.querySelector("#winnerActionInput"),
   memoryInput: document.querySelector("#memoryInput"),
+  memoryTypeSelect: document.querySelector("#memoryTypeSelect"),
+  memoryImportantInput: document.querySelector("#memoryImportantInput"),
+  memorySearchInput: document.querySelector("#memorySearchInput"),
   memoryCount: document.querySelector("#memoryCount"),
   memoryPreview: document.querySelector("#memoryPreview"),
   addMemoryBtn: document.querySelector("#addMemoryBtn"),
+  importMemoryBtn: document.querySelector("#importMemoryBtn"),
   copyMemoryBtn: document.querySelector("#copyMemoryBtn"),
+  copyCleanMemoryBtn: document.querySelector("#copyCleanMemoryBtn"),
+  copyEpicMemoryBtn: document.querySelector("#copyEpicMemoryBtn"),
+  dedupeMemoryBtn: document.querySelector("#dedupeMemoryBtn"),
   promptHub: document.querySelector("#promptHub"),
   reportPromptBlock: document.querySelector("#reportPromptBlock"),
   copyReportBtn: document.querySelector("#copyReportBtn"),
@@ -567,9 +574,14 @@ document.querySelector("#bidBtn").addEventListener("click", placeBid);
 document.querySelector("#passBtn").addEventListener("click", passTurn);
 document.querySelector("#undoBtn").addEventListener("click", undo);
 document.querySelector("#resetBtn").addEventListener("click", resetAll);
-els.addMemoryBtn.addEventListener("click", () => addManualMemory("Mémoire"));
+els.addMemoryBtn.addEventListener("click", addManualMemory);
+els.importMemoryBtn.addEventListener("click", importMemoryFromInput);
 els.copyMemoryBtn.addEventListener("click", copySimulationMemory);
+els.copyCleanMemoryBtn.addEventListener("click", copyCleanSimulationMemory);
+els.copyEpicMemoryBtn.addEventListener("click", copyEpicChroniclePrompt);
+els.dedupeMemoryBtn.addEventListener("click", dedupeSimulationMemory);
 els.copyReportBtn.addEventListener("click", copyLog);
+els.memorySearchInput.addEventListener("input", renderMemoryPanel);
 els.settingsToggleBtn.addEventListener("click", () => toggleUtilityPanel("settings"));
 els.settingsCloseBtn.addEventListener("click", () => {
   els.settingsPanel.hidden = true;
@@ -691,6 +703,7 @@ function normalizeSimulationMemory(memory) {
       type: entry.type ?? "Événement",
       text: String(entry.text ?? ""),
       createdAt: entry.createdAt ?? "",
+      important: Boolean(entry.important),
     })).filter((entry) => entry.text.trim())
     : [];
 }
@@ -1252,25 +1265,49 @@ function renderLog() {
 
 function renderMemoryPanel() {
   const memory = state.simulationMemory ?? [];
-  els.memoryCount.textContent = `${memory.length} entrée${memory.length > 1 ? "s" : ""}`;
+  const query = normalizeMemorySearch(els.memorySearchInput?.value ?? "");
+  const visibleMemory = query
+    ? memory.filter((entry) => getMemorySearchText(entry).includes(query))
+    : memory;
+  const importantCount = memory.filter((entry) => entry.important).length;
+  els.memoryCount.textContent = `${memory.length} entrée${memory.length > 1 ? "s" : ""}${importantCount ? ` - ${importantCount} clé${importantCount > 1 ? "s" : ""}` : ""}`;
   els.memoryPreview.innerHTML = "";
 
-  if (!memory.length) {
+  if (!visibleMemory.length) {
     const empty = document.createElement("p");
     empty.className = "prompt-empty";
-    empty.textContent = "Aucune mémoire archivée pour l'instant.";
+    empty.textContent = memory.length ? "Aucune entrée ne correspond à la recherche." : "Aucune mémoire archivée pour l'instant.";
     els.memoryPreview.appendChild(empty);
     return;
   }
 
-  memory.slice(-4).reverse().forEach((entry) => {
+  visibleMemory.slice(-12).reverse().forEach((entry) => {
     const item = document.createElement("div");
     item.className = "memory-entry";
+    item.classList.toggle("memory-entry-important", entry.important);
     const title = document.createElement("strong");
-    title.textContent = `An ${entry.year} - ${formatMemoryType(entry.type)}`;
+    title.textContent = `${entry.important ? "★ " : ""}An ${entry.year} - ${formatMemoryType(entry.type)}`;
     const text = document.createElement("span");
-    text.textContent = shorten(entry.text, 180);
-    item.append(title, text);
+    text.textContent = shorten(entry.text, 260);
+    const actions = document.createElement("div");
+    actions.className = "memory-entry-actions";
+    const copyButton = document.createElement("button");
+    copyButton.className = "secondary";
+    copyButton.type = "button";
+    copyButton.textContent = "Copier";
+    copyButton.addEventListener("click", () => copyText(formatMemoryEntryForPrompt(entry, 0), "Entrée copiée"));
+    const importantButton = document.createElement("button");
+    importantButton.className = "secondary";
+    importantButton.type = "button";
+    importantButton.textContent = entry.important ? "Déclasser" : "Clé";
+    importantButton.addEventListener("click", () => toggleMemoryImportant(entry.id));
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "secondary danger-lite";
+    deleteButton.type = "button";
+    deleteButton.textContent = "Suppr.";
+    deleteButton.addEventListener("click", () => deleteMemoryEntry(entry.id));
+    actions.append(copyButton, importantButton, deleteButton);
+    item.append(title, text, actions);
     els.memoryPreview.appendChild(item);
   });
 }
@@ -1477,17 +1514,76 @@ function addPromptGroup(title, prompts) {
   els.promptHub.appendChild(group);
 }
 
-function addManualMemory(type) {
+function addManualMemory() {
   const text = els.memoryInput.value.trim();
   if (!text) {
     showToast("Mémoire vide");
     return;
   }
   pushUndo();
-  recordMemory(type, text);
+  const type = els.memoryTypeSelect.value || "Mémoire";
+  const important = els.memoryImportantInput.checked || type === "Moment clé";
+  recordMemory(type, text, { important });
   els.memoryInput.value = "";
+  els.memoryImportantInput.checked = false;
   saveAndRender();
   showToast(`${type} archivé`);
+}
+
+function importMemoryFromInput() {
+  const text = els.memoryInput.value.trim();
+  if (!text) {
+    showToast("Import vide");
+    return;
+  }
+  const entries = parseMemoryImport(text);
+  if (!entries.length) {
+    showToast("Aucune entrée détectée");
+    return;
+  }
+  pushUndo();
+  state.simulationMemory = state.simulationMemory ?? [];
+  state.simulationMemory.push(...entries);
+  els.memoryInput.value = "";
+  saveAndRender();
+  showToast(`${entries.length} entrée${entries.length > 1 ? "s" : ""} importée${entries.length > 1 ? "s" : ""}`);
+}
+
+function parseMemoryImport(text) {
+  const entries = [];
+  const pattern = /(?:^|\n)(\d+)\.\s+An\s+(\d+)\s+-\s+([^\n]+)\n([\s\S]*?)(?=\n\d+\.\s+An\s+\d+\s+-|\s*$)/g;
+  let match;
+  while ((match = pattern.exec(text)) !== null) {
+    const [, , year, type, body] = match;
+    const cleanBody = body.trim();
+    if (!cleanBody) continue;
+    entries.push(createMemoryEntry(type.trim(), cleanBody, {
+      year: Math.max(0, Math.floor(Number(year) || 0)),
+      important: isImportantMemoryText(type, cleanBody),
+    }));
+  }
+
+  if (entries.length) return entries;
+
+  const narrativePattern = /(?:^|\n)An\s+(\d+)\s+(?:—|-)\s+([^\n]+)\n([\s\S]*?)(?=\nAn\s+\d+\s+(?:—|-)|\s*$)/g;
+  while ((match = narrativePattern.exec(text)) !== null) {
+    const [, year, title, body] = match;
+    const cleanBody = body.trim();
+    if (!cleanBody) continue;
+    const type = inferMemoryType(`${title}\n${cleanBody}`) || "Info narrative";
+    entries.push(createMemoryEntry(type, `${title.trim()}\n${cleanBody}`, {
+      year: Math.max(0, Math.floor(Number(year) || 0)),
+      important: isImportantMemoryText(type, `${title}\n${cleanBody}`),
+    }));
+  }
+
+  if (entries.length) return entries;
+
+  const type = inferMemoryType(text);
+  return [createMemoryEntry(type, text, {
+    year: Math.max(0, Math.floor(Number(state.settings.year) || 0)),
+    important: isImportantMemoryText(type, text),
+  })];
 }
 
 function recordLog(line, type = "Événement") {
@@ -1495,17 +1591,22 @@ function recordLog(line, type = "Événement") {
   recordMemory(type, line);
 }
 
-function recordMemory(type, text) {
+function recordMemory(type, text, options = {}) {
   const cleanText = String(text ?? "").trim();
   if (!cleanText) return;
   state.simulationMemory = state.simulationMemory ?? [];
-  state.simulationMemory.push({
+  state.simulationMemory.push(createMemoryEntry(type, cleanText, options));
+}
+
+function createMemoryEntry(type, text, options = {}) {
+  return {
     id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    year: Math.max(0, Math.floor(Number(state.settings.year) || 0)),
-    type,
-    text: cleanText,
+    year: Math.max(0, Math.floor(Number(options.year ?? state.settings.year) || 0)),
+    type: type || "Mémoire",
+    text: String(text ?? "").trim(),
     createdAt: new Date().toISOString(),
-  });
+    important: Boolean(options.important),
+  };
 }
 
 function recordMemoryLines(type, lines) {
@@ -1516,12 +1617,116 @@ function recordMemoryLines(type, lines) {
 
 function formatMemoryType(type) {
   const value = String(type ?? "").trim();
-  return value.includes("MESSAGE MONDIAL") || value.includes("MJ") ? "Mémoire" : (value || "Mémoire");
+  return value || "Mémoire";
 }
 
 function shorten(text, maxLength) {
   const value = String(text ?? "").replace(/\s+/g, " ").trim();
   return value.length > maxLength ? `${value.slice(0, maxLength - 1)}...` : value;
+}
+
+function inferMemoryType(text) {
+  const upper = text.toUpperCase();
+  if (upper.includes("MESSAGE MONDIAL")) return "Message mondial";
+  if (upper.includes("MJ MONDIAL")) return "MJ mondial";
+  if (upper.includes("MJ :") || upper.includes("MJ PRIVÉ") || upper.includes("MJ PRIVE")) return "MJ privé";
+  if (upper.includes("COMPTE RENDU D'ENCHÈRE") || upper.includes("COMPTE RENDU D'ENCHERE")) return "Compte rendu d'enchère";
+  if (upper.includes("RÉVÉLATION") || upper.includes("REVELATION")) return "Révélation";
+  if (upper.includes("BIOME")) return "Biome";
+  if (upper.includes("DOCTRINE")) return "Doctrine";
+  return els.memoryTypeSelect?.value || "Mémoire";
+}
+
+function isImportantMemoryText(type, text) {
+  const value = `${type}\n${text}`.toLowerCase();
+  return [
+    "message mondial",
+    "mj mondial",
+    "moment clé",
+    "remporte",
+    "déclare la guerre",
+    "capitale",
+    "tombe",
+    "mort",
+    "madness a frappé",
+    "victoire",
+    "fin du duel",
+    "roue de la fortune",
+  ].some((needle) => value.includes(needle));
+}
+
+function normalizeMemorySearch(text) {
+  return String(text ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+function getMemorySearchText(entry) {
+  return normalizeMemorySearch(`an ${entry.year} ${entry.type} ${entry.text}`);
+}
+
+function toggleMemoryImportant(entryId) {
+  const entry = (state.simulationMemory ?? []).find((item) => item.id === entryId);
+  if (!entry) return;
+  pushUndo();
+  entry.important = !entry.important;
+  saveAndRender();
+}
+
+function deleteMemoryEntry(entryId) {
+  if (!confirm("Supprimer cette entrée de mémoire ?")) return;
+  pushUndo();
+  state.simulationMemory = (state.simulationMemory ?? []).filter((entry) => entry.id !== entryId);
+  saveAndRender();
+}
+
+function dedupeSimulationMemory() {
+  const memory = state.simulationMemory ?? [];
+  const deduped = getDedupedMemoryEntries(memory);
+  const removed = memory.length - deduped.length;
+  if (!removed) {
+    showToast("Aucun doublon");
+    return;
+  }
+  pushUndo();
+  state.simulationMemory = deduped;
+  saveAndRender();
+  showToast(`${removed} doublon${removed > 1 ? "s" : ""} supprimé${removed > 1 ? "s" : ""}`);
+}
+
+function getDedupedMemoryEntries(memory = state.simulationMemory ?? []) {
+  const seen = new Set();
+  return memory.filter((entry) => {
+    const key = getMemoryDuplicateKey(entry);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function getMemoryDuplicateKey(entry) {
+  return `${entry.year}|${formatMemoryType(entry.type)}|${String(entry.text).replace(/\s+/g, " ").trim().toLowerCase()}`;
+}
+
+function archiveMemoryIfNew(type, text, options = {}) {
+  const cleanText = String(text ?? "").trim();
+  if (!cleanText) return false;
+  const year = Math.max(0, Math.floor(Number(options.year ?? state.settings.year) || 0));
+  const entry = createMemoryEntry(type, cleanText, {
+    ...options,
+    year,
+    important: options.important ?? isImportantMemoryText(type, cleanText),
+  });
+  const exists = (state.simulationMemory ?? []).some((item) => getMemoryDuplicateKey(item) === getMemoryDuplicateKey(entry));
+  if (exists) return false;
+  pushUndo();
+  state.simulationMemory = state.simulationMemory ?? [];
+  state.simulationMemory.push(entry);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  renderMemoryPanel();
+  return true;
 }
 
 function drawProfilesForAliveAis() {
@@ -2679,6 +2884,76 @@ function buildSimulationMemoryText() {
   return lines.join("\n");
 }
 
+function buildCleanSimulationMemoryText() {
+  const memory = getDedupedMemoryEntries();
+  const lines = [
+    `USAGE MJ UNIQUEMENT - MÉMOIRE NETTOYÉE - WORLD BOX BETA - An ${state.settings.year}`,
+    "Version filtrée pour reconstitution : doublons exacts retirés, moments clés mis en avant.",
+    "Ne pas envoyer directement aux IA si elle contient des doctrines, pièces, populations ou notes privées.",
+    "",
+    "État actuel vérifiable :",
+    buildMemorySnapshot(),
+    "",
+    "Moments clés :",
+  ];
+
+  const highlights = getMemoryHighlights(memory);
+  if (highlights.length) {
+    highlights.forEach((entry, index) => lines.push(`${index + 1}. An ${entry.year} - ${formatMemoryType(entry.type)} : ${shorten(entry.text, 260)}`));
+  } else {
+    lines.push("Aucun moment clé marqué ou détecté.");
+  }
+
+  lines.push("");
+  lines.push("Chronologie nettoyée :");
+  appendGroupedMemoryLines(lines, memory);
+  lines.push("");
+  lines.push("Consigne : reconstitue l'histoire complète en gardant les faits mécaniques exacts. Signale explicitement les zones incertaines au lieu d'inventer.");
+
+  return lines.join("\n");
+}
+
+function buildEpicChroniclePrompt() {
+  const cleanMemory = buildCleanSimulationMemoryText();
+  return `PROMPT MJ - TRANSFORMER LA MÉMOIRE EN CHRONIQUE ÉPIQUE
+
+Objectif :
+Écris une chronique épique, claire et lisible de la simulation. Le style doit être dramatique et historique, mais les faits mécaniques doivent rester exacts.
+
+Contraintes :
+- Ne change aucun vainqueur d'enchère, montant, année, carte, biome, doctrine active connue, action appliquée ou résultat WorldBox.
+- Tu peux omettre les cartes sans effet et les répétitions si elles n'apportent rien au récit.
+- Tu dois garder les bascules majeures : biomes, doctrines, révélations, grands achats, guerres, catastrophes, chutes de capitales, morts de dirigeants, fin de partie.
+- Ne révèle pas les données privées comme si elles étaient publiques dans le récit destiné aux IA. Pour une chronique MJ complète, tu peux les utiliser.
+- Si un fait est incertain, écris "incertain" ou "selon arbitrage MJ".
+
+Mémoire source :
+${cleanMemory}`;
+}
+
+function getMemoryHighlights(memory = state.simulationMemory ?? []) {
+  return memory.filter((entry) => entry.important || isImportantMemoryText(entry.type, entry.text));
+}
+
+function appendGroupedMemoryLines(lines, memory) {
+  if (!memory.length) {
+    lines.push("Aucune entrée archivée pour l'instant.");
+    return;
+  }
+
+  let currentYear = null;
+  memory.forEach((entry, index) => {
+    if (entry.year !== currentYear) {
+      currentYear = entry.year;
+      lines.push("");
+      lines.push(`An ${currentYear}`);
+    }
+    const marker = entry.important || isImportantMemoryText(entry.type, entry.text) ? " [CLÉ]" : "";
+    lines.push(`${index + 1}. ${formatMemoryType(entry.type)}${marker}`);
+    lines.push(entry.text);
+  });
+}
+
 function buildMemorySnapshot() {
   const total = getWorldPopulation();
   const lines = [
@@ -3080,21 +3355,36 @@ function copySimulationMemory() {
   copyText(buildSimulationMemoryText(), "Mémoire complète copiée");
 }
 
+function copyCleanSimulationMemory() {
+  copyText(buildCleanSimulationMemoryText(), "Mémoire nettoyée copiée");
+}
+
+function copyEpicChroniclePrompt() {
+  copyText(buildEpicChroniclePrompt(), "Prompt épique copié");
+}
+
 function copyAllAis() {
-  copyText(buildAllAisText(), "Toutes les IA copiées");
+  const text = buildAllAisText();
+  archiveMemoryIfNew("Révélation géopolitique", text, { important: true });
+  copyText(text, "Toutes les IA copiées");
 }
 
 function copyIncrementPrompt() {
-  copyText(buildIncrementPrompt(), "Prompt palier + choix copié");
+  const text = buildIncrementPrompt();
+  archiveMemoryIfNew("Palier d'enchère", text, { important: true });
+  copyText(text, "Prompt palier + choix copié");
 }
 
 function copyTribunalPrompt() {
-  copyText(buildTribunalPrompt(), "Prompt tribunal copié");
+  const text = buildTribunalPrompt();
+  archiveMemoryIfNew("Message mondial", text, { important: true });
+  copyText(text, "Prompt tribunal copié");
 }
 
 function copyBiomePrompt() {
-  copyText(buildBiomeGlobalPrompt(), "Annonce biomes copiée");
-  saveAndRender();
+  const text = buildBiomeGlobalPrompt();
+  archiveMemoryIfNew("Message mondial", text, { important: true });
+  copyText(text, "Annonce biomes copiée");
 }
 
 function copyText(text, message) {
