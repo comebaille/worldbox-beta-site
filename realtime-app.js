@@ -130,6 +130,75 @@ const ORE_POWER_DANGERS = {
   Adamantine: 20,
 };
 
+const WHEEL_SPIN_COST = 10;
+const WHEEL_MIN_OFFSET = 50;
+const WHEEL_MAX_OFFSET = 500;
+const WHEEL_STEP = 50;
+const WHEEL_VISIBLE_OPTIONS = 20;
+
+const WHEEL_EVENTS = [
+  { id: "coin_5", title: "PETIT GAIN", effect: "+5 pièces.", expectedValue: 5, action: { type: "coins", amount: 5 } },
+  { id: "coin_10", title: "GAIN PROPRE", effect: "+10 pièces.", expectedValue: 10, action: { type: "coins", amount: 10 } },
+  { id: "coin_15", title: "GAIN RENTABLE", effect: "+15 pièces.", expectedValue: 15, action: { type: "coins", amount: 15 } },
+  { id: "coin_20", title: "BONNE FORTUNE", effect: "+20 pièces.", expectedValue: 20, action: { type: "coins", amount: 20 } },
+  { id: "coin_25", title: "TRÉSOR LOCAL", effect: "+25 pièces.", expectedValue: 25, action: { type: "coins", amount: 25 } },
+  { id: "coin_30", title: "GROSSE CHANCE", effect: "+30 pièces.", expectedValue: 30, action: { type: "coins", amount: 30 } },
+  { id: "coin_40", title: "TRÈS GROSSE CHANCE", effect: "+40 pièces.", expectedValue: 40, action: { type: "coins", amount: 40 } },
+  { id: "coin_50", title: "COFFRES REMPLIS", effect: "+50 pièces.", expectedValue: 50, action: { type: "coins", amount: 50 } },
+  { id: "coin_60", title: "JACKPOT", effect: "+60 pièces.", expectedValue: 60, action: { type: "coins", amount: 60 } },
+  { id: "coin_80", title: "TRÉSOR ROYAL", effect: "+80 pièces.", expectedValue: 80, action: { type: "coins", amount: 80 } },
+  { id: "double_coins", title: "FORTUNE DOUBLÉE", effect: "pièces actuelles x2.", expectedValue: 50, action: { type: "multiplyCoins", factor: 2 } },
+  { id: "coin_100", title: "TRÉSOR IMPÉRIAL", effect: "+100 pièces.", expectedValue: 100, action: { type: "coins", amount: 100 } },
+  { id: "loss_5", title: "PERTE MINEURE", effect: "-5 pièces.", expectedValue: -5, action: { type: "coins", amount: -5 } },
+  { id: "loss_10", title: "PERTE NETTE", effect: "-10 pièces.", expectedValue: -10, action: { type: "coins", amount: -10 } },
+  { id: "loss_20", title: "MAUVAIS PARI", effect: "-20 pièces.", expectedValue: -20, action: { type: "coins", amount: -20 } },
+  { id: "loss_30", title: "CRISE FISCALE", effect: "-30 pièces.", expectedValue: -30, action: { type: "coins", amount: -30 } },
+  { id: "half_coins", title: "COFFRES MAUDITS", effect: "pièces actuelles divisées par 2.", expectedValue: -50, action: { type: "divideCoins", divisor: 2 } },
+  { id: "percent_loss", title: "COFFRE PERCÉ", effect: "perd 25% des pièces actuelles.", expectedValue: -25, action: { type: "percentLoss", percent: 25 } },
+  { id: "pass_min", title: "HONTE POLITIQUE", effect: "bonus de passe ramené au minimum.", expectedValue: -10, action: { type: "passBonus", mode: "min" } },
+  { id: "nothing", title: "RIEN", effect: "aucun effet.", expectedValue: 0, action: { type: "none" } },
+  { id: "steal_10", title: "VOL DISCRET", effect: "vole 10 pièces à l'IA la plus riche.", expectedValue: 10, action: { type: "stealRichest", amount: 10 } },
+  { id: "steal_20", title: "GRAND VOL", effect: "vole 20 pièces à l'IA la plus riche.", expectedValue: 20, action: { type: "stealRichest", amount: 20 } },
+  { id: "steal_30", title: "PILLAGE DES COFFRES", effect: "vole 30 pièces à l'IA la plus riche.", expectedValue: 30, action: { type: "stealRichest", amount: 30 } },
+  { id: "steal_25_percent", title: "BRAQUAGE ROYAL", effect: "vole 25% des pièces de l'IA la plus riche.", expectedValue: 25, action: { type: "stealRichestPercent", percent: 25 } },
+  { id: "tribute", title: "TRIBUT FORCÉ", effect: "chaque autre IA vivante donne 5 pièces au joueur.", expectedValue: 20, action: { type: "tribute", amount: 5 } },
+  { id: "swap_poorest", title: "REVERSE FORTUNE", effect: "échange ses pièces avec l'IA vivante la plus pauvre.", expectedValue: 15, action: { type: "swapPoorest" } },
+  { id: "sabotage_20", title: "SABOTAGE FINANCIER", effect: "l'IA la plus riche perd 20 pièces.", expectedValue: 10, action: { type: "sabotageRichest", amount: 20 } },
+  { id: "market_35", title: "MARCHÉ NOIR", effect: "+35 pièces.", expectedValue: 35, action: { type: "coins", amount: 35 } },
+  { id: "pass_max", title: "MANDAT EXCEPTIONNEL", effect: "bonus de passe restauré au maximum.", expectedValue: 10, action: { type: "passBonus", mode: "max" } },
+  { id: "steal_15", title: "PONCTION RAPIDE", effect: "vole 15 pièces à l'IA la plus riche.", expectedValue: 15, action: { type: "stealRichest", amount: 15 } },
+  { id: "rain_self", title: "PLUIE FAVORABLE", effect: "Rain ou Rain Cloud sur une zone utile du joueur.", expectedValue: 10, action: { type: "manual", target: "self", instruction: "Appliquer Rain ou Rain Cloud sur une zone agricole, brûlée ou instable du joueur." } },
+  { id: "blessing_self", title: "BÉNÉDICTION LOCALE", effect: "Blessing sur une ville ou zone importante du joueur.", expectedValue: 25, action: { type: "manual", target: "self", instruction: "Appliquer Blessing sur une ville, armée ou zone importante du joueur." } },
+  { id: "divine_self", title: "LUMIÈRE DIVINE", effect: "Divine Light sur une zone du joueur.", expectedValue: 15, action: { type: "manual", target: "self", instruction: "Appliquer Divine Light sur une zone malade, maudite, folle ou instable du joueur." } },
+  { id: "fertility_self", title: "FERTILITÉ", effect: "Fruit Bush, Plants Fertilizer ou Trees Fertilizer pour le joueur.", expectedValue: 15, action: { type: "manual", target: "self", instruction: "Appliquer Fruit Bush, Plants Fertilizer ou Trees Fertilizer sur une zone productive du joueur." } },
+  { id: "shield_self", title: "BOUCLIER", effect: "Shield sur une zone ou unité importante du joueur.", expectedValue: 20, action: { type: "manual", target: "self", instruction: "Appliquer Shield sur une zone, armée ou unité importante du joueur." } },
+  { id: "basic_resource", title: "MINE UTILE", effect: "Stone ou Ore Deposit près d'une ville active du joueur.", expectedValue: 15, action: { type: "manual", target: "self", instruction: "Ajouter Stone ou Ore Deposit près d'une ville active du joueur." } },
+  { id: "precious_resource", title: "MINE PRÉCIEUSE", effect: "Silver ou Gold près d'une ville active du joueur.", expectedValue: 25, action: { type: "manual", target: "self", instruction: "Ajouter Silver ou Gold près d'une ville active du joueur." } },
+  { id: "rare_resource", title: "MINE RARE", effect: "petite source de Gems ou Mythril pour le joueur.", expectedValue: 35, action: { type: "manual", target: "self", instruction: "Ajouter une petite source de Gems ou Mythril dans une zone exploitable du joueur." } },
+  { id: "rebuild_self", title: "RÉPARATION", effect: "petite Reconstruction contrôlée pour le joueur.", expectedValue: 20, action: { type: "manual", target: "self", instruction: "Appliquer une Reconstruction contrôlée limitée sur une zone endommagée du joueur." } },
+  { id: "counter_token", title: "ANTIDOTE CHANCEUX", effect: "le joueur gagne le prochain contre-pouvoir si une catastrophe danger 16+ apparaît, selon arbitrage MJ.", expectedValue: 30, action: { type: "manual", target: "self", instruction: "Noter un droit prioritaire au prochain contre-pouvoir lié à une catastrophe danger 16+." } },
+  { id: "fire_self", title: "FEU ACCIDENTEL", effect: "Fire tombe sur une zone du joueur.", expectedValue: -20, action: { type: "manual", target: "self", instruction: "Appliquer Fire sur une zone du joueur choisie ou tirée par le MJ." } },
+  { id: "lightning_self", title: "FOUDRE NOIRE", effect: "Lightning tombe sur une zone du joueur.", expectedValue: -15, action: { type: "manual", target: "self", instruction: "Appliquer Lightning sur une zone du joueur choisie ou tirée par le MJ." } },
+  { id: "mage_self", title: "MAGE HOSTILE", effect: "un Evil Mage apparaît près d'une ville du joueur.", expectedValue: -30, action: { type: "manual", target: "self", instruction: "Faire apparaître un Evil Mage près d'une ville importante du joueur." } },
+  { id: "bandit_self", title: "BANDITS", effect: "des Bandits apparaissent en périphérie du joueur.", expectedValue: -20, action: { type: "manual", target: "self", instruction: "Faire apparaître des Bandits dans une périphérie exploitable du joueur." } },
+  { id: "curse_self", title: "MALÉDICTION", effect: "Curse touche une zone ou unité importante du joueur.", expectedValue: -25, action: { type: "manual", target: "self", instruction: "Appliquer Curse sur une zone, armée ou unité importante du joueur." } },
+  { id: "dust_self", title: "POUSSIÈRE MENTALE", effect: "Red Dust, White Dust ou Purple Dust touche une zone du joueur.", expectedValue: -20, action: { type: "manual", target: "self", instruction: "Appliquer Red Dust, White Dust ou Purple Dust sur une zone sociale importante du joueur." } },
+  { id: "madness_self", title: "MADNESS - PIRE DESTIN", effect: "Madness tombe sur une zone importante du joueur.", expectedValue: -70, action: { type: "manual", target: "self", instruction: "Appliquer Madness sur une zone importante du joueur, avec prudence si cela menace toute la simulation." } },
+  { id: "volcano_self", title: "VOLCAN DU HASARD", effect: "Volcano apparaît dans une zone du joueur tirée par le MJ.", expectedValue: -60, action: { type: "manual", target: "self", instruction: "Faire apparaître Volcano dans une zone du joueur tirée par le MJ." } },
+  { id: "dragon_self", title: "DRAGON CONTRE SOI", effect: "Dragon apparaît dans une zone du joueur tirée par le MJ.", expectedValue: -60, action: { type: "manual", target: "self", instruction: "Faire apparaître Dragon dans une zone du joueur tirée par le MJ." } },
+  { id: "infection_self", title: "INFECTION", effect: "Zombie Infection ou The Plague apparaît dans une zone du joueur.", expectedValue: -50, action: { type: "manual", target: "self", instruction: "Appliquer Zombie Infection ou The Plague dans une zone du joueur choisie ou tirée par le MJ." } },
+  { id: "fire_target", title: "INCENDIE ENNEMI", effect: "le joueur peut appliquer Fire sur une zone adverse.", expectedValue: 25, action: { type: "manual", target: "enemy", instruction: "Le joueur choisit une cible adverse et le MJ applique Fire sur une zone pertinente." } },
+  { id: "mage_target", title: "MAGE ENVOYÉ", effect: "le joueur peut placer un Evil Mage sur une zone adverse.", expectedValue: 40, action: { type: "manual", target: "enemy", instruction: "Le joueur choisit une cible adverse et le MJ place un Evil Mage selon validation." } },
+  { id: "bomb_target", title: "SABOTAGE EXPLOSIF", effect: "le joueur peut placer une Bomb sur une zone adverse.", expectedValue: 35, action: { type: "manual", target: "enemy", instruction: "Le joueur choisit une cible adverse et le MJ applique Bomb sur une zone validée." } },
+  { id: "dust_target", title: "POUSSIÈRE OFFENSIVE", effect: "le joueur peut appliquer une Dust au choix sur une zone adverse.", expectedValue: 25, action: { type: "manual", target: "enemy", instruction: "Le joueur choisit une cible adverse et le MJ applique une Dust validée." } },
+  { id: "madness_target", title: "MADNESS CONTRÔLÉE", effect: "le joueur peut appliquer Madness sur une zone adverse.", expectedValue: 80, action: { type: "manual", target: "enemy", instruction: "Le joueur choisit une cible adverse et le MJ applique Madness, avec limitation si cela menace toute la simulation." } },
+  { id: "earthquake_target", title: "TREMBLEMENT OFFENSIF", effect: "le joueur peut appliquer Earthquake sur une zone adverse.", expectedValue: 55, action: { type: "manual", target: "enemy", instruction: "Le joueur choisit une cible adverse et le MJ applique Earthquake en évitant les dégâts impossibles à arbitrer." } },
+  { id: "dragon_target", title: "DRAGON DU DESTIN", effect: "le joueur peut faire apparaître Dragon dans une zone adverse.", expectedValue: 65, action: { type: "manual", target: "enemy", instruction: "Le joueur choisit une cible adverse et le MJ fait apparaître Dragon dans une zone validée." } },
+  { id: "volcano_target", title: "VOLCAN OFFENSIF", effect: "le joueur peut faire apparaître Volcano dans une zone adverse.", expectedValue: 50, action: { type: "manual", target: "enemy", instruction: "Le joueur choisit une cible adverse et le MJ fait apparaître Volcano dans une zone validée." } },
+  { id: "antimatter_target", title: "ANTIMATIÈRE IMPROBABLE", effect: "le joueur peut appliquer Antimatter Bomb sur une petite zone adverse validée par le MJ.", expectedValue: 75, action: { type: "manual", target: "enemy", instruction: "Le joueur choisit une cible adverse ; le MJ applique Antimatter Bomb de façon limitée si cela ne détruit pas la simulation entière." } },
+  { id: "coin_85", title: "COURONNE DE FORTUNE", effect: "+85 pièces.", expectedValue: 85, action: { type: "coins", amount: 85 } },
+];
+
 const DETAILED_EFFECTS = {
   "Déclarer la guerre": "Carte diplomatique MJ. Permet au gagnant de forcer une guerre WorldBox entre son royaume et une civilisation cible accessible par frontière, mer ou bateaux. Effet stratégique maximal : une guerre WorldBox est souvent une guerre d'anéantissement, avec prise de villes, massacres, effondrement de royaumes et possible disparition complète d'une IA.",
   "Proposer une alliance": "Carte diplomatique MJ. Permet au gagnant de proposer ou former une alliance entre son royaume et une cible si les règles du scénario l'autorisent. Effet stratégique : peut détourner une guerre, protéger une frontière, isoler une troisième IA ou créer un bloc temporaire, mais l'alliance dépend des règles fixées par le MJ.",
@@ -578,6 +647,7 @@ const els = {
   previewCardsSelect: document.querySelector("#previewCardsSelect"),
   forcedPowerSelect: document.querySelector("#forcedPowerSelect"),
   futureCardsPanel: document.querySelector("#futureCardsPanel"),
+  fortuneWheelPanel: document.querySelector("#fortuneWheelPanel"),
   incrementOutput: document.querySelector("#incrementOutput"),
   eventReminders: document.querySelector("#eventReminders"),
 };
@@ -693,6 +763,7 @@ function loadState() {
         biomeChoices: parsed.biomeChoices ?? {},
         cardForecast: Array.isArray(parsed.cardForecast) ? parsed.cardForecast : [],
         cardForecastKey: parsed.cardForecastKey ?? "",
+        fortuneWheel: normalizeFortuneWheel(parsed.fortuneWheel, parsed.settings?.year ?? 0),
         lastAuctionReport: parsed.lastAuctionReport ?? "",
         lastIncomeSummary: parsed.lastIncomeSummary ?? "",
         postIncomePromptYear: parsed.postIncomePromptYear ?? null,
@@ -715,6 +786,7 @@ function loadState() {
     biomeChoices: {},
     cardForecast: [],
     cardForecastKey: "",
+    fortuneWheel: createDefaultFortuneWheel(0),
     lastAuctionReport: "",
     lastIncomeSummary: "",
     postIncomePromptYear: null,
@@ -795,6 +867,11 @@ function pruneRemovedParticipants(removedIds) {
   Object.values(state.biomeChoices ?? {}).forEach((choices) => {
     removedIds.forEach((id) => delete choices[id]);
   });
+
+  if (state.fortuneWheel?.pendingTurns) {
+    removedIds.forEach((id) => delete state.fortuneWheel.pendingTurns[id]);
+  }
+  if (removedIds.includes(state.fortuneWheel?.lastResolvedAiId)) state.fortuneWheel.lastResolvedAiId = null;
 }
 
 function normalizeAuction(auction) {
@@ -829,6 +906,39 @@ function normalizeSettings(settings) {
     worldMode: ["auto", "central", "duel", "zeta"].includes(settings?.worldMode) ? settings.worldMode : "auto",
     cardPreviewCount: [0, 5].includes(Number(settings?.cardPreviewCount)) ? Number(settings.cardPreviewCount) : 0,
   };
+}
+
+function createDefaultFortuneWheel(year = 0) {
+  return {
+    nextYear: getNextFortuneWheelYear(year),
+    active: false,
+    activeYear: null,
+    pendingTurns: {},
+    lastResolvedAiId: null,
+    spinning: false,
+    currentSpinOptions: [],
+    currentSpinIndex: 0,
+    lastResultText: "",
+    results: [],
+  };
+}
+
+function normalizeFortuneWheel(wheel, year = 0) {
+  const normalized = {
+    ...createDefaultFortuneWheel(year),
+    ...(wheel ?? {}),
+  };
+  normalized.nextYear = Math.max(0, Math.floor(Number(normalized.nextYear) || getNextFortuneWheelYear(year)));
+  normalized.active = Boolean(normalized.active);
+  normalized.activeYear = normalized.activeYear === null ? null : Math.max(0, Math.floor(Number(normalized.activeYear) || 0));
+  normalized.pendingTurns = normalized.pendingTurns && typeof normalized.pendingTurns === "object" ? normalized.pendingTurns : {};
+  normalized.lastResolvedAiId = normalized.lastResolvedAiId ?? null;
+  normalized.spinning = false;
+  normalized.currentSpinOptions = Array.isArray(normalized.currentSpinOptions) ? normalized.currentSpinOptions : [];
+  normalized.currentSpinIndex = Math.max(0, Math.floor(Number(normalized.currentSpinIndex) || 0));
+  normalized.lastResultText = String(normalized.lastResultText ?? "");
+  normalized.results = Array.isArray(normalized.results) ? normalized.results.slice(-80) : [];
+  return normalized;
 }
 
 function emptyAuction() {
@@ -908,6 +1018,7 @@ function syncRepresentativeNameDisplays(ai) {
 
 function renderSettings() {
   ensureCardForecast();
+  ensureFortuneWheelSchedule();
   renderForcedPowerSelect();
   els.yearInput.value = state.settings.year;
   els.incomeInput.value = state.settings.baseIncome;
@@ -918,6 +1029,7 @@ function renderSettings() {
   els.previewCardsSelect.value = String(getPreviewCardCount());
   els.forcedPowerSelect.value = getPowerByName(state.settings.forcedPowerName) ? state.settings.forcedPowerName : "";
   renderFutureCardsPanel();
+  renderFortuneWheelPanel();
 }
 
 function renderForcedPowerSelect() {
@@ -974,6 +1086,113 @@ function renderFutureCardsPanel() {
   note.className = "future-cards-note";
   note.textContent = "Ces cartes sont une file MJ : la prochaine enchère consomme la première carte affichée, sauf si tu changes les paramètres ou forces une carte.";
   els.futureCardsPanel.appendChild(note);
+}
+
+function renderFortuneWheelPanel() {
+  if (!els.fortuneWheelPanel) return;
+  const wheel = state.fortuneWheel;
+  els.fortuneWheelPanel.innerHTML = "";
+
+  const header = document.createElement("div");
+  header.className = "fortune-wheel-head";
+  const titleWrap = document.createElement("div");
+  const title = document.createElement("h3");
+  title.textContent = "Roue de la fortune";
+  const meta = document.createElement("p");
+  meta.textContent = wheel.active
+    ? `Active à l'an ${wheel.activeYear}. Coût : ${WHEEL_SPIN_COST} pièces par tour.`
+    : `Prochaine apparition prévue : An ${wheel.nextYear}.`;
+  titleWrap.append(title, meta);
+
+  const avg = document.createElement("span");
+  avg.className = "fortune-wheel-average";
+  const gross = getFortuneWheelAverageValue();
+  avg.textContent = `Moyenne théorique : ${formatSigned(gross)} brut / ${formatSigned(gross - WHEEL_SPIN_COST)} net`;
+  header.append(titleWrap, avg);
+  els.fortuneWheelPanel.appendChild(header);
+
+  const actions = document.createElement("div");
+  actions.className = "fortune-wheel-actions";
+  const copyArrivalButton = document.createElement("button");
+  copyArrivalButton.className = "secondary";
+  copyArrivalButton.type = "button";
+  copyArrivalButton.textContent = "Copier annonce";
+  copyArrivalButton.disabled = !wheel.active;
+  copyArrivalButton.addEventListener("click", copyFortuneWheelArrivalPrompt);
+  actions.appendChild(copyArrivalButton);
+
+  const copyResultsButton = document.createElement("button");
+  copyResultsButton.className = "secondary";
+  copyResultsButton.type = "button";
+  copyResultsButton.textContent = "Copier résultats";
+  copyResultsButton.disabled = !wheel.results.length;
+  copyResultsButton.addEventListener("click", copyFortuneWheelResultsPrompt);
+  actions.appendChild(copyResultsButton);
+
+  const closeButton = document.createElement("button");
+  closeButton.className = "secondary";
+  closeButton.type = "button";
+  closeButton.textContent = "Clore la roue";
+  closeButton.disabled = !wheel.active || getTotalFortuneWheelPendingTurns() > 0 || wheel.spinning;
+  closeButton.addEventListener("click", closeFortuneWheelEvent);
+  actions.appendChild(closeButton);
+  els.fortuneWheelPanel.appendChild(actions);
+
+  if (!wheel.active) return;
+
+  const purchaseGrid = document.createElement("div");
+  purchaseGrid.className = "fortune-wheel-ai-grid";
+  getFortuneWheelOrder().forEach((ai) => {
+    const row = document.createElement("div");
+    row.className = "fortune-wheel-ai-row";
+    const info = document.createElement("span");
+    info.textContent = `${ai.name} - ${ai.coins} pièces - ${getFortuneWheelTurnsForAi(ai.id)} tour${getFortuneWheelTurnsForAi(ai.id) > 1 ? "s" : ""}`;
+    const button = document.createElement("button");
+    button.className = "secondary";
+    button.type = "button";
+    button.textContent = `Acheter -${WHEEL_SPIN_COST}`;
+    button.disabled = ai.coins < WHEEL_SPIN_COST || wheel.spinning;
+    button.addEventListener("click", () => buyFortuneWheelTurn(ai.id));
+    row.append(info, button);
+    purchaseGrid.appendChild(row);
+  });
+  els.fortuneWheelPanel.appendChild(purchaseGrid);
+
+  const spinBox = document.createElement("div");
+  spinBox.className = "fortune-wheel-spin-box";
+  const nextAi = getNextFortuneWheelAi();
+  const spinner = document.createElement("div");
+  spinner.id = "fortuneWheelSpinner";
+  spinner.className = "fortune-wheel-spinner";
+  const activeOption = wheel.currentSpinOptions[wheel.currentSpinIndex];
+  spinner.textContent = wheel.spinning
+    ? (activeOption ? getWheelEvent(activeOption)?.title ?? activeOption : "La roue tourne...")
+    : (nextAi ? `Prochain tour : ${nextAi.name}` : "Aucun tour en attente.");
+  const launchButton = document.createElement("button");
+  launchButton.type = "button";
+  launchButton.textContent = "Lancer prochain tour";
+  launchButton.disabled = !nextAi || wheel.spinning;
+  launchButton.addEventListener("click", launchFortuneWheelSpin);
+  spinBox.append(spinner, launchButton);
+  els.fortuneWheelPanel.appendChild(spinBox);
+
+  if (wheel.lastResultText) {
+    const last = document.createElement("p");
+    last.className = "fortune-wheel-last";
+    last.textContent = wheel.lastResultText;
+    els.fortuneWheelPanel.appendChild(last);
+  }
+
+  if (wheel.results.length) {
+    const list = document.createElement("div");
+    list.className = "fortune-wheel-results";
+    wheel.results.slice(-6).reverse().forEach((result) => {
+      const line = document.createElement("p");
+      line.textContent = result.text;
+      list.appendChild(line);
+    });
+    els.fortuneWheelPanel.appendChild(list);
+  }
 }
 
 function renderAgeEvents() {
@@ -1484,6 +1703,21 @@ function renderPromptHub() {
     ]);
   }
 
+  if (state.fortuneWheel?.active) {
+    addPromptGroup("Roue de la Fortune", [
+      {
+        label: "Annonce d'arrivée de la roue",
+        hint: "MESSAGE MONDIAL : explique coût, moyenne et résolution des tours.",
+        onClick: () => copyFortuneWheelArrivalPrompt(),
+      },
+      {
+        label: "Résultats de la roue",
+        hint: "MESSAGE MONDIAL : copie toutes les lignes de résultat déjà lancées.",
+        onClick: () => copyFortuneWheelResultsPrompt(),
+      },
+    ]);
+  }
+
   if (isTribunalYear(state.settings.year)) {
     addPromptGroup("Tribunal des Nations", [
       {
@@ -1963,6 +2197,7 @@ function getDueEvents(year) {
       : "Tirage des doctrines politiques : 3 doctrines par IA vivante.");
   }
   if (isRevealYear(year)) events.push("Révélation géopolitique : palier d'enchère, choix de dissimulation, puis bilan public.");
+  if (state.fortuneWheel?.nextYear === year && !state.fortuneWheel?.active) events.push("Roue de la Fortune : événement spécial, achats de tours puis résolutions un par un.");
   return events;
 }
 
@@ -1976,6 +2211,234 @@ function getUpcomingEventsText(windowYears = 50) {
     }
   }
   return upcoming.length ? upcoming.join(" ; ") : "aucun dans les 50 ans à venir";
+}
+
+function getNextFortuneWheelYear(baseYear = state.settings.year) {
+  const base = Math.max(0, Math.floor(Number(baseYear) || 0));
+  const steps = (WHEEL_MAX_OFFSET - WHEEL_MIN_OFFSET) / WHEEL_STEP + 1;
+  return base + WHEEL_MIN_OFFSET + Math.floor(Math.random() * steps) * WHEEL_STEP;
+}
+
+function ensureFortuneWheelSchedule() {
+  state.fortuneWheel = normalizeFortuneWheel(state.fortuneWheel, state.settings.year);
+}
+
+function activateFortuneWheelIfDue() {
+  ensureFortuneWheelSchedule();
+  const wheel = state.fortuneWheel;
+  if (wheel.active || state.settings.year < wheel.nextYear) return false;
+  wheel.active = true;
+  wheel.activeYear = state.settings.year;
+  wheel.pendingTurns = {};
+  wheel.lastResolvedAiId = null;
+  wheel.spinning = false;
+  wheel.currentSpinOptions = [];
+  wheel.currentSpinIndex = 0;
+  wheel.lastResultText = "";
+  wheel.results = [];
+  recordMemory("Roue de la fortune", buildFortuneWheelArrivalPrompt(), { important: true });
+  return true;
+}
+
+function getFortuneWheelAverageValue() {
+  const total = WHEEL_EVENTS.reduce((sum, event) => sum + event.expectedValue, 0);
+  return Math.round((total / WHEEL_EVENTS.length) * 10) / 10;
+}
+
+function getWheelEvent(eventId) {
+  return WHEEL_EVENTS.find((event) => event.id === eventId) ?? null;
+}
+
+function getFortuneWheelOrder() {
+  return getAliveAis().sort((a, b) => b.population - a.population || a.name.localeCompare(b.name));
+}
+
+function getFortuneWheelTurnsForAi(aiId) {
+  return Math.max(0, Math.floor(Number(state.fortuneWheel?.pendingTurns?.[aiId]) || 0));
+}
+
+function getTotalFortuneWheelPendingTurns() {
+  return Object.values(state.fortuneWheel?.pendingTurns ?? {}).reduce((sum, value) => sum + Math.max(0, Math.floor(Number(value) || 0)), 0);
+}
+
+function getNextFortuneWheelAi() {
+  const order = getFortuneWheelOrder();
+  if (!order.length || !getTotalFortuneWheelPendingTurns()) return null;
+  const lastIndex = order.findIndex((ai) => ai.id === state.fortuneWheel.lastResolvedAiId);
+  for (let offset = 1; offset <= order.length; offset += 1) {
+    const candidate = order[(lastIndex + offset + order.length) % order.length];
+    if (getFortuneWheelTurnsForAi(candidate.id) > 0) return candidate;
+  }
+  return null;
+}
+
+function buyFortuneWheelTurn(aiId) {
+  const ai = getAi(aiId);
+  if (!ai || !state.fortuneWheel.active) return;
+  if (ai.coins < WHEEL_SPIN_COST) {
+    showToast(`${ai.name} n'a pas assez de pièces`);
+    return;
+  }
+  pushUndo();
+  ai.coins -= WHEEL_SPIN_COST;
+  state.fortuneWheel.pendingTurns[ai.id] = getFortuneWheelTurnsForAi(ai.id) + 1;
+  recordMemory("Roue de la fortune", `${ai.name} achète 1 tour de Roue de la Fortune pour ${WHEEL_SPIN_COST} pièces.`, { important: true });
+  saveAndRender();
+}
+
+function sampleWheelOptions() {
+  return sample(WHEEL_EVENTS, WHEEL_EVENTS.length).slice(0, WHEEL_VISIBLE_OPTIONS);
+}
+
+function launchFortuneWheelSpin() {
+  const wheel = state.fortuneWheel;
+  if (!wheel.active || wheel.spinning) return;
+  const ai = getNextFortuneWheelAi();
+  if (!ai) {
+    showToast("Aucun tour en attente");
+    return;
+  }
+
+  const options = sampleWheelOptions();
+  const resultEvent = options[Math.floor(Math.random() * options.length)];
+  wheel.spinning = true;
+  wheel.currentSpinOptions = options.map((event) => event.id);
+  wheel.currentSpinIndex = 0;
+  renderFortuneWheelPanel();
+
+  let ticks = 0;
+  const maxTicks = 28;
+  const spinner = () => document.querySelector("#fortuneWheelSpinner");
+  const interval = window.setInterval(() => {
+    ticks += 1;
+    wheel.currentSpinIndex = ticks % wheel.currentSpinOptions.length;
+    const event = getWheelEvent(wheel.currentSpinOptions[wheel.currentSpinIndex]);
+    const node = spinner();
+    if (node && event) node.textContent = event.title;
+    if (ticks >= maxTicks) {
+      window.clearInterval(interval);
+      resolveFortuneWheelSpin(ai.id, resultEvent.id);
+    }
+  }, 70);
+}
+
+function resolveFortuneWheelSpin(aiId, eventId) {
+  const ai = getAi(aiId);
+  const event = getWheelEvent(eventId);
+  if (!ai || !event || !state.fortuneWheel.active) return;
+
+  pushUndo();
+  const turnNumber = (state.fortuneWheel.results ?? []).filter((result) => result.aiId === ai.id).length + 1;
+  state.fortuneWheel.pendingTurns[ai.id] = Math.max(0, getFortuneWheelTurnsForAi(ai.id) - 1);
+  state.fortuneWheel.lastResolvedAiId = ai.id;
+  const applied = applyFortuneWheelEvent(ai, event);
+  const suffix = [applied.autoText, applied.manualText].filter(Boolean).join(" ");
+  const resultText = `${ai.name} effectue son ${formatTurnOrdinal(turnNumber)} tour : ${event.title} : ${event.effect}${suffix ? ` ${suffix}` : ""}`;
+  state.fortuneWheel.spinning = false;
+  state.fortuneWheel.currentSpinIndex = state.fortuneWheel.currentSpinOptions.findIndex((id) => id === event.id);
+  state.fortuneWheel.lastResultText = resultText;
+  state.fortuneWheel.results.push({
+    aiId: ai.id,
+    aiName: ai.name,
+    eventId: event.id,
+    text: resultText,
+    createdAt: new Date().toISOString(),
+  });
+  recordMemory("Roue de la fortune", resultText, { important: true });
+  saveAndRender();
+}
+
+function applyFortuneWheelEvent(ai, event) {
+  const action = event.action ?? { type: "none" };
+  const before = ai.coins;
+  const otherAis = getAliveAis().filter((item) => item.id !== ai.id);
+  const richestOther = () => otherAis.slice().sort((a, b) => b.coins - a.coins || b.population - a.population)[0] ?? null;
+  const poorestOther = () => otherAis.slice().sort((a, b) => a.coins - b.coins || a.population - b.population)[0] ?? null;
+
+  if (action.type === "coins") {
+    ai.coins = Math.max(0, ai.coins + action.amount);
+    return { autoText: `Automatique : ${ai.name} passe de ${before} à ${ai.coins} pièces.` };
+  }
+  if (action.type === "multiplyCoins") {
+    ai.coins = Math.max(0, Math.floor(ai.coins * action.factor));
+    return { autoText: `Automatique : ${ai.name} passe de ${before} à ${ai.coins} pièces.` };
+  }
+  if (action.type === "divideCoins") {
+    ai.coins = Math.max(0, Math.floor(ai.coins / action.divisor));
+    return { autoText: `Automatique : ${ai.name} passe de ${before} à ${ai.coins} pièces.` };
+  }
+  if (action.type === "percentLoss") {
+    ai.coins = Math.max(0, Math.floor(ai.coins * (100 - action.percent) / 100));
+    return { autoText: `Automatique : ${ai.name} passe de ${before} à ${ai.coins} pièces.` };
+  }
+  if (action.type === "passBonus") {
+    const previous = getAiPassBonusLevel(ai);
+    ai.passBonusLevel = action.mode === "max" ? getPassCeiling() : getPassFloor();
+    return { autoText: `Automatique : bonus de passe ${previous} → ${ai.passBonusLevel}.` };
+  }
+  if (action.type === "stealRichest") {
+    const target = richestOther();
+    if (!target) return { autoText: "Automatique : aucun rival vivant à voler." };
+    const transfer = Math.min(action.amount, target.coins);
+    target.coins -= transfer;
+    ai.coins += transfer;
+    return { autoText: `Automatique : ${ai.name} vole ${transfer} pièces à ${target.name}.` };
+  }
+  if (action.type === "stealRichestPercent") {
+    const target = richestOther();
+    if (!target) return { autoText: "Automatique : aucun rival vivant à voler." };
+    const transfer = Math.floor(target.coins * action.percent / 100);
+    target.coins -= transfer;
+    ai.coins += transfer;
+    return { autoText: `Automatique : ${ai.name} vole ${transfer} pièces à ${target.name}.` };
+  }
+  if (action.type === "tribute") {
+    let total = 0;
+    otherAis.forEach((target) => {
+      const transfer = Math.min(action.amount, target.coins);
+      target.coins -= transfer;
+      total += transfer;
+    });
+    ai.coins += total;
+    return { autoText: `Automatique : ${ai.name} reçoit ${total} pièces de tribut.` };
+  }
+  if (action.type === "swapPoorest") {
+    const target = poorestOther();
+    if (!target) return { autoText: "Automatique : aucun rival vivant pour l'échange." };
+    const targetBefore = target.coins;
+    target.coins = ai.coins;
+    ai.coins = targetBefore;
+    return { autoText: `Automatique : ${ai.name} échange ses pièces avec ${target.name} (${before} ↔ ${targetBefore}).` };
+  }
+  if (action.type === "sabotageRichest") {
+    const target = richestOther();
+    if (!target) return { autoText: "Automatique : aucun rival vivant à saboter." };
+    const lost = Math.min(action.amount, target.coins);
+    target.coins -= lost;
+    return { autoText: `Automatique : ${target.name} perd ${lost} pièces.` };
+  }
+  if (action.type === "manual") {
+    return { manualText: `MJ manuel : ${action.instruction}` };
+  }
+  return { autoText: "Automatique : aucun changement à appliquer." };
+}
+
+function closeFortuneWheelEvent() {
+  const wheel = state.fortuneWheel;
+  if (!wheel.active || wheel.spinning) return;
+  if (getTotalFortuneWheelPendingTurns() > 0) {
+    showToast("Tours encore en attente");
+    return;
+  }
+  pushUndo();
+  const previousYear = wheel.activeYear ?? state.settings.year;
+  state.fortuneWheel = createDefaultFortuneWheel(previousYear);
+  recordMemory("Roue de la fortune", `La Roue de la Fortune de l'an ${previousYear} est close. Prochaine apparition prévue : An ${state.fortuneWheel.nextYear}.`, { important: true });
+  saveAndRender();
+}
+
+function formatTurnOrdinal(turnNumber) {
+  return turnNumber === 1 ? "1er" : `${turnNumber}e`;
 }
 
 function handleAgeMilestones() {
@@ -2321,6 +2784,7 @@ function newAuction() {
     `Participants encore en course : ${formatActiveAuctionNames(order)}.`,
   ].filter(Boolean);
   recordMemoryLines("Nouvelle enchère", state.log);
+  activateFortuneWheelIfDue();
   state.settings.forcedPowerName = "";
   alignCardForecastWithCurrentState();
   saveAndRender();
@@ -3248,6 +3712,9 @@ function buildMemorySnapshot() {
     state.auction.card
       ? `- Carte en cours : ${formatCardName(state.auction.card)} (${getCardCategoryLabel(state.auction.card)}, danger ${state.auction.card.danger}/20), enchère ${state.auction.currentBid}, leader ${state.auction.winner ? getAiName(state.auction.winner) : "personne"}.`
       : "- Carte en cours : aucune.",
+    state.fortuneWheel?.active
+      ? `- Roue de la Fortune : active depuis l'an ${state.fortuneWheel.activeYear}, ${getTotalFortuneWheelPendingTurns()} tour(s) en attente.`
+      : `- Roue de la Fortune : prochaine apparition prévue An ${state.fortuneWheel?.nextYear ?? "inconnue"}.`,
     `- Biomes déjà utilisés : ${getUsedBiomesText()}.`,
     `- Cartes déjà tirées : ${(state.cardHistory ?? []).length ? state.cardHistory.map(formatCardName).join(", ") : "aucune"}.`,
     "- Civilisations :",
@@ -3350,6 +3817,29 @@ function buildAllAisText() {
   });
 
   return lines.join("\n");
+}
+
+function buildFortuneWheelArrivalPrompt() {
+  return `MESSAGE MONDIAL - ROUE DE LA FORTUNE - An ${state.settings.year}
+
+La Roue de la Fortune apparaît.
+
+Chaque civilisation peut payer ${WHEEL_SPIN_COST} pièces par tour.
+Il n'y a pas de limite de tours tant qu'une civilisation peut payer.
+
+La roue tire ${WHEEL_VISIBLE_OPTIONS} options au hasard parmi ${WHEEL_EVENTS.length} effets à chaque lancement, puis s'arrête sur un résultat.
+La moyenne théorique est d'environ ${formatSigned(getFortuneWheelAverageValue())} pièces brutes par tour, soit ${formatSigned(getFortuneWheelAverageValue() - WHEEL_SPIN_COST)} pièces nettes après coût.
+
+La roue contient surtout des gains, pertes et vols de pièces, mais aussi des pouvoirs WorldBox : Fire, Evil Mage, Bomb, Dust, Madness, Volcano, Dragon, contre-pouvoirs ou ressources.
+Les effets économiques seront appliqués automatiquement par le MJ. Les effets WorldBox devront être appliqués manuellement selon le résultat exact.
+
+Les tours seront résolus un par un en ordre démographique décroissant, avec rotation : une civilisation ne rejoue pas immédiatement si une autre civilisation possède encore un tour en attente.`;
+}
+
+function buildFortuneWheelResultsPrompt() {
+  const results = state.fortuneWheel?.results ?? [];
+  if (!results.length) return "Aucun résultat de Roue de la Fortune à annoncer.";
+  return results.map((result) => result.text).join("\n");
 }
 
 function buildIncrementPrompt() {
@@ -3637,6 +4127,14 @@ Révélations géopolitiques :
 - Les biomes déjà choisis au départ ou lors d'événements précédents sont exclus des prochains tirages.
 - Si deux IA revendiquent exceptionnellement le même biome hors tirage, le MJ tranche par vote ou arbitrage rapide, puis le perdant choisit un autre biome disponible.
 
+Roue de la Fortune :
+- Un événement Roue de la Fortune apparaît à une enchère aléatoire entre 50 et 500 ans après le début ou après la précédente roue, toujours sur une tranche de 50 ans.
+- Quand la roue apparaît, chaque civilisation peut acheter autant de tours qu'elle veut pour ${WHEEL_SPIN_COST} pièces par tour, tant qu'elle peut payer.
+- Chaque lancement tire ${WHEEL_VISIBLE_OPTIONS} options visibles parmi ${WHEEL_EVENTS.length} effets possibles, puis s'arrête sur un seul résultat.
+- La moyenne théorique des effets est d'environ ${formatSigned(getFortuneWheelAverageValue())} pièces brutes, soit ${formatSigned(getFortuneWheelAverageValue() - WHEEL_SPIN_COST)} pièces nettes après coût.
+- Les résultats économiques sont appliqués automatiquement par le MJ. Les pouvoirs WorldBox indiquent une consigne manuelle : cible, pouvoir et limite d'arbitrage.
+- Les tours se résolvent un par un en ordre démographique décroissant, avec rotation. Une IA ne rejoue pas immédiatement si une autre IA possède encore un tour en attente.
+
 Tribunal des Nations :
 - Aux années 300, 600, 900, 1200, puis tous les 300 ans, le MJ peut ouvrir un Tribunal des Nations.
 - Chaque civilisation vivante accuse à son tour une autre civilisation d'une action jugée injuste, dangereuse ou déloyale.
@@ -3696,6 +4194,16 @@ function copyCleanSimulationMemory() {
 
 function copyEpicChroniclePrompt() {
   copyText(buildEpicChroniclePrompt(), "Prompt épique copié");
+}
+
+function copyFortuneWheelArrivalPrompt() {
+  const text = buildFortuneWheelArrivalPrompt();
+  archiveMemoryIfNew("Roue de la fortune", text, { important: true });
+  copyText(text, "Annonce roue copiée");
+}
+
+function copyFortuneWheelResultsPrompt() {
+  copyText(buildFortuneWheelResultsPrompt(), "Résultats roue copiés");
 }
 
 function copyAllAis() {
