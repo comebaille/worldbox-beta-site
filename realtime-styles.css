@@ -113,6 +113,28 @@ p {
   justify-content: flex-end;
 }
 
+.session-memory-status {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  max-width: 260px;
+  overflow: hidden;
+  padding: 7px 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-memory-status.ok {
+  color: var(--accent-dark);
+}
+
+.session-memory-status.warn {
+  color: var(--danger);
+}
+
 .header-action-row {
   display: flex;
   gap: 8px;

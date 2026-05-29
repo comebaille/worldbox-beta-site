@@ -1,4 +1,6 @@
 const STORAGE_KEY = "worldbox-realtime-auction-v5";
+const SERVER_STATE_ENDPOINT = "./api/state";
+const SERVER_STATE_DEBOUNCE_MS = 400;
 const MIN_PARTICIPANTS = 2;
 const MAX_PARTICIPANTS = 8;
 const DEFAULT_REPRESENTATIVE_NAMES = ["Codex", "Kiwi", "Gemini", "DeepSeek", "Nova", "Atlas", "Orion", "Vega"];
@@ -593,6 +595,14 @@ const PROFILE_DECK = [
 let state = loadState();
 let undoStack = [];
 let expandedPromptGroups = new Set();
+let serverSaveTimer = null;
+let serverPersistence = {
+  checked: false,
+  available: null,
+  saving: false,
+  lastSavedAt: state.savedAt ?? "",
+  message: "Mémoire : chargement",
+};
 
 const els = {
   settingsPanel: document.querySelector("#settingsPanel"),
@@ -638,6 +648,7 @@ const els = {
   reportPromptBlock: document.querySelector("#reportPromptBlock"),
   copyReportBtn: document.querySelector("#copyReportBtn"),
   toast: document.querySelector("#toast"),
+  sessionPersistenceStatus: document.querySelector("#sessionPersistenceStatus"),
   yearInput: document.querySelector("#yearInput"),
   incomeInput: document.querySelector("#incomeInput"),
   underdogInput: document.querySelector("#underdogInput"),
@@ -717,7 +728,7 @@ function handleParticipantCountChange() {
   els[key].addEventListener("input", () => {
     state.settings = readSettings();
     if (key === "previewCardsSelect" || key === "forcedPowerSelect") refreshCardForecast({ force: true });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    persistState();
   });
 });
 
@@ -731,48 +742,34 @@ function applyWorldModeParticipantPreset(changedKey) {
 els.yearInput.addEventListener("input", () => {
   state.settings.year = readNumberInput(els.yearInput, 0, 0);
   render();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  persistState();
 });
 
 els.winnerActionInput.addEventListener("input", () => {
   state.auction.winnerAction = els.winnerActionInput.value;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  persistState();
   renderLog();
   renderPromptHub();
 });
 
 handleAgeMilestones();
-localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+persistState({ remote: false, touch: false });
 render();
+hydrateStateFromServer();
 
 function loadState() {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     try {
-      const parsed = JSON.parse(saved);
-      return {
-        ais: normalizeAis(parsed.ais ?? structuredClone(DEFAULT_AIS)),
-        settings: normalizeSettings(parsed.settings),
-        auction: normalizeAuction(parsed.auction ?? emptyAuction()),
-        log: parsed.log ?? [],
-        pendingCounters: parsed.pendingCounters ?? [],
-        cardHistory: parsed.cardHistory ?? [],
-        profileDrawYears: parsed.profileDrawYears ?? [],
-        usedBiomes: parsed.usedBiomes ?? [],
-        biomeDraws: parsed.biomeDraws ?? {},
-        biomeChoices: parsed.biomeChoices ?? {},
-        cardForecast: Array.isArray(parsed.cardForecast) ? parsed.cardForecast : [],
-        cardForecastKey: parsed.cardForecastKey ?? "",
-        fortuneWheel: normalizeFortuneWheel(parsed.fortuneWheel, parsed.settings?.year ?? 0),
-        lastAuctionReport: parsed.lastAuctionReport ?? "",
-        lastIncomeSummary: parsed.lastIncomeSummary ?? "",
-        postIncomePromptYear: parsed.postIncomePromptYear ?? null,
-        simulationMemory: normalizeSimulationMemory(parsed.simulationMemory ?? []),
-      };
+      return normalizeStateShape(JSON.parse(saved));
     } catch {
       // Fall through to fresh state.
     }
   }
+  return createFreshState();
+}
+
+function createFreshState() {
   return {
     ais: normalizeAis(structuredClone(DEFAULT_AIS)),
     settings: defaultSettings(),
@@ -791,6 +788,31 @@ function loadState() {
     lastIncomeSummary: "",
     postIncomePromptYear: null,
     simulationMemory: [],
+    savedAt: null,
+  };
+}
+
+function normalizeStateShape(parsed = {}) {
+  const settings = normalizeSettings(parsed.settings);
+  return {
+    ais: normalizeAis(parsed.ais ?? structuredClone(DEFAULT_AIS)),
+    settings,
+    auction: normalizeAuction(parsed.auction ?? emptyAuction()),
+    log: parsed.log ?? [],
+    pendingCounters: parsed.pendingCounters ?? [],
+    cardHistory: parsed.cardHistory ?? [],
+    profileDrawYears: parsed.profileDrawYears ?? [],
+    usedBiomes: parsed.usedBiomes ?? [],
+    biomeDraws: parsed.biomeDraws ?? {},
+    biomeChoices: parsed.biomeChoices ?? {},
+    cardForecast: Array.isArray(parsed.cardForecast) ? parsed.cardForecast : [],
+    cardForecastKey: parsed.cardForecastKey ?? "",
+    fortuneWheel: normalizeFortuneWheel(parsed.fortuneWheel, settings.year ?? 0),
+    lastAuctionReport: parsed.lastAuctionReport ?? "",
+    lastIncomeSummary: parsed.lastIncomeSummary ?? "",
+    postIncomePromptYear: parsed.postIncomePromptYear ?? null,
+    simulationMemory: normalizeSimulationMemory(parsed.simulationMemory ?? []),
+    savedAt: parsed.savedAt ?? null,
   };
 }
 
@@ -959,12 +981,142 @@ function emptyAuction() {
 }
 
 function saveAndRender() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  persistState();
   render();
+}
+
+function persistState(options = {}) {
+  const { remote = true, touch = true } = options;
+  if (touch) {
+    state.savedAt = new Date().toISOString();
+    serverPersistence.lastSavedAt = state.savedAt;
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if (remote) queueServerStateSave();
+  renderPersistenceStatus();
+}
+
+function queueServerStateSave() {
+  if (serverPersistence.available === false) {
+    renderPersistenceStatus();
+    return;
+  }
+  clearTimeout(serverSaveTimer);
+  serverSaveTimer = setTimeout(saveStateToServer, SERVER_STATE_DEBOUNCE_MS);
+}
+
+async function saveStateToServer() {
+  serverPersistence.saving = true;
+  renderPersistenceStatus();
+  try {
+    const response = await fetch(SERVER_STATE_ENDPOINT, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ storageKey: STORAGE_KEY, state }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const result = await response.json();
+    serverPersistence.checked = true;
+    serverPersistence.available = true;
+    serverPersistence.saving = false;
+    serverPersistence.lastSavedAt = result.savedAt ?? state.savedAt ?? "";
+    serverPersistence.message = "Mémoire serveur sauvegardée";
+  } catch {
+    serverPersistence.checked = true;
+    serverPersistence.available = false;
+    serverPersistence.saving = false;
+    serverPersistence.message = "Mémoire navigateur uniquement";
+  }
+  renderPersistenceStatus();
+}
+
+async function hydrateStateFromServer() {
+  try {
+    const response = await fetch(SERVER_STATE_ENDPOINT, { cache: "no-store" });
+    serverPersistence.checked = true;
+
+    if (response.status === 204 || response.status === 404) {
+      serverPersistence.available = true;
+      serverPersistence.message = "Mémoire serveur prête";
+      renderPersistenceStatus();
+      if (state.savedAt) queueServerStateSave();
+      return;
+    }
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const payload = await response.json();
+    const serverState = normalizeStateShape(payload.state ?? {});
+    const serverSavedAt = getTimestamp(payload.savedAt ?? serverState.savedAt);
+    const localSavedAt = getTimestamp(state.savedAt);
+
+    serverPersistence.available = true;
+    serverPersistence.lastSavedAt = payload.savedAt ?? serverState.savedAt ?? "";
+    serverPersistence.message = "Mémoire serveur chargée";
+
+    if (serverSavedAt > localSavedAt) {
+      state = serverState;
+      handleAgeMilestones();
+      persistState({ remote: false, touch: false });
+      render();
+      showToast("Session restaurée depuis la mémoire serveur");
+      return;
+    }
+
+    renderPersistenceStatus();
+    if (localSavedAt > serverSavedAt) queueServerStateSave();
+  } catch {
+    serverPersistence.checked = true;
+    serverPersistence.available = false;
+    serverPersistence.message = "Mémoire navigateur uniquement";
+    renderPersistenceStatus();
+  }
+}
+
+async function deleteStateFromServer() {
+  try {
+    await fetch(SERVER_STATE_ENDPOINT, { method: "DELETE" });
+  } catch {
+    // Le stockage navigateur reste réinitialisé même si le serveur statique ne gère pas l'API.
+  }
+}
+
+function getTimestamp(value) {
+  const time = Date.parse(value ?? "");
+  return Number.isFinite(time) ? time : 0;
+}
+
+function renderPersistenceStatus() {
+  if (!els.sessionPersistenceStatus) return;
+  const localText = state.savedAt ? `local ${formatClockTime(state.savedAt)}` : "local prêt";
+  let text = serverPersistence.message || "Mémoire : chargement";
+  let className = "session-memory-status";
+
+  if (serverPersistence.saving) {
+    text = "Mémoire : sauvegarde...";
+    className += " ok";
+  } else if (serverPersistence.available) {
+    const savedText = serverPersistence.lastSavedAt ? formatClockTime(serverPersistence.lastSavedAt) : localText;
+    text = `Mémoire serveur : ${savedText}`;
+    className += " ok";
+  } else if (serverPersistence.checked) {
+    text = `Mémoire navigateur : ${localText}`;
+    className += " warn";
+  }
+
+  els.sessionPersistenceStatus.textContent = text;
+  els.sessionPersistenceStatus.className = className;
+}
+
+function formatClockTime(value) {
+  const time = new Date(value);
+  if (Number.isNaN(time.getTime())) return "prête";
+  return time.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 }
 
 function render() {
   removeLegacyBiomePanel();
+  renderPersistenceStatus();
   renderParticipantsSetup();
   renderSettings();
   renderAgeEvents();
@@ -995,7 +1147,7 @@ function renderParticipantsSetup() {
     input.placeholder = DEFAULT_REPRESENTATIVE_NAMES[index] ?? `Représentant ${index + 1}`;
     input.addEventListener("input", () => {
       ai.name = sanitizeRepresentativeName(input.value, index);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      persistState();
       syncRepresentativeNameDisplays(ai);
     });
     input.addEventListener("change", () => {
@@ -2032,7 +2184,7 @@ function archiveMemoryIfNew(type, text, options = {}) {
   pushUndo();
   state.simulationMemory = state.simulationMemory ?? [];
   state.simulationMemory.push(entry);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  persistState();
   renderMemoryPanel();
   return true;
 }
@@ -3411,7 +3563,7 @@ function ensureBiomeDrawsForCurrentYearWithUndo() {
   if (state.biomeDraws?.[state.settings.year]) return;
   pushUndo();
   createBiomeDrawsForCurrentYear();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  persistState();
 }
 
 function createBiomeDrawsForCurrentYear() {
@@ -4176,7 +4328,7 @@ function copyLog() {
   const report = buildAuctionReportPrompt();
   archiveMemoryIfNew("Compte rendu d'enchère", report, { important: state.auction.closed });
   state.lastAuctionReport = report;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  persistState();
   copyText(report, "Compte rendu copié");
 }
 
@@ -4241,6 +4393,7 @@ function resetAll() {
   if (!confirm("Réinitialiser cette appli d'enchère temps réel ?")) return;
   pushUndo();
   localStorage.removeItem(STORAGE_KEY);
+  deleteStateFromServer();
   state = loadState();
   handleAgeMilestones();
   saveAndRender();
@@ -4258,7 +4411,7 @@ function undo() {
     return;
   }
   state = JSON.parse(previous);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  persistState();
   showToast("Action annulée");
   render();
 }
