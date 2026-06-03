@@ -3499,9 +3499,9 @@ function buildWorldRulesText() {
     "- Chaque choix de biome indique sa dangerosité /20, ses matériaux générés et sa lecture stratégique.",
     `- Biomes autorisés : ${BIOMES.map(formatBiomeNameWithDanger).join(", ")}.`,
     "- Les territoires sont séparés par des rivières traversables par bateau, pas par des murs absolus.",
-    "- Les guerres peuvent donc arriver vite si les royaumes se rencontrent naturellement.",
+    "- Les rencontres de frontières, accès maritimes et voisinages créent des tensions stratégiques, mais la diplomatie naturelle est désactivée dans cette simulation.",
     "- Les pouvoirs manuels Guerre et Alliance restent réservés aux cartes d'enchère : une IA ne peut pas les forcer sans carte.",
-    "- Si la loi mondiale Diplomacy est activée, les guerres, alliances, paix, complots et rébellions générés naturellement par WorldBox sont des événements autonomes officiels, distincts des cartes diplomatiques forcées.",
+    "- Les guerres, alliances, paix, complots et rébellions naturels de WorldBox sont désactivés : si une carte Guerre ou Alliance existe, c'est précisément pour contrôler ces bascules par enchère.",
     "- Les colons naturels restent activés : l'expansion naturelle ne dépend pas d'une carte d'enchère.",
     "- Le MJ peut stopper ou nettoyer une catastrophe incontrôlable si elle menace de détruire la simulation entière, mais ce n'est pas une garantie de sauvetage.",
   ];
@@ -3512,23 +3512,29 @@ function buildWorldRulesText() {
 function buildAutonomousWorldboxRulesText() {
   return `Principe général :
 - Ces événements peuvent arriver directement dans WorldBox si les lois mondiales correspondantes sont activées. Ils ne sont pas des cartes d'enchère et aucune IA ne les contrôle directement.
+- Quand WorldBox affiche un message automatique en jeu, par exemple l'arrivée d'un mage, d'un nécromancien, d'un dragon, d'une invasion, d'une catastrophe ou d'une crise locale, ce message devient un événement officiel de simulation.
 - Le MJ les observe, les note dans la mémoire, puis les annonce comme événement WorldBox, résultat naturel, catastrophe, âge ou décision de simulation.
 - Une IA peut réagir politiquement ou militairement à un événement naturel, mais elle ne peut pas prétendre l'avoir déclenché sans carte, roue, tribunal ou décision MJ explicite.
 - Les cartes d'enchère restent les seuls moyens garantis de forcer une catastrophe, un pouvoir, une guerre ou une alliance à un moment précis.
 - Si un événement autonome menace de détruire toute la simulation, le MJ peut l'arrêter, le nettoyer ou l'encadrer, mais ce n'est pas une protection garantie.
 
-Lois mondiales autonomes importantes :
-- Natural Disasters : active les catastrophes naturelles aléatoires.
-- Other Disasters : active les invasions, mages, monstres et crises spéciales aléatoires.
-- Ages / Age Clock : les âges modifient le climat, les cultures, les nuages, les chances de catastrophes et parfois les statuts.
-- Diplomacy : les royaumes peuvent former alliances, paix, guerres et complots sans carte d'enchère.
-- Rebellions : les villes peuvent se révolter si la loyauté tombe trop bas ; fracture possible si la dynastie royale s'effondre.
-- Magic Rites : des rois ou leaders religieux peuvent lancer des rites si la religion et les conditions le permettent.
-- Kingdom Expansion : les royaumes peuvent envoyer des colons et fonder des villages naturellement.
-- Civ Babies, Hunger, Old Age, Armies, Animal Babies et Animal Spawn : naissances, famine, vieillesse, armées et faune continuent sans intervention MJ.
-- Handsome Migrants : si activé, des migrants peuvent apparaître près du feu de camp des villages de 100 habitants ou moins.
-- Rat King : si activé, un groupe de plus de 20 rats proches peut déclencher une peste avec une chance annoncée par le wiki de 14%.
-- Evolution Events : si activé, les monolithes peuvent provoquer évolutions ou mutations proches.
+Configuration des lois mondiales pour cette simulation :
+- ACTIVÉ - Natural Disasters : catastrophes naturelles aléatoires.
+- ACTIVÉ - Other Disasters : invasions, mages, monstres et crises spéciales aléatoires.
+- ACTIVÉ - Ages / Age Clock : les âges changent le climat, les cultures, les nuages, les chances de catastrophes et parfois les statuts.
+- DÉSACTIVÉ - Diplomacy : pas de guerres, alliances, paix ou complots naturels. Ces actions passent par les cartes d'enchère ou une décision MJ explicite.
+- DÉSACTIVÉ - Rebellions : pas de révoltes naturelles de villes ni fractures politiques automatiques. Si une rébellion arrive, elle doit venir d'une carte, d'un arbitrage MJ ou d'une règle spéciale annoncée.
+- DÉSACTIVÉ - Magic Rites : pas de rites magiques autonomes lancés par les rois, leaders ou religions.
+- ACTIVÉ - Kingdom Expansion : les royaumes peuvent envoyer des colons et fonder des villages naturellement.
+- ACTIVÉ - Civ Babies : les enfants naissent naturellement dans les villages.
+- ACTIVÉ - Hunger : la nourriture compte ; famine et manque de vivres peuvent tuer ou affaiblir une civilisation.
+- ACTIVÉ - Old Age : les créatures peuvent mourir de vieillesse.
+- ACTIVÉ - Armies : les civilisations forment et maintiennent des armées.
+- ACTIVÉ - Animal Babies et Animal Spawn : la faune peut apparaître et se reproduire naturellement.
+- ACTIVÉ - Handsome Migrants : des migrants peuvent apparaître près du feu de camp des villages de 100 habitants ou moins.
+- ACTIVÉ - Rat King : un groupe de plus de 20 rats proches peut déclencher une peste avec une chance annoncée par le wiki de 14%.
+- ACTIVÉ - Evolution Events : les monolithes peuvent provoquer évolutions ou mutations proches.
+- Les autres lois non diplomatiques restent actives ou au réglage par défaut du MJ, sauf annonce contraire. Si une loi non listée devient importante, le MJ annonce son état avant d'en tirer une conséquence stratégique.
 
 Catastrophes naturelles possibles avec Natural Disasters :
 - Earthquake : tremblement de terre naturel. Conditions indicatives : 400 population mondiale, 5 villes, tous les âges sauf Hope et Sun. Moins destructeur que l'Earthquake lancé manuellement par pouvoir.
