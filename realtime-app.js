@@ -3500,12 +3500,91 @@ function buildWorldRulesText() {
     `- Biomes autorisés : ${BIOMES.map(formatBiomeNameWithDanger).join(", ")}.`,
     "- Les territoires sont séparés par des rivières traversables par bateau, pas par des murs absolus.",
     "- Les guerres peuvent donc arriver vite si les royaumes se rencontrent naturellement.",
-    "- Le MJ désactive les onglets Guerre et Alliance dans WorldBox : ces actions existent seulement comme cartes d'enchère.",
+    "- Les pouvoirs manuels Guerre et Alliance restent réservés aux cartes d'enchère : une IA ne peut pas les forcer sans carte.",
+    "- Si la loi mondiale Diplomacy est activée, les guerres, alliances, paix, complots et rébellions générés naturellement par WorldBox sont des événements autonomes officiels, distincts des cartes diplomatiques forcées.",
     "- Les colons naturels restent activés : l'expansion naturelle ne dépend pas d'une carte d'enchère.",
     "- Le MJ peut stopper ou nettoyer une catastrophe incontrôlable si elle menace de détruire la simulation entière, mais ce n'est pas une garantie de sauvetage.",
   ];
 
   return [...sharedLines, ...modeLines, ...territoryLines, ...closingLines].join("\n");
+}
+
+function buildAutonomousWorldboxRulesText() {
+  return `Principe général :
+- Ces événements peuvent arriver directement dans WorldBox si les lois mondiales correspondantes sont activées. Ils ne sont pas des cartes d'enchère et aucune IA ne les contrôle directement.
+- Le MJ les observe, les note dans la mémoire, puis les annonce comme événement WorldBox, résultat naturel, catastrophe, âge ou décision de simulation.
+- Une IA peut réagir politiquement ou militairement à un événement naturel, mais elle ne peut pas prétendre l'avoir déclenché sans carte, roue, tribunal ou décision MJ explicite.
+- Les cartes d'enchère restent les seuls moyens garantis de forcer une catastrophe, un pouvoir, une guerre ou une alliance à un moment précis.
+- Si un événement autonome menace de détruire toute la simulation, le MJ peut l'arrêter, le nettoyer ou l'encadrer, mais ce n'est pas une protection garantie.
+
+Lois mondiales autonomes importantes :
+- Natural Disasters : active les catastrophes naturelles aléatoires.
+- Other Disasters : active les invasions, mages, monstres et crises spéciales aléatoires.
+- Ages / Age Clock : les âges modifient le climat, les cultures, les nuages, les chances de catastrophes et parfois les statuts.
+- Diplomacy : les royaumes peuvent former alliances, paix, guerres et complots sans carte d'enchère.
+- Rebellions : les villes peuvent se révolter si la loyauté tombe trop bas ; fracture possible si la dynastie royale s'effondre.
+- Magic Rites : des rois ou leaders religieux peuvent lancer des rites si la religion et les conditions le permettent.
+- Kingdom Expansion : les royaumes peuvent envoyer des colons et fonder des villages naturellement.
+- Civ Babies, Hunger, Old Age, Armies, Animal Babies et Animal Spawn : naissances, famine, vieillesse, armées et faune continuent sans intervention MJ.
+- Handsome Migrants : si activé, des migrants peuvent apparaître près du feu de camp des villages de 100 habitants ou moins.
+- Rat King : si activé, un groupe de plus de 20 rats proches peut déclencher une peste avec une chance annoncée par le wiki de 14%.
+- Evolution Events : si activé, les monolithes peuvent provoquer évolutions ou mutations proches.
+
+Catastrophes naturelles possibles avec Natural Disasters :
+- Earthquake : tremblement de terre naturel. Conditions indicatives : 400 population mondiale, 5 villes, tous les âges sauf Hope et Sun. Moins destructeur que l'Earthquake lancé manuellement par pouvoir.
+- Heatwave : vague de chaleur. Age requis : Sun. Peut aggraver sécheresse, incendies et pression alimentaire.
+- Meteorite : météorite. Conditions indicatives : 400 population mondiale, 3 villes, tous les âges sauf Hope et Sun, sauf cas spécial lié au trait Unlucky.
+- Tornado : tornade. Conditions indicatives : 100 population mondiale, 3 villes, âges Tears, Ash, Chaos, Wonders ou Moon.
+- Unlucky Meteorite : très faible chance de météorite ciblant une unité avec le trait Unlucky, âgée d'au moins 30 ans, si le monde a au moins 5 villes.
+- Doomed Glyphs Meteorite : risque de météorite quand une unité sans trait Lucky lit un livre lié au trait de langue Doomed Glyphs.
+- Spawn Cloud : permet l'apparition naturelle de certains nuages spéciaux selon les âges.
+
+Autres catastrophes possibles avec Other Disasters :
+- Ash bandits : 15 à 30 bandits en Age of Ash ; conditions indicatives : 700 population mondiale, 10 villes, moins de 11 bandits déjà présents.
+- Biomass monstrosity : une structure Biomass et 20 à 30 bioblobs en Age of Ash ; conditions indicatives : 700 population, 10 villes.
+- Dragon from far lands : un dragon attiré par la civilisation en Chaos, Dark ou Despair ; conditions indicatives : 3000 population, 10 villes, moins de 2 dragons.
+- Wild mage : un Evil Mage apparaît ; conditions indicatives : 400 population, 5 villes, tous les âges sauf Hope, moins de 2 Evil Mages.
+- Garden surprise : Super Pumpkin et 50 à 100 Lil Pumpkins autour d'un moulin ; conditions indicatives : Sun ou Wonders, 800 population, 5 villes, moulin requis.
+- Greg : 30 à 55 Gregs en Age of Despair si debug/condition spéciale, mine disponible, 1000 population et 3 villes.
+- Ice ones from dreams : 10 à 20 Cold Ones en Ice ou Despair ; conditions indicatives : 300 population, 5 villes.
+- Mad thoughts : une ville d'au moins 50 habitants peut voir environ 20% de ses citoyens tomber en Madness ; conditions indicatives : 150 population, 5 villes, tous les âges sauf Hope et Wonders.
+- Underground necromancer : un nécromancien et 16 squelettes sortent d'une mine en Dark ou Despair ; conditions indicatives : 200 population, 4 villes.
+- Sudden snowman : 20 à 40 Snowmen en Age of Ice ; conditions indicatives : 100 population, 5 villes.
+- Alien invasion : 5 à 10 UFOs en Age of Moon ; conditions indicatives : 1500 population, 10 villes.
+- Hellspawn : 2 à 5 démons en Age of Chaos ; conditions indicatives : 300 population, 5 villes.
+- Moon horrors : Tumor + 20 à 30 monstres tumoraux en Age of Moon ; conditions indicatives : 700 population, 10 villes.
+
+Effets autonomes sans message direct :
+- Fire Elementals : en Age of Sun, un feu qui s'éteint sur une tuile peut faire apparaître un Fire Elemental avec une faible chance si le monde n'en contient pas trop.
+- Inner Demons : en Age of Chaos, les unités sous Rage peuvent devenir des démons ; un soldat tuant un ennemi peut aussi déclencher ce risque selon les conditions.
+- Ice Babies : en Age of Despair, les enfants touchés par des particules de neige peuvent devenir des Cold Ones.
+
+Nuages naturels importants :
+- Cloud of Life : peut soutenir végétation/faune et parfois créatures selon les lois actives ; apparaît dans plusieurs âges favorables ou après certains traits Gaia.
+- Snow Cloud : Ice et Despair ; neige, gel, et risque Ice Babies en Despair.
+- Rain Cloud : surtout Tears ; éteint les feux, retire Burning, refroidit la lave et peut soutenir cultures/biomes.
+- Lightning Cloud : Tears ; produit de la foudre.
+- Ash Cloud : Ash ; peut appliquer Cough et Ash Fever.
+- Magic Cloud : Wonders ; peut donner shield, powerup, spell boost, caffeinated et restaurer du mana.
+- Rage Cloud : Chaos ; peut donner Rage, donc risque politique et militaire majeur.
+- Hell Cloud, Lava Cloud, Acid Cloud : nuages destructeurs possibles selon catastrophe ou pouvoir ; feu, lave ou acide.
+
+Âges WorldBox et effets stratégiques :
+- Age of Hope : âge stable et favorable. Dégele le monde, bonus de loyauté/opinion, faible pression climatique. C'est l'âge de croissance et de reconstruction.
+- Age of Sun : chaleur extrême. Dégel mondial et montagnes dégelées, croissance végétale désactivée, sécheresse qui tue des arbres, feu plus dangereux, Snowmen endommagés, possibilité de Fire Elementals. Très risqué pour forêts, agriculture et villes inflammables.
+- Age of Dark : obscurité. Portée des armes réduite de 50%, loyauté/opinion négatives, chance de destruction des cultures lors de leur croissance. Favorise les crises internes et les menaces nocturnes.
+- Age of Tears : pluie mondiale. Éteint les feux, retire souvent Burning, fait apparaître pluie/foudre, endommage certains êtres hydrophobes et tue les Fire Elementals. Peut sauver un monde brûlé mais perturber les armées.
+- Age of Moon : âge nocturne/magique. Favorise certains nuages et catastrophes lunaires comme UFOs ou Moon horrors ; effets de traits moonchild actifs.
+- Age of Chaos : âge de guerre et de rage. Loyauté et opinion s'effondrent fortement, Rage peut créer des démons, Hellspawn possible. Très dangereux si des armées se battent déjà.
+- Age of Wonders : âge magique. Nuages magiques, biomes Candy/Enchanted favorisés, catastrophes comme Garden surprise ou tornades possibles. Bon pour croissance magique mais imprévisible.
+- Age of Ice : gel mondial. Croissance très freinée, cultures menacées, hydrophobic units et Fire Elementals prennent des dégâts, Cold Ones/Snowmen possibles. Famine et ralentissement militaire probables.
+- Age of Ash : maladie et cendres. Loyauté/opinion négatives, croissance de biomes affaiblie, Ash Clouds, Ash Fever/Cough, bandits et Biomass possibles. Très dangereux pour villes denses.
+- Age of Despair : hiver noir. Gel, obscurité, portée réduite de 50%, cultures menacées, Snow Clouds transformant des enfants en Cold Ones, nécromanciens/Greg/dragons possibles selon conditions. L'âge suivant est forcé vers Hope.
+
+Fréquence indicative des âges :
+- Les âges durent au minimum environ 30 ans ; les durées usuelles listées par le wiki sont souvent 35-55 ans ou 30-40 ans selon l'âge.
+- En moyenne sur l'Age Clock, Hope occupe environ 53.1% du temps ; Dark, Tears, Moon et Wonders environ 8.8% chacun ; Sun, Chaos et Ash environ 2.5% chacun ; Ice et Despair environ 2.0% chacun.
+- Le MJ note l'âge actif quand il influence une enchère, un revenu, une guerre, une famine, une catastrophe ou une chute de population.`;
 }
 
 function getThresholdExamplesText() {
@@ -4235,6 +4314,9 @@ Ordre de lancement à l'an 0 :
 
 Carte et monde :
 ${buildWorldRulesText()}
+
+Événements WorldBox sans intervention du créateur :
+${buildAutonomousWorldboxRulesText()}
 
 Système d'enchères :
 - La simulation tourne en continu.
