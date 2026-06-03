@@ -1949,7 +1949,7 @@ function addPromptGroup(title, prompts) {
     row.className = "prompt-action-row";
 
     const button = document.createElement("button");
-    button.className = prompt.primary ? "prompt-button" : "prompt-button secondary";
+    button.className = prompt.primary ? "prompt-button primary-prompt" : "prompt-button secondary";
     button.type = "button";
 
     const label = document.createElement("span");
