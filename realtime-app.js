@@ -137,6 +137,16 @@ const WHEEL_MIN_OFFSET = 50;
 const WHEEL_MAX_OFFSET = 500;
 const WHEEL_STEP = 50;
 const WHEEL_VISIBLE_OPTIONS = 20;
+const WB_WHEEL_SPIN_DURATION_MS = 6600;
+const WB_WHEEL_MIN_EXTRA_SPINS = 3;
+const WB_WHEEL_EXTRA_SPIN_VARIANCE = 3;
+const WB_WHEEL_SEGMENT_COLORS = ["#1e293b", "#0f172a", "#312e81", "#111827", "#223047", "#0f172a"];
+const WB_FALLBACK_WHEEL_LABELS = [
+  "+30", "-10", "VOL 20", "x2", "/2",
+  "-25%", "TRIB 5", "RIEN", "PASSE+", "SAB -20",
+  "DRAGON", "MINE", "VOLCAN", "DUST", "BOUCLIER",
+  "MADNESS", "PLUIE", "MIRACLE", "MAGE", "DESTIN",
+];
 
 const WHEEL_EVENTS = [
   { id: "coin_5", title: "PETIT GAIN", effect: "+5 pièces.", expectedValue: 5, action: { type: "coins", amount: 5 } },
@@ -596,6 +606,10 @@ let state = loadState();
 let undoStack = [];
 let expandedPromptGroups = new Set();
 let serverSaveTimer = null;
+let wbCurrentRotation = 0;
+let wbLastRenderedCardKey = "";
+let wbLastRenderedBidValue = null;
+let wbAudioCtx = null;
 let serverPersistence = {
   checked: false,
   available: null,
@@ -659,6 +673,19 @@ const els = {
   forcedPowerSelect: document.querySelector("#forcedPowerSelect"),
   futureCardsPanel: document.querySelector("#futureCardsPanel"),
   fortuneWheelPanel: document.querySelector("#fortuneWheelPanel"),
+  wbTriggerWheel: document.querySelector("#wb-trigger-wheel"),
+  wbWheelModal: document.querySelector("#wb-wheel-modal"),
+  wbFortuneWheel: document.querySelector("#wb-fortune-wheel"),
+  wbWheelTitle: document.querySelector("#wb-wheel-title"),
+  wbWheelMeta: document.querySelector("#wb-wheel-meta"),
+  wbWheelCenter: document.querySelector("#wb-wheel-center"),
+  wbWheelAiList: document.querySelector("#wb-wheel-ai-list"),
+  wbWheelCurrentOption: document.querySelector("#wb-wheel-current-option"),
+  wbSpinWheelBtn: document.querySelector("#wb-spin-wheel-btn"),
+  wbCloseWheelBtn: document.querySelector("#wb-close-wheel-btn"),
+  wbEndWheelBtn: document.querySelector("#wb-end-wheel-btn"),
+  wbCopyWheelResultsBtn: document.querySelector("#wb-copy-wheel-results-btn"),
+  wbWheelResult: document.querySelector("#wb-wheel-result"),
   incrementOutput: document.querySelector("#incrementOutput"),
   eventReminders: document.querySelector("#eventReminders"),
 };
@@ -668,6 +695,16 @@ document.querySelector("#bidBtn").addEventListener("click", placeBid);
 document.querySelector("#passBtn").addEventListener("click", passTurn);
 document.querySelector("#undoBtn").addEventListener("click", undo);
 document.querySelector("#resetBtn").addEventListener("click", resetAll);
+els.wbTriggerWheel?.addEventListener("click", wbOpenWheel);
+els.wbSpinWheelBtn?.addEventListener("click", wbSpinWheel);
+els.wbCloseWheelBtn?.addEventListener("click", wbCloseWheel);
+els.wbEndWheelBtn?.addEventListener("click", closeFortuneWheelEvent);
+els.wbCopyWheelResultsBtn?.addEventListener("click", copyFortuneWheelResultsPrompt);
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || !isWheelModalOpen()) return;
+  if (state.fortuneWheel?.spinning) return;
+  wbCloseWheel();
+});
 els.addMemoryBtn.addEventListener("click", addManualMemory);
 els.importMemoryBtn.addEventListener("click", importMemoryFromInput);
 els.copyMemoryBtn.addEventListener("click", copySimulationMemory);
@@ -1128,6 +1165,8 @@ function render() {
   renderMemoryPanel();
   renderProfilesGuide();
   renderPromptHub();
+  renderFortuneWheelTrigger();
+  wbRenderWheelModal();
 }
 
 function renderParticipantsSetup() {
@@ -1347,6 +1386,334 @@ function renderFortuneWheelPanel() {
   }
 }
 
+function renderFortuneWheelTrigger() {
+  if (!els.wbTriggerWheel) return;
+  ensureFortuneWheelSchedule();
+  const wheel = state.fortuneWheel;
+  const active = Boolean(wheel?.active);
+  const pendingTurns = active ? getTotalFortuneWheelPendingTurns() : 0;
+  els.wbTriggerWheel.hidden = !active;
+  els.wbTriggerWheel.disabled = !active;
+  els.wbTriggerWheel.textContent = pendingTurns
+    ? `Roue de la Fortune - ${pendingTurns} tour${pendingTurns > 1 ? "s" : ""}`
+    : "Roue de la Fortune";
+}
+
+function isWheelModalOpen() {
+  return Boolean(els.wbWheelModal && !els.wbWheelModal.classList.contains("wb-hidden"));
+}
+
+function wbOpenWheel() {
+  ensureFortuneWheelSchedule();
+  if (!state.fortuneWheel?.active) {
+    showToast(`Roue prévue An ${state.fortuneWheel?.nextYear ?? "inconnu"}`);
+    return;
+  }
+  if (!els.wbWheelModal) return;
+  els.wbWheelModal.classList.remove("wb-hidden");
+  els.wbWheelModal.setAttribute("aria-hidden", "false");
+  wbRenderWheelModal();
+}
+
+function wbCloseWheel() {
+  if (!els.wbWheelModal) return;
+  els.wbWheelModal.classList.add("wb-hidden");
+  els.wbWheelModal.setAttribute("aria-hidden", "true");
+}
+
+function wbSpinWheel() {
+  if (!state.fortuneWheel?.active) {
+    showToast("La Roue de la Fortune n'est pas active");
+    return;
+  }
+  launchFortuneWheelSpin();
+}
+
+function wbRenderWheelModal() {
+  if (!els.wbWheelModal || !state.fortuneWheel) return;
+  const wheel = state.fortuneWheel;
+  const nextAi = getNextFortuneWheelAi();
+  const pendingTurns = getTotalFortuneWheelPendingTurns();
+  const activeOption = wheel.currentSpinOptions?.[wheel.currentSpinIndex];
+  const activeEvent = activeOption ? getWheelEvent(activeOption) : null;
+  wbRenderWheelSegments(wheel.currentSpinOptions ?? []);
+
+  if (els.wbWheelTitle) els.wbWheelTitle.textContent = "Roue de la Fortune";
+  if (els.wbWheelMeta) {
+    els.wbWheelMeta.textContent = wheel.active
+      ? `An ${wheel.activeYear} - coût ${WHEEL_SPIN_COST} pièces par tour - ${pendingTurns} tour${pendingTurns > 1 ? "s" : ""} en attente.`
+      : `Prochaine apparition prévue : An ${wheel.nextYear}.`;
+  }
+  if (els.wbWheelCenter) {
+    els.wbWheelCenter.textContent = wheel.spinning ? "La roue tourne" : (nextAi ? nextAi.name : "Destin");
+  }
+  if (els.wbWheelCurrentOption) {
+    els.wbWheelCurrentOption.textContent = wheel.spinning
+      ? (activeEvent?.title ?? "La roue tourne...")
+      : (nextAi ? `Prochain tour : ${nextAi.name}` : "Aucun tour en attente.");
+  }
+
+  if (els.wbWheelAiList) {
+    els.wbWheelAiList.innerHTML = "";
+    getFortuneWheelOrder().forEach((ai) => {
+      const row = document.createElement("div");
+      row.className = "wb-wheel-ai-row";
+      const info = document.createElement("div");
+      const name = document.createElement("strong");
+      name.textContent = ai.name;
+      const details = document.createElement("span");
+      details.textContent = `${ai.coins} pièces - ${getFortuneWheelTurnsForAi(ai.id)} tour${getFortuneWheelTurnsForAi(ai.id) > 1 ? "s" : ""}`;
+      info.append(name, details);
+
+      const button = document.createElement("button");
+      button.className = "wb-btn-ghost";
+      button.type = "button";
+      button.textContent = `Acheter -${WHEEL_SPIN_COST}`;
+      button.disabled = !wheel.active || ai.coins < WHEEL_SPIN_COST || wheel.spinning;
+      button.addEventListener("click", () => buyFortuneWheelTurn(ai.id));
+
+      row.append(info, button);
+      els.wbWheelAiList.appendChild(row);
+    });
+  }
+
+  if (els.wbSpinWheelBtn) {
+    els.wbSpinWheelBtn.disabled = !wheel.active || !nextAi || wheel.spinning;
+    els.wbSpinWheelBtn.textContent = wheel.spinning
+      ? "La roue tourne..."
+      : (nextAi ? `Lancer ${nextAi.name}` : "Aucun tour");
+  }
+  if (els.wbEndWheelBtn) {
+    els.wbEndWheelBtn.disabled = !wheel.active || pendingTurns > 0 || wheel.spinning;
+  }
+  if (els.wbCopyWheelResultsBtn) {
+    els.wbCopyWheelResultsBtn.disabled = !wheel.results.length;
+  }
+  if (els.wbCloseWheelBtn) {
+    els.wbCloseWheelBtn.disabled = Boolean(wheel.spinning);
+  }
+  if (els.wbWheelResult) {
+    const resultText = wheel.lastResultText ?? "";
+    els.wbWheelResult.textContent = resultText;
+    els.wbWheelResult.classList.toggle("wb-hidden", !resultText);
+  }
+}
+
+function wbAnimateCardReveal() {
+  const cardElement = document.querySelector(".auction-panel");
+  if (!cardElement) return;
+  cardElement.classList.remove("wb-card-reveal-anim");
+  cardElement.classList.remove("wb-card-reveal");
+  void cardElement.offsetWidth;
+  cardElement.classList.add("wb-card-reveal-anim");
+  cardElement.classList.add("wb-card-reveal");
+}
+
+function wbFlashBidAmount() {
+  const bidEl = els.currentBid ?? document.querySelector("#currentBid");
+  if (!bidEl) return;
+  bidEl.classList.remove("wb-bid-update");
+  void bidEl.offsetWidth;
+  bidEl.classList.add("wb-bid-update");
+  wbPlaySound("coin");
+}
+
+function wbRenderWheelSegments(optionIds = []) {
+  if (!els.wbFortuneWheel) return;
+  els.wbFortuneWheel.querySelectorAll(".wb-wheel-label").forEach((node) => node.remove());
+
+  const eventLabels = optionIds
+    .map((id) => getWheelEvent(id))
+    .filter(Boolean)
+    .map(getWheelSegmentLabel);
+  const labels = eventLabels.length ? eventLabels : WB_FALLBACK_WHEEL_LABELS;
+  const segmentCount = Math.max(1, labels.length);
+  wbPaintWheelSegments(segmentCount);
+
+  labels.forEach((label, index) => {
+    const segmentCenter = (index * 360) / segmentCount;
+    const segment = document.createElement("div");
+    segment.className = "wb-wheel-label";
+    segment.style.setProperty("--wb-label-angle", `${segmentCenter - 90}deg`);
+    segment.title = optionIds[index] ? getWheelEvent(optionIds[index])?.title ?? label : label;
+    if (!state.fortuneWheel?.spinning && state.fortuneWheel?.lastResultText && index === state.fortuneWheel.currentSpinIndex) {
+      segment.classList.add("wb-wheel-label-result");
+    }
+
+    const text = document.createElement("span");
+    text.textContent = label;
+    segment.appendChild(text);
+    els.wbFortuneWheel.appendChild(segment);
+  });
+}
+
+function wbPaintWheelSegments(segmentCount) {
+  if (!els.wbFortuneWheel) return;
+  const count = Math.max(1, segmentCount);
+  const segmentDegrees = 360 / count;
+  const stops = Array.from({ length: count }, (_, index) => {
+    const start = roundCssDeg(index * segmentDegrees);
+    const end = roundCssDeg((index + 1) * segmentDegrees);
+    return `${WB_WHEEL_SEGMENT_COLORS[index % WB_WHEEL_SEGMENT_COLORS.length]} ${start}deg ${end}deg`;
+  }).join(", ");
+  els.wbFortuneWheel.style.background = [
+    "radial-gradient(circle at center, rgba(12, 17, 23, 0.96) 0 18%, transparent 19%)",
+    `conic-gradient(from ${roundCssDeg(-segmentDegrees / 2)}deg, ${stops})`,
+  ].join(", ");
+}
+
+function roundCssDeg(value) {
+  return Math.round(value * 1000) / 1000;
+}
+
+function getWheelSegmentLabel(event) {
+  if (!event) return "DESTIN";
+  const moneyLabel = getWheelMoneyLabel(event);
+  if (moneyLabel) return moneyLabel;
+
+  const source = normalizeMemorySearch(`${event.id} ${event.title} ${event.effect} ${event.action?.instruction ?? ""}`);
+
+  if (source.includes("madness")) return "MADNESS";
+  if (source.includes("guerre")) return "GUERRE";
+  if (source.includes("plague") || source.includes("peste") || source.includes("infection")) return "PESTE";
+  if (source.includes("dragon")) return "DRAGON";
+  if (source.includes("antimatter") || source.includes("antimatiere")) return "ANTI";
+  if (source.includes("bomb") || source.includes("bombe")) return "BOMBE";
+  if (source.includes("volcan")) return "VOLCAN";
+  if (source.includes("mage")) return "MAGE";
+  if (source.includes("fire") || source.includes("feu") || source.includes("incendie") || source.includes("foudre") || source.includes("lightning")) return "FEU";
+  if (source.includes("dust") || source.includes("poussiere")) return "DUST";
+  if (source.includes("shield") || source.includes("bouclier")) return "BOUCLIER";
+  if (source.includes("rain") || source.includes("pluie")) return "PLUIE";
+  if (source.includes("divine") || source.includes("miracle") || source.includes("benediction") || source.includes("blessing")) return "MIRACLE";
+  if (source.includes("fertil") || source.includes("reparation") || source.includes("reconstruction") || source.includes("antidote")) return "SOIN";
+  if (source.includes("mine") || source.includes("resource") || source.includes("ressource") || source.includes("stone") || source.includes("ore") || source.includes("silver") || source.includes("gold") || source.includes("mythril") || source.includes("gems")) return "MINE";
+  if (source.includes("steal") || source.includes("vol") || source.includes("braquage") || source.includes("ponction") || source.includes("tribut")) return "VOL";
+  if (source.includes("sabotage")) return "SABOTAGE";
+  if (source.includes("pass_max") || source.includes("bonus")) return "BONUS";
+  if (source.includes("loss") || source.includes("perte") || source.includes("crise") || source.includes("half") || source.includes("percent") || source.includes("maudit") || source.includes("coffre perce") || source.includes("honte")) return "PERTE";
+  if (source.includes("coin") || source.includes("fortune") || source.includes("tresor") || source.includes("jackpot") || source.includes("or") || source.includes("marche")) return "OR";
+  if (source.includes("bandit")) return "BANDITS";
+  if (source.includes("curse") || source.includes("malediction")) return "MALUS";
+  return shorten(event.title, 8).toUpperCase();
+}
+
+function getWheelMoneyLabel(event) {
+  const action = event?.action;
+  if (!action) return null;
+
+  if (action.type === "coins" && Number.isFinite(action.amount)) {
+    return formatWheelSignedAmount(action.amount);
+  }
+  if (action.type === "multiplyCoins" && Number.isFinite(action.factor)) {
+    return `x${formatWheelCompactNumber(action.factor)}`;
+  }
+  if (action.type === "divideCoins" && Number.isFinite(action.divisor)) {
+    return `/${formatWheelCompactNumber(action.divisor)}`;
+  }
+  if (action.type === "percentLoss" && Number.isFinite(action.percent)) {
+    return `-${formatWheelCompactNumber(action.percent)}%`;
+  }
+  if (action.type === "stealRichest" && Number.isFinite(action.amount)) {
+    return `VOL ${formatWheelCompactNumber(action.amount)}`;
+  }
+  if (action.type === "stealRichestPercent" && Number.isFinite(action.percent)) {
+    return `VOL ${formatWheelCompactNumber(action.percent)}%`;
+  }
+  if (action.type === "tribute" && Number.isFinite(action.amount)) {
+    return `TRIB ${formatWheelCompactNumber(action.amount)}`;
+  }
+  if (action.type === "sabotageRichest" && Number.isFinite(action.amount)) {
+    return `SAB -${formatWheelCompactNumber(action.amount)}`;
+  }
+  if (action.type === "swapPoorest") return "SWAP";
+  if (action.type === "passBonus") return action.mode === "max" ? "PASSE+" : "PASSE-";
+  if (action.type === "none") return "RIEN";
+  return null;
+}
+
+function formatWheelSignedAmount(value) {
+  const rounded = formatWheelCompactNumber(value);
+  return value > 0 ? `+${rounded}` : rounded;
+}
+
+function formatWheelCompactNumber(value) {
+  return Number.isInteger(value) ? String(value) : String(Math.round(value * 10) / 10);
+}
+
+function wbStartWheelVisualSpin(options, resultEvent) {
+  if (!els.wbFortuneWheel) return;
+  const wheel = els.wbFortuneWheel;
+  const segmentCount = Math.max(1, options.length);
+  const segmentDegrees = 360 / segmentCount;
+  const resultIndex = Math.max(0, options.findIndex((event) => event.id === resultEvent.id));
+  const targetCenter = resultIndex * segmentDegrees;
+  const extraSpins = 360 * (WB_WHEEL_MIN_EXTRA_SPINS + Math.floor(Math.random() * WB_WHEEL_EXTRA_SPIN_VARIANCE));
+  const normalizedBase = ((wbCurrentRotation % 360) + 360) % 360;
+  const targetRotation = (90 - targetCenter + 360) % 360;
+  wbCurrentRotation += extraSpins + ((targetRotation - normalizedBase + 360) % 360);
+
+  wheel.style.transition = "none";
+  wheel.style.transform = `rotate(${normalizedBase}deg)`;
+  void wheel.offsetWidth;
+  wheel.style.transition = `transform ${WB_WHEEL_SPIN_DURATION_MS}ms cubic-bezier(0.22, 0.52, 0.08, 1)`;
+  wheel.style.transform = `rotate(${wbCurrentRotation}deg)`;
+}
+
+function wbUpdateWheelModalOption(event) {
+  if (els.wbWheelCurrentOption && event) els.wbWheelCurrentOption.textContent = event.title;
+  if (els.wbWheelCenter) els.wbWheelCenter.textContent = "La roue tourne";
+}
+
+function wbGetAudioContext() {
+  if (wbAudioCtx) return wbAudioCtx;
+  const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextConstructor) return null;
+  wbAudioCtx = new AudioContextConstructor();
+  return wbAudioCtx;
+}
+
+function wbPlaySound(type) {
+  try {
+    const audioContext = wbGetAudioContext();
+    if (!audioContext) return;
+    if (audioContext.state === "suspended") audioContext.resume();
+
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+
+    const now = audioContext.currentTime;
+    if (type === "tick") {
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(800, now);
+      osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+      osc.start(now);
+      osc.stop(now + 0.05);
+    } else if (type === "ding") {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(523.25, now);
+      gain.gain.setValueAtTime(0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 1.25);
+      osc.start(now);
+      osc.stop(now + 1.25);
+    } else if (type === "coin") {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(1200, now);
+      osc.frequency.setValueAtTime(1600, now + 0.08);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+      osc.start(now);
+      osc.stop(now + 0.18);
+    }
+  } catch {
+    // Les effets sonores sont décoratifs : l'enchère continue si le navigateur les bloque.
+  }
+}
+
 function renderAgeEvents() {
   const year = state.settings.year;
   const increment = getBidIncrement(year);
@@ -1367,12 +1734,17 @@ function renderCard() {
   const auction = state.auction;
   const card = auction.card;
   const era = getEraInfo(state.settings.year);
+  const renderedCardKey = card ? `${state.settings.year}:${formatCardName(card)}:${card.category}:${card.danger}` : "";
   els.cardName.textContent = card ? formatCardName(card) : "Aucune carte";
   els.cardMeta.textContent = card
     ? `${getCardCategoryLabel(card)} - danger ${card.danger}/20 - prix de départ 0`
     : `Lance une nouvelle enchère. Courbe actuelle : ${era.label}, danger moyen visé ${era.targetDanger}/20.`;
   els.cardEffect.textContent = formatCardEffect(card);
   els.currentBid.textContent = auction.currentBid;
+  if (wbLastRenderedBidValue !== null && wbLastRenderedBidValue !== auction.currentBid) {
+    window.requestAnimationFrame(wbFlashBidAmount);
+  }
+  wbLastRenderedBidValue = auction.currentBid;
   els.currentWinner.textContent = auction.winner ? getAiName(auction.winner) : "Personne";
   const current = getCurrentBidder();
   els.currentTurn.textContent = current ? current.name : "-";
@@ -1384,6 +1756,12 @@ function renderCard() {
   els.bidInput.min = minBid;
   els.bidInput.step = 1;
   els.bidInput.value = minBid;
+  if (renderedCardKey && renderedCardKey !== wbLastRenderedCardKey) {
+    wbLastRenderedCardKey = renderedCardKey;
+    wbAnimateCardReveal();
+  } else if (!renderedCardKey) {
+    wbLastRenderedCardKey = "";
+  }
 }
 
 function renderAis() {
@@ -1427,6 +1805,10 @@ function renderAis() {
     card.classList.toggle("current-bidder", isCurrentBidder);
     card.classList.toggle("current-leader", isCurrentLeader);
     card.classList.toggle("passed-auction", hasPassedAuction);
+    card.classList.toggle("wb-bid-active", isCurrentLeader);
+    card.classList.toggle("wb-player-passed", hasPassedAuction);
+    card.classList.toggle("wb-player-eliminated", hasPassedAuction);
+    card.classList.toggle("wb-active-turn", isCurrentBidder);
     aliveInput.checked = ai.alive;
     coinsInput.disabled = !canEditMoney;
     populationInput.disabled = !ai.alive;
@@ -1726,7 +2108,7 @@ function renderMemoryPanel() {
 
   visibleMemory.slice(-12).reverse().forEach((entry) => {
     const item = document.createElement("div");
-    item.className = "memory-entry";
+    item.className = "memory-entry wb-chronicle-entry wb-chronicle-new";
     item.classList.toggle("memory-entry-important", entry.important);
     const title = document.createElement("strong");
     title.textContent = `${entry.important ? "★ " : ""}An ${entry.year} - ${formatMemoryType(entry.type)}`;
@@ -2457,21 +2839,34 @@ function launchFortuneWheelSpin() {
   wheel.currentSpinOptions = options.map((event) => event.id);
   wheel.currentSpinIndex = 0;
   renderFortuneWheelPanel();
+  wbRenderWheelModal();
+  wbStartWheelVisualSpin(options, resultEvent);
 
   let ticks = 0;
-  const maxTicks = 28;
+  const startedAt = window.performance.now();
   const spinner = () => document.querySelector("#fortuneWheelSpinner");
-  const interval = window.setInterval(() => {
+  const tick = () => {
+    if (!wheel.spinning) return;
+    const elapsed = window.performance.now() - startedAt;
+    if (elapsed >= WB_WHEEL_SPIN_DURATION_MS - 450) return;
     ticks += 1;
     wheel.currentSpinIndex = ticks % wheel.currentSpinOptions.length;
     const event = getWheelEvent(wheel.currentSpinOptions[wheel.currentSpinIndex]);
     const node = spinner();
     if (node && event) node.textContent = event.title;
-    if (ticks >= maxTicks) {
-      window.clearInterval(interval);
-      resolveFortuneWheelSpin(ai.id, resultEvent.id);
-    }
-  }, 70);
+    wbUpdateWheelModalOption(event);
+    wbPlaySound("tick");
+    const progress = Math.min(1, elapsed / WB_WHEEL_SPIN_DURATION_MS);
+    window.setTimeout(tick, 70 + Math.round(360 * progress * progress));
+  };
+  window.setTimeout(tick, 140);
+  window.setTimeout(() => {
+    if (!wheel.spinning) return;
+    const resultIndex = wheel.currentSpinOptions.findIndex((id) => id === resultEvent.id);
+    wheel.currentSpinIndex = Math.max(0, resultIndex);
+    wbUpdateWheelModalOption(resultEvent);
+    resolveFortuneWheelSpin(ai.id, resultEvent.id);
+  }, WB_WHEEL_SPIN_DURATION_MS);
 }
 
 function resolveFortuneWheelSpin(aiId, eventId) {
@@ -2497,7 +2892,9 @@ function resolveFortuneWheelSpin(aiId, eventId) {
     createdAt: new Date().toISOString(),
   });
   recordMemory("Roue de la fortune", resultText, { important: true });
+  wbPlaySound("ding");
   saveAndRender();
+  wbRenderWheelModal();
 }
 
 function applyFortuneWheelEvent(ai, event) {
@@ -2587,6 +2984,7 @@ function closeFortuneWheelEvent() {
   state.fortuneWheel = createDefaultFortuneWheel(previousYear);
   recordMemory("Roue de la fortune", `La Roue de la Fortune de l'an ${previousYear} est close. Prochaine apparition prévue : An ${state.fortuneWheel.nextYear}.`, { important: true });
   saveAndRender();
+  wbCloseWheel();
 }
 
 function formatTurnOrdinal(turnNumber) {
