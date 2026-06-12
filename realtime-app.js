@@ -1193,11 +1193,17 @@ async function hydrateStateFromServer() {
     const response = await fetch(SERVER_STATE_ENDPOINT, { cache: "no-store" });
     serverPersistence.checked = true;
 
-    if (response.status === 204 || response.status === 404) {
+    if (response.status === 204) {
       serverPersistence.available = true;
       serverPersistence.message = "Mémoire serveur prête";
       renderPersistenceStatus();
       if (state.savedAt) queueServerStateSave();
+      return;
+    }
+
+    if (response.status === 404) {
+      await hydrateStateFromStaticSnapshot();
+      renderPersistenceStatus();
       return;
     }
 
@@ -1245,7 +1251,7 @@ async function hydrateStateFromStaticSnapshot() {
     const staticSavedAt = getTimestamp(payload.savedAt ?? staticState.savedAt);
     const localSavedAt = getTimestamp(state.savedAt);
 
-    if (staticSavedAt > localSavedAt) {
+    if (shouldForceStaticSnapshot() || staticSavedAt > localSavedAt) {
       state = staticState;
       handleAgeMilestones();
       persistState({ remote: false, touch: false });
@@ -1261,6 +1267,11 @@ async function hydrateStateFromStaticSnapshot() {
 
   serverPersistence.message = "Mémoire navigateur uniquement";
   return false;
+}
+
+function shouldForceStaticSnapshot() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("restore") === "session" || params.get("session") === "current";
 }
 
 async function deleteStateFromServer() {

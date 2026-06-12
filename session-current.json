@@ -1,6 +1,6 @@
 {
   "storageKey": "worldbox-realtime-auction-v5",
-  "savedAt": "2026-06-12T21:11:57.752Z",
+  "savedAt": "2026-06-12T21:17:45.294Z",
   "state": {
     "ais": [
       {
@@ -3548,6 +3548,6 @@
       "prompt|550|4|etats ia apres revenus|etat actuel apres revenus - chatgpt zeta",
       "prompt|550|4|etats ia apres revenus|etat actuel apres revenus - claude memoria"
     ],
-    "savedAt": "2026-06-12T21:11:57.752Z"
+    "savedAt": "2026-06-12T21:17:45.294Z"
   }
 }
