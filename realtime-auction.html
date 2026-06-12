@@ -29,6 +29,7 @@
 
       .wb-bid-update {
         animation: wb-bidFlash 0.4s ease-out;
+        display: inline-block;
       }
 
       @keyframes wb-pulseGold {
@@ -72,6 +73,7 @@
         opacity: 0.82;
         pointer-events: none;
         z-index: 3;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
       }
 
       @keyframes wb-activePulse {
@@ -85,17 +87,19 @@
         border: 2px solid #2dd4bf !important;
       }
 
-      @keyframes wb-slideIn {
-        to { opacity: 1; transform: translateX(0); }
+      @keyframes wb-slideInChronicle {
+        0% { opacity: 0; transform: translateX(-20px); border-left-color: transparent; }
+        100% { opacity: 1; transform: translateX(0); border-left-color: #2dd4bf; }
       }
 
-      .wb-chronicle-entry,
       .wb-chronicle-new {
-        opacity: 0;
-        transform: translateX(-16px);
-        animation: wb-slideIn 0.5s ease forwards;
+        animation: wb-slideInChronicle 0.6s ease forwards;
         border-left: 3px solid #2dd4bf !important;
+        padding-left: 12px;
+        margin-bottom: 12px;
         background: rgba(45, 212, 191, 0.05) !important;
+        padding: 10px;
+        border-radius: 0 6px 6px 0;
       }
 
       .wb-trigger-wheel-button {
@@ -163,7 +167,7 @@
 
       .wb-wheel-layout {
         display: grid;
-        grid-template-columns: minmax(560px, 720px) minmax(300px, 440px);
+        grid-template-columns: minmax(680px, 820px) minmax(300px, 440px);
         gap: clamp(18px, 2.5vw, 36px);
         align-items: center;
         justify-content: center;
@@ -171,7 +175,7 @@
       }
 
       .wb-wheel-stage {
-        --wb-wheel-size: min(600px, 58vw);
+        --wb-wheel-size: min(720px, 62vw);
         position: relative;
         width: var(--wb-wheel-size);
         margin: 0 auto;
@@ -180,22 +184,46 @@
       }
 
       .wb-wheel-pointer {
-        font-size: 2.6rem;
-        line-height: 1;
-        color: #ef4444;
+        font-size: 0;
+        width: 42px;
+        height: 42px;
         position: absolute;
         top: 50%;
-        right: -4px;
-        transform: translate(50%, -50%) rotate(90deg);
+        right: -10px;
+        transform: translate(50%, -50%);
         z-index: 10;
         filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.8));
+      }
+
+      .wb-wheel-pointer::before {
+        display: block;
+        content: "";
+        width: 100%;
+        height: 100%;
+        background: #ef4444;
+        clip-path: polygon(0 50%, 100% 4%, 100% 96%);
+        transform-origin: 100% 50%;
+      }
+
+      @keyframes wb-pointerTick {
+        0%,
+        100% {
+          clip-path: polygon(0 50%, 100% 4%, 100% 96%);
+        }
+        45% {
+          clip-path: polygon(0 67%, 100% 4%, 100% 96%);
+        }
+      }
+
+      .wb-wheel-pointer.wb-wheel-pointer-tick::before {
+        animation: wb-pointerTick 140ms ease-out;
       }
 
       .wb-wheel {
         width: var(--wb-wheel-size);
         height: var(--wb-wheel-size);
-        min-width: min(600px, calc(100vw - 32px));
-        min-height: min(600px, calc(100vw - 32px));
+        min-width: min(720px, calc(100vw - 32px));
+        min-height: min(720px, calc(100vw - 32px));
         border-radius: 50%;
         border: 8px solid #f59e0b;
         background:
@@ -262,7 +290,7 @@
         border: 0;
         color: #f8fafc;
         font-size: clamp(0.68rem, calc(var(--wb-wheel-size) * 0.02), 0.94rem);
-        font-weight: 950;
+        font-weight: 1000;
         line-height: 1;
         text-align: center;
         text-transform: uppercase;
@@ -272,6 +300,26 @@
           0 0 8px rgba(0, 0, 0, 0.85);
         box-shadow: none;
         white-space: nowrap;
+      }
+
+      .wb-wheel-label-positive span {
+        color: #86efac;
+        text-shadow:
+          0 2px 4px rgba(0, 0, 0, 0.95),
+          0 0 10px rgba(34, 197, 94, 0.72),
+          0 0 18px rgba(22, 163, 74, 0.38);
+      }
+
+      .wb-wheel-label-negative span {
+        color: #fca5a5;
+        text-shadow:
+          0 2px 4px rgba(0, 0, 0, 0.95),
+          0 0 10px rgba(239, 68, 68, 0.72),
+          0 0 18px rgba(185, 28, 28, 0.42);
+      }
+
+      .wb-wheel-label-neutral span {
+        color: #dbeafe;
       }
 
       .wb-wheel-label-result span {
@@ -415,6 +463,12 @@
         cursor: not-allowed;
       }
 
+      .wb-btn-auto-active {
+        border-color: #f59e0b !important;
+        color: #f59e0b !important;
+        box-shadow: 0 0 18px rgba(245, 158, 11, 0.28) !important;
+      }
+
       .wb-wheel-result {
         margin-top: 12px;
         font-size: clamp(1rem, 2vw, 1.35rem);
@@ -440,11 +494,11 @@
         }
 
         .wb-wheel {
-          --wb-wheel-size: min(600px, 86vw);
+          --wb-wheel-size: min(720px, 86vw);
         }
 
         .wb-wheel-stage {
-          --wb-wheel-size: min(600px, 86vw);
+          --wb-wheel-size: min(720px, 86vw);
         }
 
         .wb-wheel-container {
@@ -468,7 +522,22 @@
           width: 100%;
           height: 100vh;
           border-radius: 0;
-          padding: 12px;
+          padding: 10px 12px 16px;
+        }
+
+        .wb-wheel-title {
+          font-size: clamp(1.35rem, 8vw, 2rem);
+          line-height: 1.05;
+        }
+
+        .wb-wheel-meta {
+          margin-bottom: 10px;
+          font-size: 0.84rem;
+          line-height: 1.35;
+        }
+
+        .wb-wheel-layout {
+          gap: 12px;
         }
 
         .wb-wheel-stage,
@@ -506,6 +575,22 @@
 
         .wb-wheel-modal-actions {
           grid-template-columns: 1fr;
+          gap: 8px;
+          margin-top: 10px;
+        }
+
+        .wb-wheel-ai-row {
+          padding: 8px 10px;
+        }
+
+        .wb-wheel-current-option {
+          min-height: 44px;
+          padding: 8px 10px;
+          font-size: 0.82rem;
+        }
+
+        .wb-wheel-result {
+          font-size: 0.94rem;
         }
       }
 
@@ -562,7 +647,7 @@
             </div>
             <label class="participant-count-field">
               Nombre
-              <input id="participantCountInput" type="number" min="2" max="8" step="1">
+              <input id="participantCountInput" type="number" min="2" max="16" step="1">
             </label>
           </div>
           <div id="participantNamesGrid" class="participant-names-grid"></div>
@@ -619,6 +704,25 @@
           <div id="aiGrid" class="ai-grid"></div>
         </section>
 
+        <section class="panel history-chart-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Évolutions</h2>
+              <p>Démographie et économie enregistrées aux bilans de revenus.</p>
+            </div>
+          </div>
+          <div class="history-chart-grid">
+            <button class="history-chart-card" type="button" data-chart-open="population">
+              <span>Population</span>
+              <canvas id="populationChartCanvas" width="420" height="180"></canvas>
+            </button>
+            <button class="history-chart-card" type="button" data-chart-open="economy">
+              <span>Pièces</span>
+              <canvas id="economyChartCanvas" width="420" height="180"></canvas>
+            </button>
+          </div>
+        </section>
+
         <section class="panel utility-panel">
           <div class="utility-tabs">
             <button id="settingsToggleBtn" class="secondary" type="button">
@@ -652,7 +756,7 @@
                 <option value="auto">Auto</option>
                 <option value="central">Classique - îlot central</option>
                 <option value="duel">Duel Epsilon - 2 moitiés</option>
-                <option value="zeta">Zeta - 9 blocs</option>
+                <option value="zeta">Zeta - 16 joueurs / croix centrale</option>
               </select></label>
               <label>Revenu base <input id="incomeInput" type="number" min="0" step="1"></label>
               <label>Bonus faible MJ <input id="underdogInput" type="number" min="0" step="1"></label>
@@ -782,6 +886,16 @@
       </article>
     </template>
 
+    <div id="chartOverlay" class="chart-overlay" hidden>
+      <div class="chart-overlay-panel">
+        <div class="chart-overlay-head">
+          <h2 id="chartOverlayTitle">Évolution</h2>
+          <button id="chartOverlayCloseBtn" class="secondary" type="button">Fermer</button>
+        </div>
+        <canvas id="chartOverlayCanvas" width="1400" height="760"></canvas>
+      </div>
+    </div>
+
     <!-- Modal Roue de la Fortune -->
     <div id="wb-wheel-modal" class="wb-modal-overlay wb-hidden" aria-hidden="true">
       <div class="wb-wheel-container" role="dialog" aria-modal="true" aria-labelledby="wb-wheel-title">
@@ -791,7 +905,7 @@
 
         <div class="wb-wheel-layout">
           <div class="wb-wheel-stage">
-            <div class="wb-wheel-pointer">▼</div>
+            <div class="wb-wheel-pointer" aria-hidden="true"></div>
             <div id="wb-fortune-wheel" class="wb-wheel"></div>
             <div id="wb-wheel-center" class="wb-wheel-center">Destin</div>
           </div>
@@ -801,6 +915,7 @@
             <div id="wb-wheel-current-option" class="wb-wheel-current-option">Aucun tour lancé.</div>
             <div class="wb-wheel-modal-actions">
               <button id="wb-spin-wheel-btn" class="wb-btn-glow" type="button">Lancer le destin</button>
+              <button id="wb-auto-wheel-btn" class="wb-btn-ghost" type="button">Automatique</button>
               <button id="wb-copy-wheel-results-btn" class="wb-btn-ghost" type="button">Copier résultats</button>
               <button id="wb-end-wheel-btn" class="wb-btn-ghost" type="button">Clore la roue</button>
               <button id="wb-close-wheel-btn" class="wb-btn-ghost" type="button">Fermer</button>

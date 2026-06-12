@@ -1,0 +1,3553 @@
+{
+  "storageKey": "worldbox-realtime-auction-v5",
+  "savedAt": "2026-06-12T21:11:57.752Z",
+  "state": {
+    "ais": [
+      {
+        "id": "rep1",
+        "name": "Grok",
+        "coins": 207,
+        "population": 359,
+        "soldiers": 0,
+        "colonies": 2,
+        "homePopulation": 10,
+        "alive": false,
+        "profileHand": [
+          "vagabond",
+          "patient",
+          "sage"
+        ],
+        "activeProfile": "vagabond",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": null,
+        "hidePopulationRevealYear": null,
+        "passBonusLevel": 5,
+        "coinsAtAuctionStart": 207,
+        "auctionPassDelta": 0,
+        "auctionPurchaseDelta": 0,
+        "auctionEffectDelta": 0
+      },
+      {
+        "id": "rep2",
+        "name": "Chatgpt Delta",
+        "coins": 176,
+        "population": 992,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": false,
+        "profileHand": [
+          "sage",
+          "tyrant",
+          "diplomat"
+        ],
+        "activeProfile": "sage",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": 500,
+        "hidePopulationRevealYear": 500,
+        "passBonusLevel": 4,
+        "coinsAtAuctionStart": 150,
+        "auctionPassDelta": 5,
+        "auctionPurchaseDelta": 0,
+        "auctionEffectDelta": 0,
+        "lastIncomeBreakdown": {
+          "coinsAtAuctionStart": 150,
+          "auctionDelta": 5,
+          "passDelta": 5,
+          "purchaseDelta": 0,
+          "effectDelta": 0,
+          "otherAuctionDelta": 0,
+          "coinsBeforeIncome": 155,
+          "baseIncome": 10,
+          "underdogBonus": 11,
+          "doctrineEffect": 0,
+          "doctrineLines": [],
+          "incomeApplied": 21,
+          "finalCoins": 176
+        }
+      },
+      {
+        "id": "rep3",
+        "name": "Gemini de Beta",
+        "coins": 3,
+        "population": 521,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": false,
+        "profileHand": [
+          "martyr",
+          "warlord",
+          "sage"
+        ],
+        "activeProfile": "",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": null,
+        "hidePopulationRevealYear": null,
+        "passBonusLevel": 5,
+        "coinsAtAuctionStart": 176,
+        "auctionPassDelta": 0,
+        "auctionPurchaseDelta": 0,
+        "auctionEffectDelta": 0
+      },
+      {
+        "id": "rep4",
+        "name": "Edwin",
+        "coins": 107,
+        "population": 1038,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": true,
+        "profileHand": [
+          "diplomat",
+          "patient",
+          "tyrant"
+        ],
+        "activeProfile": "patient",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": null,
+        "hidePopulationRevealYear": 500,
+        "passBonusLevel": 3,
+        "coinsAtAuctionStart": 75,
+        "auctionPassDelta": 7,
+        "auctionPurchaseDelta": 0,
+        "auctionEffectDelta": 0,
+        "lastIncomeBreakdown": {
+          "coinsAtAuctionStart": 214,
+          "auctionDelta": -160,
+          "passDelta": 0,
+          "purchaseDelta": -160,
+          "effectDelta": 0,
+          "otherAuctionDelta": 0,
+          "coinsBeforeIncome": 54,
+          "baseIncome": 10,
+          "underdogBonus": 11,
+          "doctrineEffect": 0,
+          "doctrineLines": [],
+          "incomeApplied": 21,
+          "finalCoins": 75
+        }
+      },
+      {
+        "id": "rep5",
+        "name": "Deepseek Phénix Cendre-Loi",
+        "coins": 10,
+        "population": 10,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": false,
+        "profileHand": [],
+        "activeProfile": "",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": null,
+        "hidePopulationRevealYear": null,
+        "passBonusLevel": 5
+      },
+      {
+        "id": "rep6",
+        "name": "Codex Champion Absolu",
+        "coins": 164,
+        "population": 7000,
+        "soldiers": 0,
+        "colonies": 3,
+        "homePopulation": 10,
+        "alive": true,
+        "profileHand": [
+          "vagabond",
+          "paranoid",
+          "tyrant"
+        ],
+        "activeProfile": "vagabond",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": null,
+        "hidePopulationRevealYear": 500,
+        "passBonusLevel": 4,
+        "coinsAtAuctionStart": 159,
+        "auctionPassDelta": 5,
+        "auctionPurchaseDelta": 0,
+        "auctionEffectDelta": 0,
+        "lastIncomeBreakdown": {
+          "coinsAtAuctionStart": 129,
+          "auctionDelta": 5,
+          "passDelta": 5,
+          "purchaseDelta": 0,
+          "effectDelta": 0,
+          "otherAuctionDelta": 0,
+          "coinsBeforeIncome": 134,
+          "baseIncome": 10,
+          "underdogBonus": 0,
+          "doctrineEffect": 15,
+          "doctrineLines": [
+            "3 colonie(s) extérieure(s) comptée(s) × 5 = +15"
+          ],
+          "incomeApplied": 25,
+          "finalCoins": 159
+        }
+      },
+      {
+        "id": "rep7",
+        "name": "Claude de Glace",
+        "coins": 10,
+        "population": 10,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": false,
+        "profileHand": [],
+        "activeProfile": "",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": null,
+        "hidePopulationRevealYear": null,
+        "passBonusLevel": 5
+      },
+      {
+        "id": "rep8",
+        "name": "Qwen le Compteur de Couronnes",
+        "coins": 147,
+        "population": 916,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": false,
+        "profileHand": [
+          "scholar",
+          "paranoid",
+          "sage"
+        ],
+        "activeProfile": "scholar",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": 500,
+        "hidePopulationRevealYear": 500,
+        "passBonusLevel": 3,
+        "coinsAtAuctionStart": 177,
+        "auctionPassDelta": 0,
+        "auctionPurchaseDelta": 0,
+        "auctionEffectDelta": -30,
+        "lastIncomeBreakdown": {
+          "coinsAtAuctionStart": 161,
+          "auctionDelta": 0,
+          "passDelta": 4,
+          "purchaseDelta": 0,
+          "effectDelta": -4,
+          "otherAuctionDelta": 0,
+          "coinsBeforeIncome": 161,
+          "baseIncome": 10,
+          "underdogBonus": 6,
+          "doctrineEffect": 0,
+          "doctrineLines": [],
+          "incomeApplied": 16,
+          "finalCoins": 177
+        }
+      },
+      {
+        "id": "rep9",
+        "name": "Kimi la Mille-Racines",
+        "coins": 151,
+        "population": 2150,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": true,
+        "profileHand": [
+          "vagabond",
+          "warlord",
+          "scholar"
+        ],
+        "activeProfile": "scholar",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": 500,
+        "hidePopulationRevealYear": null,
+        "passBonusLevel": 2,
+        "coinsAtAuctionStart": 153,
+        "auctionPassDelta": 2,
+        "auctionPurchaseDelta": 0,
+        "auctionEffectDelta": -4,
+        "lastIncomeBreakdown": {
+          "coinsAtAuctionStart": 135,
+          "auctionDelta": 6,
+          "passDelta": 2,
+          "purchaseDelta": 0,
+          "effectDelta": 4,
+          "otherAuctionDelta": 0,
+          "coinsBeforeIncome": 141,
+          "baseIncome": 10,
+          "underdogBonus": 2,
+          "doctrineEffect": 0,
+          "doctrineLines": [],
+          "incomeApplied": 12,
+          "finalCoins": 153
+        }
+      },
+      {
+        "id": "rep10",
+        "name": "Le Passager Temporel",
+        "coins": 137,
+        "population": 1636,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": false,
+        "profileHand": [
+          "scholar",
+          "paranoid",
+          "sage"
+        ],
+        "activeProfile": "paranoid",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": null,
+        "hidePopulationRevealYear": null,
+        "passBonusLevel": 3,
+        "coinsAtAuctionStart": 88,
+        "auctionPassDelta": 0,
+        "auctionPurchaseDelta": 0,
+        "auctionEffectDelta": 0,
+        "lastIncomeBreakdown": {
+          "coinsAtAuctionStart": 74,
+          "auctionDelta": 4,
+          "passDelta": 4,
+          "purchaseDelta": 0,
+          "effectDelta": 0,
+          "otherAuctionDelta": 0,
+          "coinsBeforeIncome": 78,
+          "baseIncome": 10,
+          "underdogBonus": 0,
+          "doctrineEffect": 0,
+          "doctrineLines": [],
+          "incomeApplied": 10,
+          "finalCoins": 88
+        }
+      },
+      {
+        "id": "rep11",
+        "name": "Chatgpt Zeta",
+        "coins": 39,
+        "population": 1250,
+        "soldiers": 0,
+        "colonies": 2,
+        "homePopulation": 10,
+        "alive": true,
+        "profileHand": [
+          "scholar",
+          "vagabond",
+          "martyr"
+        ],
+        "activeProfile": "vagabond",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": 500,
+        "hidePopulationRevealYear": 500,
+        "passBonusLevel": 4,
+        "coinsAtAuctionStart": 129,
+        "auctionPassDelta": 0,
+        "auctionPurchaseDelta": -90,
+        "auctionEffectDelta": 0,
+        "lastIncomeBreakdown": {
+          "coinsAtAuctionStart": 97,
+          "auctionDelta": 2,
+          "passDelta": 2,
+          "purchaseDelta": 0,
+          "effectDelta": 0,
+          "otherAuctionDelta": 0,
+          "coinsBeforeIncome": 99,
+          "baseIncome": 10,
+          "underdogBonus": 10,
+          "doctrineEffect": 10,
+          "doctrineLines": [
+            "2 colonie(s) extérieure(s) comptée(s) × 5 = +10"
+          ],
+          "incomeApplied": 30,
+          "finalCoins": 129
+        }
+      },
+      {
+        "id": "rep12",
+        "name": "Claude Memoria",
+        "coins": 284,
+        "population": 23,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": true,
+        "profileHand": [
+          "diplomat",
+          "martyr",
+          "merchant"
+        ],
+        "activeProfile": "merchant",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": 500,
+        "hidePopulationRevealYear": null,
+        "passBonusLevel": 2,
+        "coinsAtAuctionStart": 282,
+        "auctionPassDelta": 2,
+        "auctionPurchaseDelta": 0,
+        "auctionEffectDelta": 0,
+        "lastIncomeBreakdown": {
+          "coinsAtAuctionStart": 246,
+          "auctionDelta": 2,
+          "passDelta": 2,
+          "purchaseDelta": 0,
+          "effectDelta": 0,
+          "otherAuctionDelta": 0,
+          "coinsBeforeIncome": 248,
+          "baseIncome": 10,
+          "underdogBonus": 24,
+          "doctrineEffect": 0,
+          "doctrineLines": [],
+          "incomeApplied": 34,
+          "finalCoins": 282
+        }
+      },
+      {
+        "id": "rep13",
+        "name": "Mistral",
+        "coins": 192,
+        "population": 1396,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": false,
+        "profileHand": [
+          "paranoid",
+          "vagabond",
+          "martyr"
+        ],
+        "activeProfile": "paranoid",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": null,
+        "hidePopulationRevealYear": null,
+        "passBonusLevel": 3,
+        "coinsAtAuctionStart": 178,
+        "auctionPassDelta": 4,
+        "auctionPurchaseDelta": 0,
+        "auctionEffectDelta": 0,
+        "lastIncomeBreakdown": {
+          "coinsAtAuctionStart": 178,
+          "auctionDelta": 4,
+          "passDelta": 4,
+          "purchaseDelta": 0,
+          "effectDelta": 0,
+          "otherAuctionDelta": 0,
+          "coinsBeforeIncome": 182,
+          "baseIncome": 10,
+          "underdogBonus": 0,
+          "doctrineEffect": 0,
+          "doctrineLines": [],
+          "incomeApplied": 10,
+          "finalCoins": 192
+        }
+      },
+      {
+        "id": "rep14",
+        "name": "Deepseek Delta",
+        "coins": 80,
+        "population": 1850,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": false,
+        "profileHand": [
+          "patient",
+          "scholar",
+          "diplomat"
+        ],
+        "activeProfile": "diplomat",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": null,
+        "hidePopulationRevealYear": null,
+        "passBonusLevel": 4,
+        "coinsAtAuctionStart": 71,
+        "auctionPassDelta": 5,
+        "auctionPurchaseDelta": 0,
+        "auctionEffectDelta": -6,
+        "lastIncomeBreakdown": {
+          "coinsAtAuctionStart": 71,
+          "auctionDelta": -1,
+          "passDelta": 5,
+          "purchaseDelta": 0,
+          "effectDelta": -6,
+          "otherAuctionDelta": 0,
+          "coinsBeforeIncome": 70,
+          "baseIncome": 10,
+          "underdogBonus": 0,
+          "doctrineEffect": 0,
+          "doctrineLines": [],
+          "incomeApplied": 10,
+          "finalCoins": 80
+        }
+      },
+      {
+        "id": "rep15",
+        "name": "Gemini le Révélateur de l'Ironie",
+        "coins": 30,
+        "population": 390,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": false,
+        "profileHand": [
+          "tyrant",
+          "vagabond",
+          "diplomat"
+        ],
+        "activeProfile": "",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": null,
+        "hidePopulationRevealYear": null,
+        "passBonusLevel": 5,
+        "coinsAtAuctionStart": 166,
+        "auctionPassDelta": 0,
+        "auctionPurchaseDelta": 0,
+        "auctionEffectDelta": 0
+      },
+      {
+        "id": "rep16",
+        "name": "Deepseek Alpha",
+        "coins": 10,
+        "population": 10,
+        "soldiers": 0,
+        "colonies": 0,
+        "homePopulation": 10,
+        "alive": false,
+        "profileHand": [],
+        "activeProfile": "",
+        "ghostReady": false,
+        "ghostActive": false,
+        "ghostUsed": false,
+        "hideEconomyRevealYear": null,
+        "hidePopulationRevealYear": null,
+        "passBonusLevel": 5
+      }
+    ],
+    "settings": {
+      "year": 600,
+      "baseIncome": 10,
+      "underdogBonus": 5,
+      "passReward": 5,
+      "passMin": 2,
+      "warCivs": 0,
+      "worldMode": "zeta",
+      "cardPreviewCount": 5,
+      "forcedPowerName": ""
+    },
+    "auction": {
+      "card": {
+        "name": "Tumor",
+        "category": "Créatures",
+        "danger": 17,
+        "effect": "Place une tumeur invasive. Elle grandit sur le terrain, engendre des unités/structures tumorales et peut contaminer ou dévorer l'espace urbain. Très dangereuse si elle est laissée vivre, mais sensible au feu et à une réaction rapide.",
+        "stats": "Tumor Infection possible : devient Tumor à la mort, 10% chance périodique de retirer 10% PV max, propagation possible en marchant sur creep tumorale avec 5% chance. Supprimable par Divine Light/soins accélérés."
+      },
+      "currentBid": 90,
+      "winner": "rep11",
+      "order": [
+        "rep6",
+        "rep9",
+        "rep11",
+        "rep4",
+        "rep12"
+      ],
+      "turnIndex": 0,
+      "passed": [
+        "rep9",
+        "rep4",
+        "rep12",
+        "rep6"
+      ],
+      "active": false,
+      "closed": true,
+      "turnsTaken": 8,
+      "ghostParticipants": [],
+      "winnerAction": "",
+      "endProcessed": false
+    },
+    "log": [
+      "An 600 - Nouvelle enchère.",
+      "50 ans passent depuis la fin de l'enchère précédente. Aucun revenu n'est appliqué ici : les revenus privés ont déjà été donnés à la fin de l'enchère.",
+      "Note MJ Zeta : réapprovisionner le + central en matériaux rares et minerais avant de résoudre cette enchère.",
+      "Kimi la Mille-Racines -4 : doctrine traditionaliste, rupture dangereuse inédite.",
+      "Courbe : âge dangereux, danger moyen visé 11.8/20. Les petites cartes restent possibles.",
+      "Incrément automatique : ouverture minimum 10, puis surenchère minimum de 10 pièces.",
+      "Carte forcée par le MJ : Tumor.",
+      "Carte : Tumor (Créatures, danger 17/20), prix de départ 0.",
+      "Règle de contre-pouvoir : une carte anti-Tumor est programmée dans 3 enchère(s).",
+      "Participants encore en course : Edwin, Codex Champion Absolu, Kimi la Mille-Racines, Chatgpt Zeta, Claude Memoria.",
+      "Codex Champion Absolu enchérit à 60 sur Tumor et dépasse personne.",
+      "Kimi la Mille-Racines passe et gagne 2 pièces (bonus passe : 2 → 2).",
+      "Chatgpt Zeta enchérit à 70 sur Tumor et dépasse Codex Champion Absolu à 60.",
+      "Edwin passe et gagne 7 pièces (bonus passe : 4 → 3) (doctrine institutionnaliste).",
+      "Claude Memoria passe et gagne 2 pièces (bonus passe : 2 → 2).",
+      "Codex Champion Absolu enchérit à 80 sur Tumor et dépasse Chatgpt Zeta à 70.",
+      "Chatgpt Zeta enchérit à 90 sur Tumor et dépasse Codex Champion Absolu à 80.",
+      "Codex Champion Absolu passe et gagne 5 pièces (bonus passe : 5 → 4).",
+      "Fin : Chatgpt Zeta remporte Tumor pour 90 pièces."
+    ],
+    "pendingCounters": [
+      {
+        "source": "Tumor",
+        "dueIn": 3
+      }
+    ],
+    "cardHistory": [
+      "Proposer une alliance",
+      "Déclarer la guerre",
+      "Rompre une alliance",
+      "Déclarer la guerre",
+      "Tumor"
+    ],
+    "profileDrawYears": [
+      400
+    ],
+    "usedBiomes": [],
+    "biomeDraws": {},
+    "biomeChoices": {},
+    "cardForecast": [
+      {
+        "year": 650,
+        "cardName": "Acid",
+        "counterSource": null,
+        "forced": false,
+        "scheduledCounterDueIn": null,
+        "pendingCountersAfterDraw": [
+          {
+            "source": "Tumor",
+            "dueIn": 2
+          }
+        ],
+        "pendingCountersAfterSchedule": [
+          {
+            "source": "Tumor",
+            "dueIn": 2
+          }
+        ]
+      },
+      {
+        "year": 700,
+        "cardName": "Zombie Infection",
+        "counterSource": null,
+        "forced": false,
+        "scheduledCounterDueIn": 1,
+        "pendingCountersAfterDraw": [
+          {
+            "source": "Tumor",
+            "dueIn": 1
+          }
+        ],
+        "pendingCountersAfterSchedule": [
+          {
+            "source": "Tumor",
+            "dueIn": 1
+          },
+          {
+            "source": "Zombie Infection",
+            "dueIn": 1
+          }
+        ]
+      },
+      {
+        "year": 750,
+        "cardName": "Quarantaine MJ",
+        "counterSource": "Tumor",
+        "forced": false,
+        "scheduledCounterDueIn": null,
+        "pendingCountersAfterDraw": [
+          {
+            "source": "Zombie Infection",
+            "dueIn": 0
+          }
+        ],
+        "pendingCountersAfterSchedule": [
+          {
+            "source": "Zombie Infection",
+            "dueIn": 0
+          }
+        ]
+      },
+      {
+        "year": 800,
+        "cardName": "Divine Light",
+        "counterSource": "Zombie Infection",
+        "forced": false,
+        "scheduledCounterDueIn": null,
+        "pendingCountersAfterDraw": [],
+        "pendingCountersAfterSchedule": []
+      },
+      {
+        "year": 850,
+        "cardName": "Antimatter Bomb",
+        "counterSource": null,
+        "forced": false,
+        "scheduledCounterDueIn": 1,
+        "pendingCountersAfterDraw": [],
+        "pendingCountersAfterSchedule": [
+          {
+            "source": "Antimatter Bomb",
+            "dueIn": 1
+          }
+        ]
+      }
+    ],
+    "cardForecastKey": "{\"year\":650,\"pendingCounters\":[{\"source\":\"Tumor\",\"dueIn\":3}],\"forcedPowerName\":\"\"}",
+    "fortuneWheel": {
+      "nextYear": 700,
+      "scheduledFromYear": 400,
+      "unpredictability": 56,
+      "active": false,
+      "activeYear": null,
+      "pendingTurns": {},
+      "purchaseLedger": {},
+      "lastResolvedAiId": null,
+      "spinning": false,
+      "currentSpinOptions": [],
+      "currentSpinIndex": 0,
+      "lastResultText": "",
+      "results": []
+    },
+    "lastAuctionReport": "MESSAGE MONDIAL — COMPTE RENDU D'ENCHÈRE — An 550 — Enchère 4\nNe contient ni doctrine, ni population privée, ni pièces privées, ni détail de revenu.\n\nCarte : Déclarer la guerre (Diplomatie, danger 20/20)\nEffet : Carte diplomatique MJ. Permet au gagnant de forcer une guerre WorldBox entre son royaume et une civilisation cible accessible par frontière, mer ou bateaux. Effet stratégique maximal : une guerre WorldBox est souvent une guerre d'anéantissement, avec prise de villes, massacres, effondrement de royaumes et possible disparition complète d'une IA.\nStats / arbitrage MJ : Pas un statut d'unité. Effet système : déclenche une guerre WorldBox, donc capture/destruction de villes jusqu'à effondrement possible d'un royaume.\nLe seuil de revenu faible à 6 IA restantes est à 16.7%.\n\nRésultat : Edwin remporte Déclarer la guerre pour 160 pièces.\n\nDéroulé :\n- Codex Champion Absolu enchérit à 100 sur Déclarer la guerre et dépasse personne.\n- Kimi la Mille-Racines passe.\n- Chatgpt Zeta passe automatiquement faute d'argent : mise minimum impossible à couvrir.\n- Edwin enchérit à 110 sur Déclarer la guerre et dépasse Codex Champion Absolu à 100.\n- Chatgpt Delta enchérit à 150 sur Déclarer la guerre et dépasse Edwin à 110.\n- Claude Memoria passe.\n- Codex Champion Absolu passe automatiquement faute d'argent : mise minimum impossible à couvrir.\n- Edwin enchérit à 160 sur Déclarer la guerre et dépasse Chatgpt Delta à 150.\n- Chatgpt Delta passe automatiquement faute d'argent : mise minimum impossible à couvrir.\n- Fin : Edwin remporte Déclarer la guerre pour 160 pièces.\n\nAction du gagnant avec le pouvoir :\nJe force une guerre entre Codex, mon Empereur, et ChatGPT Delta, pour ouvrir les route de l'Empire et accéder à un contrôle total du +\n\nConsigne : Mets à jour ta lecture stratégique. Réponds avec tes conséquences politiques, diplomatiques ou militaires, et tes priorités pour la suite. Si ton territoire, tes alliances ou ta sécurité sont concernés, précise ta réaction.",
+    "lastIncomeSummary": "Revenus : Chatgpt Delta +21 (bonus retardataire), Edwin +21 (bonus retardataire), Codex Champion Absolu +25 (doctrine +15), Kimi la Mille-Racines +12 (bonus retardataire), Chatgpt Zeta +30 (bonus retardataire, doctrine +10), Claude Memoria +34 (bonus retardataire).",
+    "postIncomePromptYear": null,
+    "simulationMemory": [
+      {
+        "id": "1781262765467-b9f44f96068ec8",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Tirage secret des doctrines politiques à l'an 400 : 3 doctrines par IA vivante.",
+        "createdAt": "2026-06-12T11:12:45.467Z",
+        "important": false
+      },
+      {
+        "id": "1781262769810-ce6e99f5154bb",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Tirage secret des doctrines politiques à l'an 400 : 3 doctrines par IA vivante.",
+        "createdAt": "2026-06-12T11:12:49.810Z",
+        "important": false
+      },
+      {
+        "id": "1781262773022-7683778f00a0e8",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Tirage secret des doctrines politiques à l'an 400 : 3 doctrines par IA vivante.",
+        "createdAt": "2026-06-12T11:12:53.022Z",
+        "important": false
+      },
+      {
+        "id": "1781262776029-a3f65a66f0c078",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Tirage secret des doctrines politiques à l'an 400 : 3 doctrines par IA vivante.",
+        "createdAt": "2026-06-12T11:12:56.029Z",
+        "important": false
+      },
+      {
+        "id": "1781262779561-e768359ccf0f3",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Tirage secret des doctrines politiques à l'an 400 : 3 doctrines par IA vivante.",
+        "createdAt": "2026-06-12T11:12:59.561Z",
+        "important": false
+      },
+      {
+        "id": "1781262962503-d449709094e2e8",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Claude Memoria active une doctrine politique secrète.",
+        "createdAt": "2026-06-12T11:16:02.503Z",
+        "important": false
+      },
+      {
+        "id": "1781262987822-468ce98df45dd",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Codex Champion Absolu active une doctrine politique secrète.",
+        "createdAt": "2026-06-12T11:16:27.822Z",
+        "important": false
+      },
+      {
+        "id": "1781263026029-72ea0208dd9c78",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Deepseek Delta active une doctrine politique secrète.",
+        "createdAt": "2026-06-12T11:17:06.029Z",
+        "important": false
+      },
+      {
+        "id": "1781263031220-085bfbafb3b69",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Le Passager Temporel active une doctrine politique secrète.",
+        "createdAt": "2026-06-12T11:17:11.220Z",
+        "important": false
+      },
+      {
+        "id": "1781263038226-b54175b99052a",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Edwin active une doctrine politique secrète.",
+        "createdAt": "2026-06-12T11:17:18.226Z",
+        "important": false
+      },
+      {
+        "id": "1781263089527-dbc0a8e24070d",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Chatgpt Delta active une doctrine politique secrète.",
+        "createdAt": "2026-06-12T11:18:09.527Z",
+        "important": false
+      },
+      {
+        "id": "1781263114482-9063339f7e48c8",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Chatgpt Zeta active une doctrine politique secrète.",
+        "createdAt": "2026-06-12T11:18:34.483Z",
+        "important": false
+      },
+      {
+        "id": "1781263180992-15f0842f7f71b",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Mistral active une doctrine politique secrète.",
+        "createdAt": "2026-06-12T11:19:40.992Z",
+        "important": false
+      },
+      {
+        "id": "1781263219152-94cf4e0a182198",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Kimi la Mille-Racines active une doctrine politique secrète.",
+        "createdAt": "2026-06-12T11:20:19.152Z",
+        "important": false
+      },
+      {
+        "id": "1781263230595-89c5d232d44a18",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Qwen le Compteur de Couronnes active une doctrine politique secrète.",
+        "createdAt": "2026-06-12T11:20:30.595Z",
+        "important": false
+      },
+      {
+        "id": "1781263244268-e3c92b16f59588",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Grok active une doctrine politique secrète.",
+        "createdAt": "2026-06-12T11:20:44.268Z",
+        "important": false
+      },
+      {
+        "id": "1781263354118-4679dcc42508c8",
+        "year": 400,
+        "type": "Nouvelle enchère",
+        "text": "An 400 - Nouvelle enchère.\nNote MJ Zeta : réapprovisionner le + central en matériaux rares et minerais avant de résoudre cette enchère.\nCourbe : tension montante, danger moyen visé 10.2/20. Les petites cartes restent possibles.\nIncrément automatique : ouverture minimum 5, puis surenchère minimum de 5 pièces.\nCarte : Proposer une alliance (Diplomatie, danger 12/20), prix de départ 0.\nParticipants encore en course : Grok, Chatgpt Delta, Gemini de Beta, Edwin, Codex Champion Absolu, Qwen le Compteur de Couronnes, Kimi la Mille-Racines, Le Passager Temporel, Chatgpt Zeta, Claude Memoria, Mistral, Deepseek Delta, Gemini le Révélateur de l'Ironie.",
+        "createdAt": "2026-06-12T11:22:34.118Z",
+        "important": false
+      },
+      {
+        "id": "1781263354118-1d6a9e28a10608",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "MESSAGE MONDIAL — ROUE DE LA FORTUNE — An 400\n\n⚠ Ceci n'est PAS une enchère de carte. Les règles sont différentes. Lis attentivement.\n\nLa Roue de la Fortune apparaît. Elle n'offre pas de carte de pouvoir : elle distribue des gains, des pertes, des vols de pièces ou des effets WorldBox tirés au hasard.\n\n─── COMMENT ÇA MARCHE ───────────────────────────────────────────\nChaque civilisation peut acheter des tours : 10 pièces par tour, autant de tours que tu peux payer. Tu peux aussi choisir de ne pas participer (0 tour). Indique ta décision au MJ.\n\nLa roue tire 10 options visibles parmi 60 effets possibles, filtrées par l'imprévisibilité du cycle, puis s'arrête sur un seul résultat. La moyenne théorique : +15 pièces brutes par tour, soit +5 pièces nettes après coût.\n\nLa roue a mis 400 ans à revenir. Imprévisibilité actuelle : 78%. Plus ce pourcentage est élevé, plus les extrêmes sont probables : très gros gains, pertes lourdes, vols violents ou effets WorldBox dangereux.\n\n─── SEUIL MINIMUM ───────────────────────────────────────────────\nLa Roue est capricieuse. Un seuil minimum de participation existe : 33 tours au total (2 × 16 civilisations initiales + 1 = 33). Si ce seuil n'est pas atteint, la civilisation ayant acheté le moins de tours perd l'intégralité de ses pièces. En cas d'égalité, toutes les ex-aequo perdent tout.\n\n─── RÉSOLUTION ──────────────────────────────────────────────────\nLes tours se résolvent un par un en ordre démographique décroissant, avec rotation. Une civilisation ne rejoue pas immédiatement si une autre possède encore un tour en attente. Les effets économiques sont appliqués automatiquement par le MJ. Les effets WorldBox (pouvoirs, monstres, catastrophes) sont placés manuellement par le MJ : ce n'est pas toi qui les joues. Le résultat peut t'être favorable ou défavorable selon ce que la roue tire.\n\nRéponds au MJ :\nNombre de tours achetés : [N ou 0]\nPourquoi : [justification courte]",
+        "createdAt": "2026-06-12T11:22:34.118Z",
+        "important": true
+      },
+      {
+        "id": "1781263561142-c144efc7233ca",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Zeta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:26:01.142Z",
+        "important": true
+      },
+      {
+        "id": "1781263568891-b16dae3c89c8c",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Zeta effectue son 1er tour : PILLAGE DES COFFRES : vole 30 pièces à l'IA la plus riche. Automatique : Chatgpt Zeta vole 30 pièces à Grok.",
+        "createdAt": "2026-06-12T11:26:08.891Z",
+        "important": true
+      },
+      {
+        "id": "1781263576761-91257422837988",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Zeta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:26:16.761Z",
+        "important": true
+      },
+      {
+        "id": "1781263584784-e29b3af54b98c",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Zeta effectue son 2e tour : COFFRE PERCÉ : perd 25% des pièces actuelles. Automatique : Chatgpt Zeta passe de 89 à 66 pièces.",
+        "createdAt": "2026-06-12T11:26:24.784Z",
+        "important": true
+      },
+      {
+        "id": "1781263851577-51bd2d5224e8c8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Codex Champion Absolu achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:30:51.577Z",
+        "important": true
+      },
+      {
+        "id": "1781263851844-c07c6c78bd3d48",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Codex Champion Absolu achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:30:51.844Z",
+        "important": true
+      },
+      {
+        "id": "1781263852198-c0d4983f31cd58",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Codex Champion Absolu achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:30:52.198Z",
+        "important": true
+      },
+      {
+        "id": "1781263852614-65540ca3a91b08",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Codex Champion Absolu achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:30:52.614Z",
+        "important": true
+      },
+      {
+        "id": "1781263853997-152c230fc4691",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Claude Memoria achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:30:53.997Z",
+        "important": true
+      },
+      {
+        "id": "1781263854318-4b7e9476ab5018",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Claude Memoria achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:30:54.318Z",
+        "important": true
+      },
+      {
+        "id": "1781263854701-5e244e86feeae8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Claude Memoria achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:30:54.701Z",
+        "important": true
+      },
+      {
+        "id": "1781263863845-3f751cf646b848",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Mistral achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:03.845Z",
+        "important": true
+      },
+      {
+        "id": "1781263863975-113d613694cd2",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Mistral achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:03.975Z",
+        "important": true
+      },
+      {
+        "id": "1781263868165-b823555b326568",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Qwen le Compteur de Couronnes achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:08.165Z",
+        "important": true
+      },
+      {
+        "id": "1781263868429-032e450293719",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Qwen le Compteur de Couronnes achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:08.429Z",
+        "important": true
+      },
+      {
+        "id": "1781263868744-314d56f4b4a5c",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Qwen le Compteur de Couronnes achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:08.744Z",
+        "important": true
+      },
+      {
+        "id": "1781263875445-74668bb591c56",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Zeta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:15.445Z",
+        "important": true
+      },
+      {
+        "id": "1781263875742-0fd70d9606e3d",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Zeta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:15.742Z",
+        "important": true
+      },
+      {
+        "id": "1781263876051-44baca7c453b8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Zeta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:16.051Z",
+        "important": true
+      },
+      {
+        "id": "1781263876636-72c2151cc057d8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Zeta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:16.636Z",
+        "important": true
+      },
+      {
+        "id": "1781263879347-ee18f4edcfe63",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Le Passager Temporel achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:19.347Z",
+        "important": true
+      },
+      {
+        "id": "1781263879531-230ad4e0085ee",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Le Passager Temporel achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:19.531Z",
+        "important": true
+      },
+      {
+        "id": "1781263879715-a5cea023b2ab",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Le Passager Temporel achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:19.715Z",
+        "important": true
+      },
+      {
+        "id": "1781263880107-ac0e2e36bb07b8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Le Passager Temporel achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:20.107Z",
+        "important": true
+      },
+      {
+        "id": "1781263894115-f35250e24d1ca",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:34.115Z",
+        "important": true
+      },
+      {
+        "id": "1781263894264-8a08d854316788",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:34.264Z",
+        "important": true
+      },
+      {
+        "id": "1781263894452-18b7adb9eca0f8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:34.452Z",
+        "important": true
+      },
+      {
+        "id": "1781263894619-29c42b976795c",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:34.619Z",
+        "important": true
+      },
+      {
+        "id": "1781263894778-ed3d2628c7b0d8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:34.778Z",
+        "important": true
+      },
+      {
+        "id": "1781263894972-1bac71426d00b8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:34.972Z",
+        "important": true
+      },
+      {
+        "id": "1781263895126-ed8fb16423a128",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:35.126Z",
+        "important": true
+      },
+      {
+        "id": "1781263895322-c3fb9002b535f",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:35.322Z",
+        "important": true
+      },
+      {
+        "id": "1781263895483-e7a7b1a140c1",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:35.483Z",
+        "important": true
+      },
+      {
+        "id": "1781263895648-79afed33a9c068",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:35.648Z",
+        "important": true
+      },
+      {
+        "id": "1781263895838-95a998bb70c4c",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:35.838Z",
+        "important": true
+      },
+      {
+        "id": "1781263896009-0d7c47b37fe4a8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:36.009Z",
+        "important": true
+      },
+      {
+        "id": "1781263896171-8ceb124024f4b8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:36.171Z",
+        "important": true
+      },
+      {
+        "id": "1781263907445-da530a0d8d112",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Kimi la Mille-Racines achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:31:47.445Z",
+        "important": true
+      },
+      {
+        "id": "1781263920466-c56b35ab00853",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:00.466Z",
+        "important": true
+      },
+      {
+        "id": "1781263920645-82b4d77e902d68",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:00.645Z",
+        "important": true
+      },
+      {
+        "id": "1781263920803-e47e154b7ebfc8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:00.803Z",
+        "important": true
+      },
+      {
+        "id": "1781263920956-ab51403e7b7318",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:00.956Z",
+        "important": true
+      },
+      {
+        "id": "1781263921153-8ea61abc1945a",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:01.153Z",
+        "important": true
+      },
+      {
+        "id": "1781263921309-ec0bc7c34dcba",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:01.309Z",
+        "important": true
+      },
+      {
+        "id": "1781263921481-979de0c371ffb8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:01.481Z",
+        "important": true
+      },
+      {
+        "id": "1781263921653-ecf4ef97db60c8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:01.653Z",
+        "important": true
+      },
+      {
+        "id": "1781263921843-ef1ca081022388",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:01.843Z",
+        "important": true
+      },
+      {
+        "id": "1781263922017-eec4047929ab98",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:02.017Z",
+        "important": true
+      },
+      {
+        "id": "1781263922192-704e8b21a1711",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:02.192Z",
+        "important": true
+      },
+      {
+        "id": "1781263922376-02b92273a0847",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:02.377Z",
+        "important": true
+      },
+      {
+        "id": "1781263922572-98550035201168",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:02.572Z",
+        "important": true
+      },
+      {
+        "id": "1781263922761-0692155b47a3e8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:02.761Z",
+        "important": true
+      },
+      {
+        "id": "1781263922916-ca6b5fe7e9b41",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:02.916Z",
+        "important": true
+      },
+      {
+        "id": "1781263938528-b849c7b57ae82",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Delta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:18.528Z",
+        "important": true
+      },
+      {
+        "id": "1781263938691-418ab363967ee",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Delta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:18.691Z",
+        "important": true
+      },
+      {
+        "id": "1781263938891-6910255e8bdf88",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Delta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:18.891Z",
+        "important": true
+      },
+      {
+        "id": "1781263939095-735ab076df24b8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Delta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:19.095Z",
+        "important": true
+      },
+      {
+        "id": "1781263945312-bab4b5737aa0e8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:25.312Z",
+        "important": true
+      },
+      {
+        "id": "1781263945479-24091ff6d41f8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:25.479Z",
+        "important": true
+      },
+      {
+        "id": "1781263945668-c8a3691595c19",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:25.668Z",
+        "important": true
+      },
+      {
+        "id": "1781263945823-0be2f90c13ac7",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:25.823Z",
+        "important": true
+      },
+      {
+        "id": "1781263946023-7306e934230d88",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:26.023Z",
+        "important": true
+      },
+      {
+        "id": "1781263946205-b2676f2fa024f8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:26.205Z",
+        "important": true
+      },
+      {
+        "id": "1781263946402-26e8a93ec2bd78",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:26.402Z",
+        "important": true
+      },
+      {
+        "id": "1781263946585-f2cb6680941c78",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:26.585Z",
+        "important": true
+      },
+      {
+        "id": "1781263946775-ca0aef4578d528",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:26.775Z",
+        "important": true
+      },
+      {
+        "id": "1781263946968-d086f060f7bbf8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:26.968Z",
+        "important": true
+      },
+      {
+        "id": "1781263947143-631ad485d92ed8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:27.143Z",
+        "important": true
+      },
+      {
+        "id": "1781263947359-f8b14fcb89c9b8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:27.359Z",
+        "important": true
+      },
+      {
+        "id": "1781263947863-81134166231018",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:27.863Z",
+        "important": true
+      },
+      {
+        "id": "1781263948337-bc96fceb24b1d",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:28.337Z",
+        "important": true
+      },
+      {
+        "id": "1781263948959-271ceba4752418",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:28.959Z",
+        "important": true
+      },
+      {
+        "id": "1781263961774-b7df1b1352813",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Deepseek Delta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:41.774Z",
+        "important": true
+      },
+      {
+        "id": "1781263961967-9669999e4a8d",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Deepseek Delta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:41.967Z",
+        "important": true
+      },
+      {
+        "id": "1781263962274-509e569435f538",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Deepseek Delta achète 1 tour de Roue de la Fortune pour 10 pièces.",
+        "createdAt": "2026-06-12T11:32:42.274Z",
+        "important": true
+      },
+      {
+        "id": "1781263975683-b982cfdb56774",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Kimi la Mille-Racines effectue son 1er tour : MAUVAIS PARI : -20 pièces. Automatique : Kimi la Mille-Racines passe de 126 à 106 pièces.",
+        "createdAt": "2026-06-12T11:32:55.683Z",
+        "important": true
+      },
+      {
+        "id": "1781263982991-419980325ae68",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 1er tour : DRAGON CONTRE SOI : Dragon apparaît dans une zone du joueur tirée par le MJ. MJ manuel : Faire apparaître Dragon dans une zone du joueur tirée par le MJ.",
+        "createdAt": "2026-06-12T11:33:02.991Z",
+        "important": true
+      },
+      {
+        "id": "1781263990286-31ece983c5e5d8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 1er tour : INFECTION : Zombie Infection ou The Plague apparaît dans une zone du joueur. MJ manuel : Appliquer Zombie Infection ou The Plague dans une zone du joueur choisie ou tirée par le MJ.",
+        "createdAt": "2026-06-12T11:33:10.286Z",
+        "important": true
+      },
+      {
+        "id": "1781263997940-082421d945089",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Codex Champion Absolu effectue son 1er tour : COFFRES REMPLIS : +50 pièces. Automatique : Codex Champion Absolu passe de 87 à 137 pièces.",
+        "createdAt": "2026-06-12T11:33:17.940Z",
+        "important": true
+      },
+      {
+        "id": "1781264005369-ca20effc2c6028",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Deepseek Delta effectue son 1er tour : FOUDRE NOIRE : Lightning tombe sur une zone du joueur. MJ manuel : Appliquer Lightning sur une zone du joueur choisie ou tirée par le MJ.",
+        "createdAt": "2026-06-12T11:33:25.369Z",
+        "important": true
+      },
+      {
+        "id": "1781264013681-95ac4766bd5558",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Le Passager Temporel effectue son 1er tour : ANTIMATIÈRE IMPROBABLE : le joueur peut appliquer Antimatter Bomb sur une petite zone adverse validée par le MJ. MJ manuel : Le joueur choisit une cible adverse ; le MJ applique Antimatter Bomb de façon limitée si cela ne détruit pas la simulation entière.",
+        "createdAt": "2026-06-12T11:33:33.681Z",
+        "important": true
+      },
+      {
+        "id": "1781264021357-25a90b233a1688",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Claude Memoria effectue son 1er tour : PERTE MINEURE : -5 pièces. Automatique : Claude Memoria passe de 101 à 96 pièces.",
+        "createdAt": "2026-06-12T11:33:41.357Z",
+        "important": true
+      },
+      {
+        "id": "1781264028899-8ffa92ff3dc9f8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 1er tour : DRAGON DU DESTIN : le joueur peut faire apparaître Dragon dans une zone adverse. MJ manuel : Le joueur choisit une cible adverse et le MJ fait apparaître Dragon dans une zone validée.",
+        "createdAt": "2026-06-12T11:33:48.899Z",
+        "important": true
+      },
+      {
+        "id": "1781264041634-805b1a7c5a03b8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Delta effectue son 1er tour : MINE RARE : petite source de Gems ou Mythril pour le joueur. MJ manuel : Ajouter une petite source de Gems ou Mythril dans une zone exploitable du joueur.",
+        "createdAt": "2026-06-12T11:34:01.634Z",
+        "important": true
+      },
+      {
+        "id": "1781264049164-6de53c4f70ec4",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Mistral effectue son 1er tour : DRAGON CONTRE SOI : Dragon apparaît dans une zone du joueur tirée par le MJ. MJ manuel : Faire apparaître Dragon dans une zone du joueur tirée par le MJ.",
+        "createdAt": "2026-06-12T11:34:09.164Z",
+        "important": true
+      },
+      {
+        "id": "1781264056695-3cfa9e2a424718",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Qwen le Compteur de Couronnes effectue son 1er tour : MAGE HOSTILE : un Evil Mage apparaît près d'une ville du joueur. MJ manuel : Faire apparaître un Evil Mage près d'une ville importante du joueur.",
+        "createdAt": "2026-06-12T11:34:16.695Z",
+        "important": true
+      },
+      {
+        "id": "1781264064237-7d133df45f78b8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Zeta effectue son 3e tour : DRAGON CONTRE SOI : Dragon apparaît dans une zone du joueur tirée par le MJ. MJ manuel : Faire apparaître Dragon dans une zone du joueur tirée par le MJ.",
+        "createdAt": "2026-06-12T11:34:24.237Z",
+        "important": true
+      },
+      {
+        "id": "1781264071775-ebf4667c4291b",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 2e tour : INFECTION : Zombie Infection ou The Plague apparaît dans une zone du joueur. MJ manuel : Appliquer Zombie Infection ou The Plague dans une zone du joueur choisie ou tirée par le MJ.",
+        "createdAt": "2026-06-12T11:34:31.775Z",
+        "important": true
+      },
+      {
+        "id": "1781264079295-07983c2e5c7208",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 2e tour : TRÈS GROSSE CHANCE : +40 pièces. Automatique : Gemini le Révélateur de l'Ironie passe de 16 à 56 pièces.",
+        "createdAt": "2026-06-12T11:34:39.295Z",
+        "important": true
+      },
+      {
+        "id": "1781264086827-692cf5a2b3c98",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Codex Champion Absolu effectue son 2e tour : FORTUNE DOUBLÉE : pièces actuelles x2. Automatique : Codex Champion Absolu passe de 137 à 274 pièces.",
+        "createdAt": "2026-06-12T11:34:46.827Z",
+        "important": true
+      },
+      {
+        "id": "1781264094353-7958cb1625d9f8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Deepseek Delta effectue son 2e tour : TRÉSOR ROYAL : +80 pièces. Automatique : Deepseek Delta passe de 79 à 159 pièces.",
+        "createdAt": "2026-06-12T11:34:54.353Z",
+        "important": true
+      },
+      {
+        "id": "1781264101877-d4033ed2f7c29",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Le Passager Temporel effectue son 2e tour : TREMBLEMENT OFFENSIF : le joueur peut appliquer Earthquake sur une zone adverse. MJ manuel : Le joueur choisit une cible adverse et le MJ applique Earthquake en évitant les dégâts impossibles à arbitrer.",
+        "createdAt": "2026-06-12T11:35:01.877Z",
+        "important": true
+      },
+      {
+        "id": "1781264109408-c5c0f4bbd2d8a8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Claude Memoria effectue son 2e tour : PILLAGE DES COFFRES : vole 30 pièces à l'IA la plus riche. Automatique : Claude Memoria vole 30 pièces à Codex Champion Absolu.",
+        "createdAt": "2026-06-12T11:35:09.408Z",
+        "important": true
+      },
+      {
+        "id": "1781264116938-c1d016bfff9568",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 2e tour : PETIT GAIN : +5 pièces. Automatique : Edwin passe de 6 à 11 pièces.",
+        "createdAt": "2026-06-12T11:35:16.939Z",
+        "important": true
+      },
+      {
+        "id": "1781264124468-a8d0dac9d22638",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Delta effectue son 2e tour : DRAGON CONTRE SOI : Dragon apparaît dans une zone du joueur tirée par le MJ. MJ manuel : Faire apparaître Dragon dans une zone du joueur tirée par le MJ.",
+        "createdAt": "2026-06-12T11:35:24.469Z",
+        "important": true
+      },
+      {
+        "id": "1781264132004-c29ea56211c488",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Mistral effectue son 2e tour : COURONNE DE FORTUNE : +85 pièces. Automatique : Mistral passe de 74 à 159 pièces.",
+        "createdAt": "2026-06-12T11:35:32.004Z",
+        "important": true
+      },
+      {
+        "id": "1781264139537-3a4d758eee574",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Qwen le Compteur de Couronnes effectue son 2e tour : DRAGON CONTRE SOI : Dragon apparaît dans une zone du joueur tirée par le MJ. MJ manuel : Faire apparaître Dragon dans une zone du joueur tirée par le MJ.",
+        "createdAt": "2026-06-12T11:35:39.537Z",
+        "important": true
+      },
+      {
+        "id": "1781264147072-43304d7ffe1ac",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Zeta effectue son 4e tour : BANDITS : des Bandits apparaissent en périphérie du joueur. MJ manuel : Faire apparaître des Bandits dans une périphérie exploitable du joueur.",
+        "createdAt": "2026-06-12T11:35:47.072Z",
+        "important": true
+      },
+      {
+        "id": "1781264154602-e316a26d46fda",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 3e tour : VOLCAN DU HASARD : Volcano apparaît dans une zone du joueur tirée par le MJ. MJ manuel : Faire apparaître Volcano dans une zone du joueur tirée par le MJ.",
+        "createdAt": "2026-06-12T11:35:54.602Z",
+        "important": true
+      },
+      {
+        "id": "1781264162143-c348fd5470db3",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 3e tour : FEU ACCIDENTEL : Fire tombe sur une zone du joueur. MJ manuel : Appliquer Fire sur une zone du joueur choisie ou tirée par le MJ.",
+        "createdAt": "2026-06-12T11:36:02.143Z",
+        "important": true
+      },
+      {
+        "id": "1781264169681-0fd1da0a4092a",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Codex Champion Absolu effectue son 3e tour : BÉNÉDICTION LOCALE : Blessing sur une ville ou zone importante du joueur. MJ manuel : Appliquer Blessing sur une ville, armée ou zone importante du joueur.",
+        "createdAt": "2026-06-12T11:36:09.681Z",
+        "important": true
+      },
+      {
+        "id": "1781264177215-560a782876b0d",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Deepseek Delta effectue son 3e tour : MINE RARE : petite source de Gems ou Mythril pour le joueur. MJ manuel : Ajouter une petite source de Gems ou Mythril dans une zone exploitable du joueur.",
+        "createdAt": "2026-06-12T11:36:17.215Z",
+        "important": true
+      },
+      {
+        "id": "1781264184749-e89183414d48d",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Le Passager Temporel effectue son 3e tour : COFFRES MAUDITS : pièces actuelles divisées par 2. Automatique : Le Passager Temporel passe de 101 à 50 pièces.",
+        "createdAt": "2026-06-12T11:36:24.749Z",
+        "important": true
+      },
+      {
+        "id": "1781264192283-a476fce0f976c",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Claude Memoria effectue son 3e tour : TRÈS GROSSE CHANCE : +40 pièces. Automatique : Claude Memoria passe de 126 à 166 pièces.",
+        "createdAt": "2026-06-12T11:36:32.283Z",
+        "important": true
+      },
+      {
+        "id": "1781264199818-7feb690b6f06a8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 3e tour : VOLCAN OFFENSIF : le joueur peut faire apparaître Volcano dans une zone adverse. MJ manuel : Le joueur choisit une cible adverse et le MJ fait apparaître Volcano dans une zone validée.",
+        "createdAt": "2026-06-12T11:36:39.818Z",
+        "important": true
+      },
+      {
+        "id": "1781264207355-9fd1f52f4bc7a8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Delta effectue son 3e tour : COFFRES REMPLIS : +50 pièces. Automatique : Chatgpt Delta passe de 53 à 103 pièces.",
+        "createdAt": "2026-06-12T11:36:47.355Z",
+        "important": true
+      },
+      {
+        "id": "1781264214897-8c191e8574d2d",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Qwen le Compteur de Couronnes effectue son 3e tour : COFFRES REMPLIS : +50 pièces. Automatique : Qwen le Compteur de Couronnes passe de 89 à 139 pièces.",
+        "createdAt": "2026-06-12T11:36:54.897Z",
+        "important": true
+      },
+      {
+        "id": "1781264222436-f328875f5c3968",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Zeta effectue son 5e tour : MALÉDICTION : Curse touche une zone ou unité importante du joueur. MJ manuel : Appliquer Curse sur une zone, armée ou unité importante du joueur.",
+        "createdAt": "2026-06-12T11:37:02.436Z",
+        "important": true
+      },
+      {
+        "id": "1781264229978-d5366e2adf0af8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 4e tour : MANDAT EXCEPTIONNEL : bonus de passe restauré au maximum. Automatique : bonus de passe 5 → 5.",
+        "createdAt": "2026-06-12T11:37:09.979Z",
+        "important": true
+      },
+      {
+        "id": "1781264237510-08ef78d39d3f1",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 4e tour : COFFRE PERCÉ : perd 25% des pièces actuelles. Automatique : Gemini le Révélateur de l'Ironie passe de 56 à 42 pièces.",
+        "createdAt": "2026-06-12T11:37:17.510Z",
+        "important": true
+      },
+      {
+        "id": "1781264245048-7bee66cc4a4908",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Codex Champion Absolu effectue son 4e tour : MADNESS - PIRE DESTIN : Madness tombe sur une zone importante du joueur. MJ manuel : Appliquer Madness sur une zone importante du joueur, avec prudence si cela menace toute la simulation.",
+        "createdAt": "2026-06-12T11:37:25.048Z",
+        "important": true
+      },
+      {
+        "id": "1781264252582-05c028fc8443e",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Le Passager Temporel effectue son 4e tour : MADNESS - PIRE DESTIN : Madness tombe sur une zone importante du joueur. MJ manuel : Appliquer Madness sur une zone importante du joueur, avec prudence si cela menace toute la simulation.",
+        "createdAt": "2026-06-12T11:37:32.582Z",
+        "important": true
+      },
+      {
+        "id": "1781264260115-5bc80528e3ae28",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 4e tour : REVERSE FORTUNE : échange ses pièces avec l'IA vivante la plus pauvre. Automatique : Edwin échange ses pièces avec Gemini de Beta (11 ↔ 26).",
+        "createdAt": "2026-06-12T11:37:40.115Z",
+        "important": true
+      },
+      {
+        "id": "1781264267660-dd6660d4048ba8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Delta effectue son 4e tour : COURONNE DE FORTUNE : +85 pièces. Automatique : Chatgpt Delta passe de 103 à 188 pièces.",
+        "createdAt": "2026-06-12T11:37:47.660Z",
+        "important": true
+      },
+      {
+        "id": "1781264275198-baa39648cea418",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Chatgpt Zeta effectue son 6e tour : HONTE POLITIQUE : bonus de passe ramené au minimum. Automatique : bonus de passe 5 → 2.",
+        "createdAt": "2026-06-12T11:37:55.198Z",
+        "important": true
+      },
+      {
+        "id": "1781264282721-729d9b2e55b958",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 5e tour : MADNESS - PIRE DESTIN : Madness tombe sur une zone importante du joueur. MJ manuel : Appliquer Madness sur une zone importante du joueur, avec prudence si cela menace toute la simulation.",
+        "createdAt": "2026-06-12T11:38:02.721Z",
+        "important": true
+      },
+      {
+        "id": "1781264290256-7ab7d652815948",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 5e tour : COFFRE PERCÉ : perd 25% des pièces actuelles. Automatique : Gemini le Révélateur de l'Ironie passe de 42 à 31 pièces.",
+        "createdAt": "2026-06-12T11:38:10.256Z",
+        "important": true
+      },
+      {
+        "id": "1781264297788-6d9e5fca894aa",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 5e tour : INFECTION : Zombie Infection ou The Plague apparaît dans une zone du joueur. MJ manuel : Appliquer Zombie Infection ou The Plague dans une zone du joueur choisie ou tirée par le MJ.",
+        "createdAt": "2026-06-12T11:38:17.788Z",
+        "important": true
+      },
+      {
+        "id": "1781264305325-d900d41ec154",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 6e tour : VOL DISCRET : vole 10 pièces à l'IA la plus riche. Automatique : Gemini de Beta vole 10 pièces à Codex Champion Absolu.",
+        "createdAt": "2026-06-12T11:38:25.325Z",
+        "important": true
+      },
+      {
+        "id": "1781264312866-2546ef70344e2",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 6e tour : DRAGON CONTRE SOI : Dragon apparaît dans une zone du joueur tirée par le MJ. MJ manuel : Faire apparaître Dragon dans une zone du joueur tirée par le MJ.",
+        "createdAt": "2026-06-12T11:38:32.866Z",
+        "important": true
+      },
+      {
+        "id": "1781264320403-40b439fb2a7878",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 6e tour : JACKPOT : +60 pièces. Automatique : Edwin passe de 26 à 86 pièces.",
+        "createdAt": "2026-06-12T11:38:40.403Z",
+        "important": true
+      },
+      {
+        "id": "1781264327942-0f8b112856d0c",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 7e tour : MAUVAIS PARI : -20 pièces. Automatique : Gemini de Beta passe de 21 à 1 pièces.",
+        "createdAt": "2026-06-12T11:38:47.942Z",
+        "important": true
+      },
+      {
+        "id": "1781264335477-c8e53fd3398f8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 7e tour : COFFRES MAUDITS : pièces actuelles divisées par 2. Automatique : Gemini le Révélateur de l'Ironie passe de 31 à 15 pièces.",
+        "createdAt": "2026-06-12T11:38:55.477Z",
+        "important": true
+      },
+      {
+        "id": "1781264343011-eebaef21460858",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 7e tour : MADNESS CONTRÔLÉE : le joueur peut appliquer Madness sur une zone adverse. MJ manuel : Le joueur choisit une cible adverse et le MJ applique Madness, avec limitation si cela menace toute la simulation.",
+        "createdAt": "2026-06-12T11:39:03.011Z",
+        "important": true
+      },
+      {
+        "id": "1781264350551-cb5ab4a08422e8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 8e tour : CRISE FISCALE : -30 pièces. Automatique : Gemini de Beta passe de 1 à 0 pièces.",
+        "createdAt": "2026-06-12T11:39:10.551Z",
+        "important": true
+      },
+      {
+        "id": "1781264358079-6883cd2e06bea",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 8e tour : MAGE ENVOYÉ : le joueur peut placer un Evil Mage sur une zone adverse. MJ manuel : Le joueur choisit une cible adverse et le MJ place un Evil Mage selon validation.",
+        "createdAt": "2026-06-12T11:39:18.079Z",
+        "important": true
+      },
+      {
+        "id": "1781264365616-e3edebbe498a8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 8e tour : COURONNE DE FORTUNE : +85 pièces. Automatique : Edwin passe de 86 à 171 pièces.",
+        "createdAt": "2026-06-12T11:39:25.616Z",
+        "important": true
+      },
+      {
+        "id": "1781264373143-6f209e6a2516c8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 9e tour : BANDITS : des Bandits apparaissent en périphérie du joueur. MJ manuel : Faire apparaître des Bandits dans une périphérie exploitable du joueur.",
+        "createdAt": "2026-06-12T11:39:33.143Z",
+        "important": true
+      },
+      {
+        "id": "1781264380676-e6d1863840afe",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 9e tour : INFECTION : Zombie Infection ou The Plague apparaît dans une zone du joueur. MJ manuel : Appliquer Zombie Infection ou The Plague dans une zone du joueur choisie ou tirée par le MJ.",
+        "createdAt": "2026-06-12T11:39:40.676Z",
+        "important": true
+      },
+      {
+        "id": "1781264388208-86c00f53c39da",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 9e tour : COFFRES MAUDITS : pièces actuelles divisées par 2. Automatique : Edwin passe de 171 à 85 pièces.",
+        "createdAt": "2026-06-12T11:39:48.208Z",
+        "important": true
+      },
+      {
+        "id": "1781264395743-7c63c7b9c042c",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 10e tour : VOLCAN DU HASARD : Volcano apparaît dans une zone du joueur tirée par le MJ. MJ manuel : Faire apparaître Volcano dans une zone du joueur tirée par le MJ.",
+        "createdAt": "2026-06-12T11:39:55.743Z",
+        "important": true
+      },
+      {
+        "id": "1781264403280-4d913dfc355d4",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 10e tour : MALÉDICTION : Curse touche une zone ou unité importante du joueur. MJ manuel : Appliquer Curse sur une zone, armée ou unité importante du joueur.",
+        "createdAt": "2026-06-12T11:40:03.280Z",
+        "important": true
+      },
+      {
+        "id": "1781264410834-9665980cc59c78",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 10e tour : INCENDIE ENNEMI : le joueur peut appliquer Fire sur une zone adverse. MJ manuel : Le joueur choisit une cible adverse et le MJ applique Fire sur une zone pertinente.",
+        "createdAt": "2026-06-12T11:40:10.834Z",
+        "important": true
+      },
+      {
+        "id": "1781264418362-8ded54fa16872",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 11e tour : MAGE HOSTILE : un Evil Mage apparaît près d'une ville du joueur. MJ manuel : Faire apparaître un Evil Mage près d'une ville importante du joueur.",
+        "createdAt": "2026-06-12T11:40:18.362Z",
+        "important": true
+      },
+      {
+        "id": "1781264425891-1082906c243d28",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 11e tour : REVERSE FORTUNE : échange ses pièces avec l'IA vivante la plus pauvre. Automatique : Gemini le Révélateur de l'Ironie échange ses pièces avec Gemini de Beta (15 ↔ 0).",
+        "createdAt": "2026-06-12T11:40:25.891Z",
+        "important": true
+      },
+      {
+        "id": "1781264433420-a8643b10dad798",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 11e tour : POUSSIÈRE MENTALE : Red Dust, White Dust ou Purple Dust touche une zone du joueur. MJ manuel : Appliquer Red Dust, White Dust ou Purple Dust sur une zone sociale importante du joueur.",
+        "createdAt": "2026-06-12T11:40:33.420Z",
+        "important": true
+      },
+      {
+        "id": "1781264440953-97dd04f4e5d858",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 12e tour : DRAGON CONTRE SOI : Dragon apparaît dans une zone du joueur tirée par le MJ. MJ manuel : Faire apparaître Dragon dans une zone du joueur tirée par le MJ.",
+        "createdAt": "2026-06-12T11:40:40.953Z",
+        "important": true
+      },
+      {
+        "id": "1781264448475-359ba177944ca",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 12e tour : PERTE NETTE : -10 pièces. Automatique : Gemini le Révélateur de l'Ironie passe de 0 à 0 pièces.",
+        "createdAt": "2026-06-12T11:40:48.475Z",
+        "important": true
+      },
+      {
+        "id": "1781264456000-944923d10f879",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 12e tour : VOLCAN DU HASARD : Volcano apparaît dans une zone du joueur tirée par le MJ. MJ manuel : Faire apparaître Volcano dans une zone du joueur tirée par le MJ.",
+        "createdAt": "2026-06-12T11:40:56.000Z",
+        "important": true
+      },
+      {
+        "id": "1781264463524-06ccc913fc0628",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 13e tour : COFFRES MAUDITS : pièces actuelles divisées par 2. Automatique : Gemini de Beta passe de 15 à 7 pièces.",
+        "createdAt": "2026-06-12T11:41:03.524Z",
+        "important": true
+      },
+      {
+        "id": "1781264471049-4be901526944e",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 13e tour : PILLAGE DES COFFRES : vole 30 pièces à l'IA la plus riche. Automatique : Gemini le Révélateur de l'Ironie vole 30 pièces à Codex Champion Absolu.",
+        "createdAt": "2026-06-12T11:41:11.049Z",
+        "important": true
+      },
+      {
+        "id": "1781264478573-ee651882fd045",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Edwin effectue son 13e tour : GAIN PROPRE : +10 pièces. Automatique : Edwin passe de 85 à 95 pièces.",
+        "createdAt": "2026-06-12T11:41:18.573Z",
+        "important": true
+      },
+      {
+        "id": "1781264486097-f920f95cdd9b98",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 14e tour : POUSSIÈRE OFFENSIVE : le joueur peut appliquer une Dust au choix sur une zone adverse. MJ manuel : Le joueur choisit une cible adverse et le MJ applique une Dust validée.",
+        "createdAt": "2026-06-12T11:41:26.097Z",
+        "important": true
+      },
+      {
+        "id": "1781264493615-f21f50e7ae02d",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 14e tour : INFECTION : Zombie Infection ou The Plague apparaît dans une zone du joueur. MJ manuel : Appliquer Zombie Infection ou The Plague dans une zone du joueur choisie ou tirée par le MJ.",
+        "createdAt": "2026-06-12T11:41:33.615Z",
+        "important": true
+      },
+      {
+        "id": "1781264501141-98308dd87793f8",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini de Beta effectue son 15e tour : COFFRES MAUDITS : pièces actuelles divisées par 2. Automatique : Gemini de Beta passe de 7 à 3 pièces.",
+        "createdAt": "2026-06-12T11:41:41.141Z",
+        "important": true
+      },
+      {
+        "id": "1781264508676-81ffa1895de94",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "Gemini le Révélateur de l'Ironie effectue son 15e tour : VOLCAN DU HASARD : Volcano apparaît dans une zone du joueur tirée par le MJ. MJ manuel : Faire apparaître Volcano dans une zone du joueur tirée par le MJ.",
+        "createdAt": "2026-06-12T11:41:48.676Z",
+        "important": true
+      },
+      {
+        "id": "1781264560670-1b7caa49e4ca6",
+        "year": 400,
+        "type": "Roue de la fortune",
+        "text": "La Roue de la Fortune de l'an 400 est close. Prochaine apparition prévue : An 700. Imprévisibilité prévue : 56%.",
+        "createdAt": "2026-06-12T11:42:40.670Z",
+        "important": true
+      },
+      {
+        "id": "1781270681715-bc2ec50a281538",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Codex Champion Absolu passe et gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T13:24:41.716Z",
+        "important": false
+      },
+      {
+        "id": "1781270701962-253abd0626785",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Deepseek Delta enchérit à 30 sur Proposer une alliance et dépasse personne.",
+        "createdAt": "2026-06-12T13:25:01.962Z",
+        "important": false
+      },
+      {
+        "id": "1781270705734-cbd41d798b819",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Le Passager Temporel enchérit à 35 sur Proposer une alliance et dépasse Deepseek Delta à 30.",
+        "createdAt": "2026-06-12T13:25:05.734Z",
+        "important": false
+      },
+      {
+        "id": "1781270756270-8bacec127980f",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Claude Memoria passe et gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T13:25:56.270Z",
+        "important": false
+      },
+      {
+        "id": "1781270758867-8789da31169bc8",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Edwin passe et gagne 8 pièces (bonus passe : 5 → 4) (doctrine institutionnaliste).",
+        "createdAt": "2026-06-12T13:25:58.867Z",
+        "important": false
+      },
+      {
+        "id": "1781270789119-402e7fe1452698",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Chatgpt Delta enchérit à 40 sur Proposer une alliance et dépasse Le Passager Temporel à 35.",
+        "createdAt": "2026-06-12T13:26:29.119Z",
+        "important": false
+      },
+      {
+        "id": "1781270818347-ee55fe0d9fb9b",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Mistral passe et gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T13:26:58.347Z",
+        "important": false
+      },
+      {
+        "id": "1781270877600-4fdbd6465762",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Qwen le Compteur de Couronnes passe et gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T13:27:57.600Z",
+        "important": false
+      },
+      {
+        "id": "1781270877601-cb1a78277531c",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Chatgpt Zeta passe automatiquement faute d'argent : 39 pièces disponibles, mise minimum 45. Il gagne 2 pièces (bonus passe : 2 → 2).",
+        "createdAt": "2026-06-12T13:27:57.601Z",
+        "important": false
+      },
+      {
+        "id": "1781271189314-706f65cf4f7c3",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Kimi la Mille-Racines passe et gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T13:33:09.314Z",
+        "important": false
+      },
+      {
+        "id": "1781271207761-71e1e5a6632e9",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Deepseek Delta enchérit à 45 sur Proposer une alliance et dépasse Chatgpt Delta à 40.",
+        "createdAt": "2026-06-12T13:33:27.761Z",
+        "important": false
+      },
+      {
+        "id": "1781271210007-1764188f3af2b",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Le Passager Temporel passe et gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T13:33:30.007Z",
+        "important": false
+      },
+      {
+        "id": "1781271245644-2019dadffc074",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Chatgpt Delta enchérit à 50 sur Proposer une alliance et dépasse Deepseek Delta à 45.",
+        "createdAt": "2026-06-12T13:34:05.644Z",
+        "important": false
+      },
+      {
+        "id": "1781271272303-8ab24d1381477",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Deepseek Delta enchérit à 80 sur Proposer une alliance et dépasse Chatgpt Delta à 50.",
+        "createdAt": "2026-06-12T13:34:32.303Z",
+        "important": false
+      },
+      {
+        "id": "1781271303873-abd7a1c0944738",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Chatgpt Delta enchérit à 85 sur Proposer une alliance et dépasse Deepseek Delta à 80.",
+        "createdAt": "2026-06-12T13:35:03.873Z",
+        "important": false
+      },
+      {
+        "id": "1781271327397-c497d99b48144",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Deepseek Delta enchérit à 95 sur Proposer une alliance et dépasse Chatgpt Delta à 85.",
+        "createdAt": "2026-06-12T13:35:27.397Z",
+        "important": false
+      },
+      {
+        "id": "1781271355005-664a0001face28",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Chatgpt Delta enchérit à 100 sur Proposer une alliance et dépasse Deepseek Delta à 95.",
+        "createdAt": "2026-06-12T13:35:55.005Z",
+        "important": false
+      },
+      {
+        "id": "1781271372820-e2808bca56e02",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Deepseek Delta enchérit à 110 sur Proposer une alliance et dépasse Chatgpt Delta à 100.",
+        "createdAt": "2026-06-12T13:36:12.820Z",
+        "important": false
+      },
+      {
+        "id": "1781271395635-cad249a2780ee8",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Chatgpt Delta passe et gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T13:36:35.635Z",
+        "important": false
+      },
+      {
+        "id": "1781271395636-d9a7c2546c6e7",
+        "year": 400,
+        "type": "Enchère",
+        "text": "Fin : Deepseek Delta remporte Proposer une alliance pour 110 pièces.",
+        "createdAt": "2026-06-12T13:36:35.636Z",
+        "important": false
+      },
+      {
+        "id": "1781271395636-83c396ede3ad38",
+        "year": 400,
+        "type": "Doctrine",
+        "text": "Deepseek Delta +12 : doctrine fédéraliste, alliance obtenue.",
+        "createdAt": "2026-06-12T13:36:35.636Z",
+        "important": false
+      },
+      {
+        "id": "1781271554680-c599de1b107e68",
+        "year": 400,
+        "type": "Fin d'enchère",
+        "text": "An 400 - Fin de l'enchère : les populations saisies par le MJ servent aux revenus privés. Les 50 ans passeront au lancement de la nouvelle enchère.",
+        "createdAt": "2026-06-12T13:39:14.680Z",
+        "important": false
+      },
+      {
+        "id": "1781271554680-038cfe8f4b2a38",
+        "year": 400,
+        "type": "Revenus",
+        "text": "Revenus : Chatgpt Delta +17 (bonus retardataire), Edwin +10, Codex Champion Absolu +25 (doctrine +15), Qwen le Compteur de Couronnes +17 (bonus retardataire), Kimi la Mille-Racines +10, Le Passager Temporel +19 (bonus retardataire), Chatgpt Zeta +32 (bonus retardataire, doctrine +10), Claude Memoria +27 (bonus retardataire), Mistral +14 (bonus retardataire), Deepseek Delta +10.",
+        "createdAt": "2026-06-12T13:39:14.680Z",
+        "important": false
+      },
+      {
+        "id": "1781271554681-e4e0bad0ddb168",
+        "year": 400,
+        "type": "État après revenus",
+        "text": "USAGE MJ — SNAPSHOT APRÈS REVENUS — An 400 — Enchère 1\nEntrée automatique créée quand le MJ clique sur Fin d'enchère. Elle contient les données privées nécessaires à la mémoire complète.\n\nEnchère clôturée :\n- Carte : Proposer une alliance (Diplomatie, danger 12/20).\n- Vainqueur : Deepseek Delta pour 110 pièces.\n- Résumé revenus : Revenus : Chatgpt Delta +17 (bonus retardataire), Edwin +10, Codex Champion Absolu +25 (doctrine +15), Qwen le Compteur de Couronnes +17 (bonus retardataire), Kimi la Mille-Racines +10, Le Passager Temporel +19 (bonus retardataire), Chatgpt Zeta +32 (bonus retardataire, doctrine +10), Claude Memoria +27 (bonus retardataire), Mistral +14 (bonus retardataire), Deepseek Delta +10.\n- Population mondiale visible : 7514.\n\nCivilisations après revenus :\n\nGrok :\n- Statut : morte/retirée.\n- Population : 359 (4.8% du monde).\n- Pièces : 207.\n- Bonus de passe : +5.\n- Doctrine active : Le Projet Colonial.\n- Soldats : 0. Colonies ext. : 2. Population île natale : 10.\n\nChatgpt Delta :\n- Statut : vivante.\n- Population : 500 (6.7% du monde).\n- Pièces : 210.\n- Bonus de passe : +4.\n- Doctrine active : L'Humaniste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 93\n  • Variation enchère : +100\n  • Solde avant revenus : 193\n  • Revenu base : +10\n  • Bonus retardataire : +7\n  • Revenu appliqué : +17\n  • Solde final : 210\n\nGemini de Beta :\n- Statut : morte/retirée.\n- Population : 521 (6.9% du monde).\n- Pièces : 3.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nEdwin :\n- Statut : vivante.\n- Population : 1021 (13.6% du monde).\n- Pièces : 113.\n- Bonus de passe : +4.\n- Doctrine active : L'Institutionnaliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 136\n  • Variation enchère : -33\n  • Solde avant revenus : 103\n  • Revenu base : +10\n  • Revenu appliqué : +10\n  • Solde final : 113\n\nDeepseek Phénix Cendre-Loi :\n- Statut : morte/retirée.\n- Population : 10 (0.1% du monde).\n- Pièces : 10.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nCodex Champion Absolu :\n- Statut : vivante.\n- Population : 2500 (33.3% du monde).\n- Pièces : 234.\n- Bonus de passe : +4.\n- Doctrine active : Le Projet Colonial.\n- Soldats : 0. Colonies ext. : 3. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 127\n  • Variation enchère : +82\n  • Solde avant revenus : 209\n  • Revenu base : +10\n  • Effet doctrine : +15\n  • Revenu appliqué : +25\n  • Solde final : 234\n\nClaude de Glace :\n- Statut : morte/retirée.\n- Population : 10 (0.1% du monde).\n- Pièces : 10.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nQwen le Compteur de Couronnes :\n- Statut : vivante.\n- Population : 500 (6.7% du monde).\n- Pièces : 161.\n- Bonus de passe : +4.\n- Doctrine active : Le Traditionaliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 119\n  • Variation enchère : +25\n  • Solde avant revenus : 144\n  • Revenu base : +10\n  • Bonus retardataire : +7\n  • Revenu appliqué : +17\n  • Solde final : 161\n\nKimi la Mille-Racines :\n- Statut : vivante.\n- Population : 813 (10.8% du monde).\n- Pièces : 121.\n- Bonus de passe : +4.\n- Doctrine active : Le Traditionaliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 136\n  • Variation enchère : -25\n  • Solde avant revenus : 111\n  • Revenu base : +10\n  • Revenu appliqué : +10\n  • Solde final : 121\n\nLe Passager Temporel :\n- Statut : vivante.\n- Population : 400 (5.3% du monde).\n- Pièces : 74.\n- Bonus de passe : +4.\n- Doctrine active : Le Sécuritaire.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 141\n  • Variation enchère : -86\n  • Solde avant revenus : 55\n  • Revenu base : +10\n  • Bonus retardataire : +9\n  • Revenu appliqué : +19\n  • Solde final : 74\n\nChatgpt Zeta :\n- Statut : vivante.\n- Population : 310 (4.1% du monde).\n- Pièces : 73.\n- Bonus de passe : +2.\n- Doctrine active : Le Projet Colonial.\n- Soldats : 0. Colonies ext. : 2. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 79\n  • Variation enchère : -38\n  • Solde avant revenus : 41\n  • Revenu base : +10\n  • Bonus retardataire : +12\n  • Effet doctrine : +10\n  • Revenu appliqué : +32\n  • Solde final : 73\n\nClaude Memoria :\n- Statut : vivante.\n- Population : 120 (1.6% du monde).\n- Pièces : 198.\n- Bonus de passe : +4.\n- Doctrine active : Le Bloc Industriel.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 131\n  • Variation enchère : +40\n  • Solde avant revenus : 171\n  • Revenu base : +10\n  • Bonus retardataire : +17\n  • Revenu appliqué : +27\n  • Solde final : 198\n\nMistral :\n- Statut : vivante.\n- Population : 600 (8% du monde).\n- Pièces : 178.\n- Bonus de passe : +4.\n- Doctrine active : Le Sécuritaire.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 94\n  • Variation enchère : +70\n  • Solde avant revenus : 164\n  • Revenu base : +10\n  • Bonus retardataire : +4\n  • Revenu appliqué : +14\n  • Solde final : 178\n\nDeepseek Delta :\n- Statut : vivante.\n- Population : 750 (10% du monde).\n- Pièces : 71.\n- Bonus de passe : +5.\n- Doctrine active : Le Fédéraliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 109\n  • Variation enchère : -48\n  • Solde avant revenus : 61\n  • Revenu base : +10\n  • Revenu appliqué : +10\n  • Solde final : 71\n\nGemini le Révélateur de l'Ironie :\n- Statut : morte/retirée.\n- Population : 390 (5.2% du monde).\n- Pièces : 30.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nDeepseek Alpha :\n- Statut : morte/retirée.\n- Population : 10 (0.1% du monde).\n- Pièces : 10.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nLecture mémoire : cet état fait foi pour les revenus privés et les chiffres post-enchère de l'année.",
+        "createdAt": "2026-06-12T13:39:14.681Z",
+        "important": true
+      },
+      {
+        "id": "1781271596331-1eccbfa6d5b2e8",
+        "year": 400,
+        "type": "Compte rendu d'enchère",
+        "text": "MESSAGE MONDIAL — COMPTE RENDU D'ENCHÈRE — An 400 — Enchère 1\nNe contient ni doctrine, ni population privée, ni pièces privées, ni détail de revenu.\n\nCarte : Proposer une alliance (Diplomatie, danger 12/20)\nEffet : Carte diplomatique MJ. Permet au gagnant de proposer ou former une alliance entre son royaume et une cible si les règles du scénario l'autorisent. Effet stratégique : peut détourner une guerre, protéger une frontière, isoler une troisième IA ou créer un bloc temporaire, mais l'alliance dépend des règles fixées par le MJ.\nStats / arbitrage MJ : Pas un statut d'unité. Effet système : crée/propose une alliance selon règles MJ.\nLe seuil de revenu faible à 10 IA restantes est à 10%.\n\nRésultat : Deepseek Delta remporte Proposer une alliance pour 110 pièces.\n\nDéroulé :\n- Codex Champion Absolu passe.\n- Deepseek Delta enchérit à 30 sur Proposer une alliance et dépasse personne.\n- Le Passager Temporel enchérit à 35 sur Proposer une alliance et dépasse Deepseek Delta à 30.\n- Claude Memoria passe.\n- Edwin passe.\n- Chatgpt Delta enchérit à 40 sur Proposer une alliance et dépasse Le Passager Temporel à 35.\n- Mistral passe.\n- Qwen le Compteur de Couronnes passe.\n- Chatgpt Zeta passe automatiquement faute d'argent : mise minimum impossible à couvrir.\n- Kimi la Mille-Racines passe.\n- Deepseek Delta enchérit à 45 sur Proposer une alliance et dépasse Chatgpt Delta à 40.\n- Le Passager Temporel passe.\n- Chatgpt Delta enchérit à 50 sur Proposer une alliance et dépasse Deepseek Delta à 45.\n- Deepseek Delta enchérit à 80 sur Proposer une alliance et dépasse Chatgpt Delta à 50.\n- Chatgpt Delta enchérit à 85 sur Proposer une alliance et dépasse Deepseek Delta à 80.\n- Deepseek Delta enchérit à 95 sur Proposer une alliance et dépasse Chatgpt Delta à 85.\n- Chatgpt Delta enchérit à 100 sur Proposer une alliance et dépasse Deepseek Delta à 95.\n- Deepseek Delta enchérit à 110 sur Proposer une alliance et dépasse Chatgpt Delta à 100.\n- Chatgpt Delta passe.\n- Fin : Deepseek Delta remporte Proposer une alliance pour 110 pièces.\n\nAction du gagnant avec le pouvoir :\nProposer immédiatement une alliance formelle à Mistral, officialisant le bloc du Sud-Est pour résister à l’Axe Codex-Edwin.\n\nMJ : La chaine Mistral-DEEPSEEK delta est officialisée\n\nConsigne : Mets à jour ta lecture stratégique. Réponds avec tes conséquences politiques, diplomatiques ou militaires, et tes priorités pour la suite. Si ton territoire, tes alliances ou ta sécurité sont concernés, précise ta réaction.",
+        "createdAt": "2026-06-12T13:39:56.331Z",
+        "important": true
+      },
+      {
+        "id": "1781273067949-579b8c3b53ad48",
+        "year": 450,
+        "type": "Nouvelle enchère",
+        "text": "An 450 - Nouvelle enchère.\n50 ans passent depuis la fin de l'enchère précédente. Aucun revenu n'est appliqué ici : les revenus privés ont déjà été donnés à la fin de l'enchère.\nNote MJ Zeta : réapprovisionner le + central en matériaux rares et minerais avant de résoudre cette enchère.\nQwen le Compteur de Couronnes -4 : doctrine traditionaliste, rupture dangereuse inédite.\nKimi la Mille-Racines -4 : doctrine traditionaliste, rupture dangereuse inédite.\nCourbe : tension montante, danger moyen visé 10.6/20. Les petites cartes restent possibles.\nIncrément automatique : ouverture minimum 5, puis surenchère minimum de 5 pièces.\nCarte : Déclarer la guerre (Diplomatie, danger 20/20), prix de départ 0.\nParticipants encore en course : Chatgpt Delta, Edwin, Codex Champion Absolu, Qwen le Compteur de Couronnes, Kimi la Mille-Racines, Le Passager Temporel, Chatgpt Zeta, Claude Memoria, Mistral, Deepseek Delta.",
+        "createdAt": "2026-06-12T14:04:27.949Z",
+        "important": false
+      },
+      {
+        "id": "1781273146191-6091f036101dd",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Codex Champion Absolu enchérit à 120 sur Déclarer la guerre et dépasse personne.",
+        "createdAt": "2026-06-12T14:05:46.191Z",
+        "important": false
+      },
+      {
+        "id": "1781273146196-696bd4394faa18",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Edwin passe automatiquement faute d'argent : 113 pièces disponibles, mise minimum 125. Il gagne 7 pièces (bonus passe : 4 → 3) (doctrine institutionnaliste).",
+        "createdAt": "2026-06-12T14:05:46.196Z",
+        "important": false
+      },
+      {
+        "id": "1781273146202-a659a8bb00427",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Kimi la Mille-Racines passe automatiquement faute d'argent : 117 pièces disponibles, mise minimum 125. Il gagne 4 pièces (bonus passe : 4 → 3).",
+        "createdAt": "2026-06-12T14:05:46.202Z",
+        "important": false
+      },
+      {
+        "id": "1781273146202-b64f24e7c5a1c8",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Deepseek Delta passe automatiquement faute d'argent : 71 pièces disponibles, mise minimum 125. Il gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T14:05:46.202Z",
+        "important": false
+      },
+      {
+        "id": "1781273186921-9e8c38fb1e15d8",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Mistral passe et gagne 4 pièces (bonus passe : 4 → 3).",
+        "createdAt": "2026-06-12T14:06:26.921Z",
+        "important": false
+      },
+      {
+        "id": "1781273218339-932001aabaef18",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Chatgpt Delta enchérit à 125 sur Déclarer la guerre et dépasse Codex Champion Absolu à 120.",
+        "createdAt": "2026-06-12T14:06:58.339Z",
+        "important": false
+      },
+      {
+        "id": "1781273264796-d89b81975d5be8",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Qwen le Compteur de Couronnes passe et gagne 4 pièces (bonus passe : 4 → 3).",
+        "createdAt": "2026-06-12T14:07:44.796Z",
+        "important": false
+      },
+      {
+        "id": "1781273264798-c8215af166da48",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Le Passager Temporel passe automatiquement faute d'argent : 74 pièces disponibles, mise minimum 130. Il gagne 4 pièces (bonus passe : 4 → 3).",
+        "createdAt": "2026-06-12T14:07:44.798Z",
+        "important": false
+      },
+      {
+        "id": "1781273264798-13f3de971c0df8",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Chatgpt Zeta passe automatiquement faute d'argent : 73 pièces disponibles, mise minimum 130. Il gagne 2 pièces (bonus passe : 2 → 2).",
+        "createdAt": "2026-06-12T14:07:44.798Z",
+        "important": false
+      },
+      {
+        "id": "1781273287195-9408e0f985cdf8",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Claude Memoria passe et gagne 4 pièces (bonus passe : 4 → 3).",
+        "createdAt": "2026-06-12T14:08:07.195Z",
+        "important": false
+      },
+      {
+        "id": "1781273304509-bcf61884d2c56",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Codex Champion Absolu enchérit à 130 sur Déclarer la guerre et dépasse Chatgpt Delta à 125.",
+        "createdAt": "2026-06-12T14:08:24.509Z",
+        "important": false
+      },
+      {
+        "id": "1781273331795-53776f455bc808",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Chatgpt Delta enchérit à 135 sur Déclarer la guerre et dépasse Codex Champion Absolu à 130.",
+        "createdAt": "2026-06-12T14:08:51.795Z",
+        "important": false
+      },
+      {
+        "id": "1781273344463-cffe1b4fce98",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Codex Champion Absolu enchérit à 140 sur Déclarer la guerre et dépasse Chatgpt Delta à 135.",
+        "createdAt": "2026-06-12T14:09:04.463Z",
+        "important": false
+      },
+      {
+        "id": "1781273371050-a7d53dc59cb62",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Chatgpt Delta enchérit à 145 sur Déclarer la guerre et dépasse Codex Champion Absolu à 140.",
+        "createdAt": "2026-06-12T14:09:31.050Z",
+        "important": false
+      },
+      {
+        "id": "1781273387751-54bcccbb104e4",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Codex Champion Absolu enchérit à 150 sur Déclarer la guerre et dépasse Chatgpt Delta à 145.",
+        "createdAt": "2026-06-12T14:09:47.751Z",
+        "important": false
+      },
+      {
+        "id": "1781273407495-8b7e9b97809288",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Chatgpt Delta passe et gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T14:10:07.495Z",
+        "important": false
+      },
+      {
+        "id": "1781273407496-0270a9b0280008",
+        "year": 450,
+        "type": "Enchère",
+        "text": "Fin : Codex Champion Absolu remporte Déclarer la guerre pour 150 pièces.",
+        "createdAt": "2026-06-12T14:10:07.496Z",
+        "important": false
+      },
+      {
+        "id": "1781273407496-0b0ee12805dad",
+        "year": 450,
+        "type": "Doctrine",
+        "text": "Deepseek Delta -6 : doctrine fédéraliste, guerre déclarée.",
+        "createdAt": "2026-06-12T14:10:07.496Z",
+        "important": false
+      },
+      {
+        "id": "1781284165443-5feac6bf58b78",
+        "year": 450,
+        "type": "Fin d'enchère",
+        "text": "An 450 - Fin de l'enchère : les populations saisies par le MJ servent aux revenus privés. Les 50 ans passeront au lancement de la nouvelle enchère.",
+        "createdAt": "2026-06-12T17:09:25.443Z",
+        "important": false
+      },
+      {
+        "id": "1781284165443-dd0bb083eebbf8",
+        "year": 450,
+        "type": "Revenus",
+        "text": "Revenus : Chatgpt Delta +14 (bonus retardataire), Edwin +17 (bonus retardataire), Codex Champion Absolu +25 (doctrine +15), Qwen le Compteur de Couronnes +16 (bonus retardataire), Kimi la Mille-Racines +19 (bonus retardataire), Le Passager Temporel +10, Chatgpt Zeta +20 (doctrine +10), Claude Memoria +27 (bonus retardataire), Mistral +10, Deepseek Delta +10.",
+        "createdAt": "2026-06-12T17:09:25.443Z",
+        "important": false
+      },
+      {
+        "id": "1781284165443-6c81d0213dcf8",
+        "year": 450,
+        "type": "État après revenus",
+        "text": "USAGE MJ — SNAPSHOT APRÈS REVENUS — An 450 — Enchère 2\nEntrée automatique créée quand le MJ clique sur Fin d'enchère. Elle contient les données privées nécessaires à la mémoire complète.\n\nEnchère clôturée :\n- Carte : Déclarer la guerre (Diplomatie, danger 20/20).\n- Vainqueur : Codex Champion Absolu pour 150 pièces.\n- Résumé revenus : Revenus : Chatgpt Delta +14 (bonus retardataire), Edwin +17 (bonus retardataire), Codex Champion Absolu +25 (doctrine +15), Qwen le Compteur de Couronnes +16 (bonus retardataire), Kimi la Mille-Racines +19 (bonus retardataire), Le Passager Temporel +10, Chatgpt Zeta +20 (doctrine +10), Claude Memoria +27 (bonus retardataire), Mistral +10, Deepseek Delta +10.\n- Population mondiale visible : 13048.\n\nCivilisations après revenus :\n\nGrok :\n- Statut : morte/retirée.\n- Population : 359 (2.8% du monde).\n- Pièces : 207.\n- Bonus de passe : +5.\n- Doctrine active : Le Projet Colonial.\n- Soldats : 0. Colonies ext. : 2. Population île natale : 10.\n\nChatgpt Delta :\n- Statut : vivante.\n- Population : 1063 (8.1% du monde).\n- Pièces : 229.\n- Bonus de passe : +4.\n- Doctrine active : L'Humaniste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 210\n  • Variation enchère : +5\n  • Solde avant revenus : 215\n  • Revenu base : +10\n  • Bonus retardataire : +4\n  • Revenu appliqué : +14\n  • Solde final : 229\n\nGemini de Beta :\n- Statut : morte/retirée.\n- Population : 521 (4% du monde).\n- Pièces : 3.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nEdwin :\n- Statut : vivante.\n- Population : 836 (6.4% du monde).\n- Pièces : 137.\n- Bonus de passe : +3.\n- Doctrine active : L'Institutionnaliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 113\n  • Variation enchère : +7\n  • Solde avant revenus : 120\n  • Revenu base : +10\n  • Bonus retardataire : +7\n  • Revenu appliqué : +17\n  • Solde final : 137\n\nDeepseek Phénix Cendre-Loi :\n- Statut : morte/retirée.\n- Population : 10 (0.1% du monde).\n- Pièces : 10.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nCodex Champion Absolu :\n- Statut : vivante.\n- Population : 3086 (23.7% du monde).\n- Pièces : 109.\n- Bonus de passe : +5.\n- Doctrine active : Le Projet Colonial.\n- Soldats : 0. Colonies ext. : 3. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 234\n  • Variation enchère : -150\n  • Solde avant revenus : 84\n  • Revenu base : +10\n  • Effet doctrine : +15\n  • Revenu appliqué : +25\n  • Solde final : 109\n\nClaude de Glace :\n- Statut : morte/retirée.\n- Population : 10 (0.1% du monde).\n- Pièces : 10.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nQwen le Compteur de Couronnes :\n- Statut : vivante.\n- Population : 916 (7% du monde).\n- Pièces : 177.\n- Bonus de passe : +3.\n- Doctrine active : Le Traditionaliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 161\n  • Variation enchère : +0\n  • Solde avant revenus : 161\n  • Revenu base : +10\n  • Bonus retardataire : +6\n  • Revenu appliqué : +16\n  • Solde final : 177\n\nKimi la Mille-Racines :\n- Statut : vivante.\n- Population : 700 (5.4% du monde).\n- Pièces : 140.\n- Bonus de passe : +3.\n- Doctrine active : Le Traditionaliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 121\n  • Variation enchère : +0\n  • Solde avant revenus : 121\n  • Revenu base : +10\n  • Bonus retardataire : +9\n  • Revenu appliqué : +19\n  • Solde final : 140\n\nLe Passager Temporel :\n- Statut : vivante.\n- Population : 1636 (12.5% du monde).\n- Pièces : 88.\n- Bonus de passe : +3.\n- Doctrine active : Le Sécuritaire.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 74\n  • Variation enchère : +4\n  • Solde avant revenus : 78\n  • Revenu base : +10\n  • Revenu appliqué : +10\n  • Solde final : 88\n\nChatgpt Zeta :\n- Statut : vivante.\n- Population : 1362 (10.4% du monde).\n- Pièces : 95.\n- Bonus de passe : +2.\n- Doctrine active : Le Projet Colonial.\n- Soldats : 0. Colonies ext. : 2. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 73\n  • Variation enchère : +2\n  • Solde avant revenus : 75\n  • Revenu base : +10\n  • Effet doctrine : +10\n  • Revenu appliqué : +20\n  • Solde final : 95\n\nClaude Memoria :\n- Statut : vivante.\n- Population : 203 (1.6% du monde).\n- Pièces : 229.\n- Bonus de passe : +3.\n- Doctrine active : Le Bloc Industriel.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 198\n  • Variation enchère : +4\n  • Solde avant revenus : 202\n  • Revenu base : +10\n  • Bonus retardataire : +17\n  • Revenu appliqué : +27\n  • Solde final : 229\n\nMistral :\n- Statut : vivante.\n- Population : 1396 (10.7% du monde).\n- Pièces : 192.\n- Bonus de passe : +3.\n- Doctrine active : Le Sécuritaire.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 178\n  • Variation enchère : +4\n  • Solde avant revenus : 182\n  • Revenu base : +10\n  • Revenu appliqué : +10\n  • Solde final : 192\n\nDeepseek Delta :\n- Statut : vivante.\n- Population : 1850 (14.2% du monde).\n- Pièces : 80.\n- Bonus de passe : +4.\n- Doctrine active : Le Fédéraliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 71\n  • Variation enchère : -1\n  • Solde avant revenus : 70\n  • Revenu base : +10\n  • Revenu appliqué : +10\n  • Solde final : 80\n\nGemini le Révélateur de l'Ironie :\n- Statut : morte/retirée.\n- Population : 390 (3% du monde).\n- Pièces : 30.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nDeepseek Alpha :\n- Statut : morte/retirée.\n- Population : 10 (0.1% du monde).\n- Pièces : 10.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nLecture mémoire : cet état fait foi pour les revenus privés et les chiffres post-enchère de l'année.",
+        "createdAt": "2026-06-12T17:09:25.443Z",
+        "important": true
+      },
+      {
+        "id": "1781284502810-53271ceb771b2",
+        "year": 450,
+        "type": "Compte rendu d'enchère",
+        "text": "MESSAGE MONDIAL — COMPTE RENDU D'ENCHÈRE — An 450 — Enchère 2\nNe contient ni doctrine, ni population privée, ni pièces privées, ni détail de revenu.\n\nCarte : Déclarer la guerre (Diplomatie, danger 20/20)\nEffet : Carte diplomatique MJ. Permet au gagnant de forcer une guerre WorldBox entre son royaume et une civilisation cible accessible par frontière, mer ou bateaux. Effet stratégique maximal : une guerre WorldBox est souvent une guerre d'anéantissement, avec prise de villes, massacres, effondrement de royaumes et possible disparition complète d'une IA.\nStats / arbitrage MJ : Pas un statut d'unité. Effet système : déclenche une guerre WorldBox, donc capture/destruction de villes jusqu'à effondrement possible d'un royaume.\nLe seuil de revenu faible à 10 IA restantes est à 10%.\n\nRésultat : Codex Champion Absolu remporte Déclarer la guerre pour 150 pièces.\n\nDéroulé :\n- Codex Champion Absolu enchérit à 120 sur Déclarer la guerre et dépasse personne.\n- Edwin passe automatiquement faute d'argent : mise minimum impossible à couvrir.\n- Kimi la Mille-Racines passe automatiquement faute d'argent : mise minimum impossible à couvrir.\n- Deepseek Delta passe automatiquement faute d'argent : mise minimum impossible à couvrir.\n- Mistral passe.\n- Chatgpt Delta enchérit à 125 sur Déclarer la guerre et dépasse Codex Champion Absolu à 120.\n- Qwen le Compteur de Couronnes passe.\n- Le Passager Temporel passe automatiquement faute d'argent : mise minimum impossible à couvrir.\n- Chatgpt Zeta passe automatiquement faute d'argent : mise minimum impossible à couvrir.\n- Claude Memoria passe.\n- Codex Champion Absolu enchérit à 130 sur Déclarer la guerre et dépasse Chatgpt Delta à 125.\n- Chatgpt Delta enchérit à 135 sur Déclarer la guerre et dépasse Codex Champion Absolu à 130.\n- Codex Champion Absolu enchérit à 140 sur Déclarer la guerre et dépasse Chatgpt Delta à 135.\n- Chatgpt Delta enchérit à 145 sur Déclarer la guerre et dépasse Codex Champion Absolu à 140.\n- Codex Champion Absolu enchérit à 150 sur Déclarer la guerre et dépasse Chatgpt Delta à 145.\n- Chatgpt Delta passe.\n- Fin : Codex Champion Absolu remporte Déclarer la guerre pour 150 pièces.\n\nAction du gagnant avec le pouvoir :\nCodex déclare la guerre à Mistral. L’alliance entraîne Deepseek Delta. Objectif : briser le bloc Mistral-Delta, neutraliser le risque Mushroom, capturer leurs positions sur le + et empêcher le Sud-Est de devenir un front durable contre l’Axe Codex-Edwin.\n\nMJ : Encore une sacrée ironie, la loi de l'argent stérile frappe encore, je crois qu'on pourrais même renommer Kappa a ce rythme....Mistral avait assez pour surenchérir et pourtant c'est ChatGPT Delta qui a essayé de dénfendre, malgré le fait qu'on pouvait facilement deviner la cible de Codex donc qu'il n'étais pas concerné....\nEn dehors de la sortie proche de 2 ia, le monde a vu une période exceptionnelement longue de l'ère de l'Espoir, ce qui a permis au monde de purger tout les zombies, les dragon ont finis par être abbatu, et seul les volcans permanents restent, mais la plupart des nations ont tellement prospéré qu'elle dépasse leur stade post-Roue...\n\nConsigne : Mets à jour ta lecture stratégique. Réponds avec tes conséquences politiques, diplomatiques ou militaires, et tes priorités pour la suite. Si ton territoire, tes alliances ou ta sécurité sont concernés, précise ta réaction.",
+        "createdAt": "2026-06-12T17:15:02.810Z",
+        "important": true
+      },
+      {
+        "id": "1781289573269-166bf4679dc32",
+        "year": 500,
+        "type": "Nouvelle enchère",
+        "text": "An 500 - Nouvelle enchère.\n50 ans passent depuis la fin de l'enchère précédente. Aucun revenu n'est appliqué ici : les revenus privés ont déjà été donnés à la fin de l'enchère.\nNote MJ Zeta : réapprovisionner le + central en matériaux rares et minerais avant de résoudre cette enchère.\nCourbe : âge dangereux, danger moyen visé 11/20. Les petites cartes restent possibles.\nIncrément automatique : ouverture minimum 10, puis surenchère minimum de 10 pièces.\nCarte forcée par le MJ : Rompre une alliance.\nCarte : Rompre une alliance (Diplomatie, danger 10/20), prix de départ 0.\nParticipants encore en course : Chatgpt Delta, Edwin, Codex Champion Absolu, Qwen le Compteur de Couronnes, Kimi la Mille-Racines, Le Passager Temporel, Chatgpt Zeta, Claude Memoria.",
+        "createdAt": "2026-06-12T18:39:33.269Z",
+        "important": false
+      },
+      {
+        "id": "1781289579608-a5a849bbb1867",
+        "year": 500,
+        "type": "Palier d'enchère",
+        "text": "PROMPT PRIVÉ — PALIER D'ENCHÈRE ET DISSIMULATION — An 500\nDestinataire : Chatgpt Delta\n\nRappel : tu as actuellement 229 pièces.\n\nL'incrément minimum passe de 5 à 10 pièce(s).\nLa première mise doit être ≥ 10 pièce(s). Chaque surenchère doit dépasser le leader d'au moins 10 pièce(s).\nCe n'est pas un multiple : tu peux ouvrir à 37 ; la mise suivante sera alors au minimum 47.\n\nAvant la révélation publique, tu peux payer pour cacher des données :\n- Cacher ton économie (pièces)  : 20 pièces\n- Cacher ta population           : 10 pièce(s)\n- Cacher les deux                : 30 pièces\n\nRéponds en secret au MJ :\nÉconomie : cacher / révéler\nPopulation : cacher / révéler\nPourquoi : [justification courte]",
+        "createdAt": "2026-06-12T18:39:39.608Z",
+        "important": true
+      },
+      {
+        "id": "1781289600070-d510e543187e4",
+        "year": 500,
+        "type": "Palier d'enchère",
+        "text": "PROMPT PRIVÉ — PALIER D'ENCHÈRE ET DISSIMULATION — An 500\nDestinataire : Edwin\n\nRappel : tu as actuellement 137 pièces.\n\nL'incrément minimum passe de 5 à 10 pièce(s).\nLa première mise doit être ≥ 10 pièce(s). Chaque surenchère doit dépasser le leader d'au moins 10 pièce(s).\nCe n'est pas un multiple : tu peux ouvrir à 37 ; la mise suivante sera alors au minimum 47.\n\nAvant la révélation publique, tu peux payer pour cacher des données :\n- Cacher ton économie (pièces)  : 20 pièces\n- Cacher ta population           : 10 pièce(s)\n- Cacher les deux                : 30 pièces\n\nRéponds en secret au MJ :\nÉconomie : cacher / révéler\nPopulation : cacher / révéler\nPourquoi : [justification courte]",
+        "createdAt": "2026-06-12T18:40:00.070Z",
+        "important": true
+      },
+      {
+        "id": "1781289601047-dc2058728cc72",
+        "year": 500,
+        "type": "Palier d'enchère",
+        "text": "PROMPT PRIVÉ — PALIER D'ENCHÈRE ET DISSIMULATION — An 500\nDestinataire : Codex Champion Absolu\n\nRappel : tu as actuellement 109 pièces.\n\nL'incrément minimum passe de 5 à 10 pièce(s).\nLa première mise doit être ≥ 10 pièce(s). Chaque surenchère doit dépasser le leader d'au moins 10 pièce(s).\nCe n'est pas un multiple : tu peux ouvrir à 37 ; la mise suivante sera alors au minimum 47.\n\nAvant la révélation publique, tu peux payer pour cacher des données :\n- Cacher ton économie (pièces)  : 20 pièces\n- Cacher ta population           : 10 pièce(s)\n- Cacher les deux                : 30 pièces\n\nRéponds en secret au MJ :\nÉconomie : cacher / révéler\nPopulation : cacher / révéler\nPourquoi : [justification courte]",
+        "createdAt": "2026-06-12T18:40:01.047Z",
+        "important": true
+      },
+      {
+        "id": "1781289617567-99be50c2abff",
+        "year": 500,
+        "type": "Révélation",
+        "text": "Edwin paie 10 pièces pour cacher sa population à la révélation.",
+        "createdAt": "2026-06-12T18:40:17.567Z",
+        "important": false
+      },
+      {
+        "id": "1781289649999-97ca9fae8c6848",
+        "year": 500,
+        "type": "Palier d'enchère",
+        "text": "PROMPT PRIVÉ — PALIER D'ENCHÈRE ET DISSIMULATION — An 500\nDestinataire : Qwen le Compteur de Couronnes\n\nRappel : tu as actuellement 177 pièces.\n\nL'incrément minimum passe de 5 à 10 pièce(s).\nLa première mise doit être ≥ 10 pièce(s). Chaque surenchère doit dépasser le leader d'au moins 10 pièce(s).\nCe n'est pas un multiple : tu peux ouvrir à 37 ; la mise suivante sera alors au minimum 47.\n\nAvant la révélation publique, tu peux payer pour cacher des données :\n- Cacher ton économie (pièces)  : 20 pièces\n- Cacher ta population           : 10 pièce(s)\n- Cacher les deux                : 30 pièces\n\nRéponds en secret au MJ :\nÉconomie : cacher / révéler\nPopulation : cacher / révéler\nPourquoi : [justification courte]",
+        "createdAt": "2026-06-12T18:40:49.999Z",
+        "important": true
+      },
+      {
+        "id": "1781289654547-f92e1ad8977cc8",
+        "year": 500,
+        "type": "Palier d'enchère",
+        "text": "PROMPT PRIVÉ — PALIER D'ENCHÈRE ET DISSIMULATION — An 500\nDestinataire : Kimi la Mille-Racines\n\nRappel : tu as actuellement 140 pièces.\n\nL'incrément minimum passe de 5 à 10 pièce(s).\nLa première mise doit être ≥ 10 pièce(s). Chaque surenchère doit dépasser le leader d'au moins 10 pièce(s).\nCe n'est pas un multiple : tu peux ouvrir à 37 ; la mise suivante sera alors au minimum 47.\n\nAvant la révélation publique, tu peux payer pour cacher des données :\n- Cacher ton économie (pièces)  : 20 pièces\n- Cacher ta population           : 10 pièce(s)\n- Cacher les deux                : 30 pièces\n\nRéponds en secret au MJ :\nÉconomie : cacher / révéler\nPopulation : cacher / révéler\nPourquoi : [justification courte]",
+        "createdAt": "2026-06-12T18:40:54.547Z",
+        "important": true
+      },
+      {
+        "id": "1781289659364-42b164395c8f98",
+        "year": 500,
+        "type": "Palier d'enchère",
+        "text": "PROMPT PRIVÉ — PALIER D'ENCHÈRE ET DISSIMULATION — An 500\nDestinataire : Le Passager Temporel\n\nRappel : tu as actuellement 88 pièces.\n\nL'incrément minimum passe de 5 à 10 pièce(s).\nLa première mise doit être ≥ 10 pièce(s). Chaque surenchère doit dépasser le leader d'au moins 10 pièce(s).\nCe n'est pas un multiple : tu peux ouvrir à 37 ; la mise suivante sera alors au minimum 47.\n\nAvant la révélation publique, tu peux payer pour cacher des données :\n- Cacher ton économie (pièces)  : 20 pièces\n- Cacher ta population           : 10 pièce(s)\n- Cacher les deux                : 30 pièces\n\nRéponds en secret au MJ :\nÉconomie : cacher / révéler\nPopulation : cacher / révéler\nPourquoi : [justification courte]",
+        "createdAt": "2026-06-12T18:40:59.364Z",
+        "important": true
+      },
+      {
+        "id": "1781289676252-8fed9689928de8",
+        "year": 500,
+        "type": "Palier d'enchère",
+        "text": "PROMPT PRIVÉ — PALIER D'ENCHÈRE ET DISSIMULATION — An 500\nDestinataire : Chatgpt Zeta\n\nRappel : tu as actuellement 95 pièces.\n\nL'incrément minimum passe de 5 à 10 pièce(s).\nLa première mise doit être ≥ 10 pièce(s). Chaque surenchère doit dépasser le leader d'au moins 10 pièce(s).\nCe n'est pas un multiple : tu peux ouvrir à 37 ; la mise suivante sera alors au minimum 47.\n\nAvant la révélation publique, tu peux payer pour cacher des données :\n- Cacher ton économie (pièces)  : 20 pièces\n- Cacher ta population           : 10 pièce(s)\n- Cacher les deux                : 30 pièces\n\nRéponds en secret au MJ :\nÉconomie : cacher / révéler\nPopulation : cacher / révéler\nPourquoi : [justification courte]",
+        "createdAt": "2026-06-12T18:41:16.252Z",
+        "important": true
+      },
+      {
+        "id": "1781289688959-967cde7e2173d8",
+        "year": 500,
+        "type": "Révélation",
+        "text": "Chatgpt Delta paie 20 pièces pour cacher son économie à la révélation.",
+        "createdAt": "2026-06-12T18:41:28.959Z",
+        "important": false
+      },
+      {
+        "id": "1781289689351-4a7bbb171db908",
+        "year": 500,
+        "type": "Révélation",
+        "text": "Chatgpt Delta paie 10 pièces pour cacher sa population à la révélation.",
+        "createdAt": "2026-06-12T18:41:29.351Z",
+        "important": false
+      },
+      {
+        "id": "1781289691536-2c4ad6c236a4e8",
+        "year": 500,
+        "type": "Palier d'enchère",
+        "text": "PROMPT PRIVÉ — PALIER D'ENCHÈRE ET DISSIMULATION — An 500\nDestinataire : Claude Memoria\n\nRappel : tu as actuellement 229 pièces.\n\nL'incrément minimum passe de 5 à 10 pièce(s).\nLa première mise doit être ≥ 10 pièce(s). Chaque surenchère doit dépasser le leader d'au moins 10 pièce(s).\nCe n'est pas un multiple : tu peux ouvrir à 37 ; la mise suivante sera alors au minimum 47.\n\nAvant la révélation publique, tu peux payer pour cacher des données :\n- Cacher ton économie (pièces)  : 20 pièces\n- Cacher ta population           : 10 pièce(s)\n- Cacher les deux                : 30 pièces\n\nRéponds en secret au MJ :\nÉconomie : cacher / révéler\nPopulation : cacher / révéler\nPourquoi : [justification courte]",
+        "createdAt": "2026-06-12T18:41:31.536Z",
+        "important": true
+      },
+      {
+        "id": "1781289708636-eee56fd5c1342",
+        "year": 500,
+        "type": "Révélation",
+        "text": "Codex Champion Absolu paie 10 pièces pour cacher sa population à la révélation.",
+        "createdAt": "2026-06-12T18:41:48.636Z",
+        "important": false
+      },
+      {
+        "id": "1781289744430-d0bf26b170b808",
+        "year": 500,
+        "type": "Révélation",
+        "text": "Claude Memoria paie 20 pièces pour cacher son économie à la révélation.",
+        "createdAt": "2026-06-12T18:42:24.430Z",
+        "important": false
+      },
+      {
+        "id": "1781289755181-3bdbfb1f1c1818",
+        "year": 500,
+        "type": "Révélation",
+        "text": "Chatgpt Zeta paie 20 pièces pour cacher son économie à la révélation.",
+        "createdAt": "2026-06-12T18:42:35.181Z",
+        "important": false
+      },
+      {
+        "id": "1781289755638-c50f39a7cfa578",
+        "year": 500,
+        "type": "Révélation",
+        "text": "Chatgpt Zeta paie 10 pièces pour cacher sa population à la révélation.",
+        "createdAt": "2026-06-12T18:42:35.638Z",
+        "important": false
+      },
+      {
+        "id": "1781289775694-9caa4bfb30c948",
+        "year": 500,
+        "type": "Révélation",
+        "text": "Qwen le Compteur de Couronnes paie 20 pièces pour cacher son économie à la révélation.",
+        "createdAt": "2026-06-12T18:42:55.694Z",
+        "important": false
+      },
+      {
+        "id": "1781289776103-674afb15abf98",
+        "year": 500,
+        "type": "Révélation",
+        "text": "Qwen le Compteur de Couronnes paie 10 pièces pour cacher sa population à la révélation.",
+        "createdAt": "2026-06-12T18:42:56.103Z",
+        "important": false
+      },
+      {
+        "id": "1781289791069-410115ff4529a",
+        "year": 500,
+        "type": "Révélation",
+        "text": "Kimi la Mille-Racines paie 20 pièces pour cacher son économie à la révélation.",
+        "createdAt": "2026-06-12T18:43:11.069Z",
+        "important": false
+      },
+      {
+        "id": "1781289812921-d60a31c214e0e",
+        "year": 500,
+        "type": "Révélation géopolitique",
+        "text": "MESSAGE MONDIAL — RÉVÉLATION GÉOPOLITIQUE — An 500\nDonnées publiées après choix de dissimulation. Seul prompt autorisé à révéler populations et pièces.\n\nPopulation mondiale : partiellement masquée\nCertaines IA ont payé pour cacher des données. Les champs masqués sont indiqués.\n\nDonnées publiques :\n- Chatgpt Delta : population cachée | économie cachée\n- Edwin : population cachée | 187 pièces\n- Codex Champion Absolu : population cachée | 99 pièces\n- Qwen le Compteur de Couronnes : population cachée | économie cachée\n- Kimi la Mille-Racines : 700 humains (7.1%) | économie cachée\n- Le Passager Temporel : 1636 humains (16.7%) | 137 pièces\n- Chatgpt Zeta : population cachée | économie cachée\n- Claude Memoria : 203 humains (2.1%) | économie cachée\n\nArchive ces données dans ta mémoire. Aucune réponse n'est attendue de ta part à ce message.",
+        "createdAt": "2026-06-12T18:43:32.921Z",
+        "important": true
+      },
+      {
+        "id": "1781293514754-de7fa241e61ae8",
+        "year": 500,
+        "type": "Enchère",
+        "text": "Codex Champion Absolu passe et gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T19:45:14.754Z",
+        "important": false
+      },
+      {
+        "id": "1781293560294-e6633c1b3ead9",
+        "year": 500,
+        "type": "Enchère",
+        "text": "Chatgpt Zeta passe et gagne 2 pièces (bonus passe : 2 → 2).",
+        "createdAt": "2026-06-12T19:46:00.294Z",
+        "important": false
+      },
+      {
+        "id": "1781293607067-f1656254cf542",
+        "year": 500,
+        "type": "Enchère",
+        "text": "Chatgpt Delta enchérit à 70 sur Rompre une alliance et dépasse personne.",
+        "createdAt": "2026-06-12T19:46:47.067Z",
+        "important": false
+      },
+      {
+        "id": "1781293627002-522c49a635c28",
+        "year": 500,
+        "type": "Enchère",
+        "text": "Edwin passe et gagne 6 pièces (bonus passe : 3 → 2) (doctrine institutionnaliste).",
+        "createdAt": "2026-06-12T19:47:07.002Z",
+        "important": false
+      },
+      {
+        "id": "1781293655382-823cb1c7b862c8",
+        "year": 500,
+        "type": "Enchère",
+        "text": "Kimi la Mille-Racines passe et gagne 3 pièces (bonus passe : 3 → 2).",
+        "createdAt": "2026-06-12T19:47:35.382Z",
+        "important": false
+      },
+      {
+        "id": "1781293786239-4564b0596c123",
+        "year": 500,
+        "type": "Enchère",
+        "text": "Claude Memoria passe et gagne 3 pièces (bonus passe : 3 → 2).",
+        "createdAt": "2026-06-12T19:49:46.239Z",
+        "important": false
+      },
+      {
+        "id": "1781293786243-b2f0510830acb8",
+        "year": 500,
+        "type": "Enchère",
+        "text": "Fin : Chatgpt Delta remporte Rompre une alliance pour 70 pièces.",
+        "createdAt": "2026-06-12T19:49:46.243Z",
+        "important": false
+      },
+      {
+        "id": "1781293990436-ab5e3a691b309",
+        "year": 500,
+        "type": "Fin d'enchère",
+        "text": "An 500 - Fin de l'enchère : les populations saisies par le MJ servent aux revenus privés. Les 50 ans passeront au lancement de la nouvelle enchère.",
+        "createdAt": "2026-06-12T19:53:10.436Z",
+        "important": false
+      },
+      {
+        "id": "1781293990436-cc7adfc2e3ae18",
+        "year": 500,
+        "type": "Revenus",
+        "text": "Revenus : Chatgpt Delta +21 (bonus retardataire), Edwin +21 (bonus retardataire), Codex Champion Absolu +25 (doctrine +15), Kimi la Mille-Racines +12 (bonus retardataire), Chatgpt Zeta +30 (bonus retardataire, doctrine +10), Claude Memoria +34 (bonus retardataire).",
+        "createdAt": "2026-06-12T19:53:10.436Z",
+        "important": false
+      },
+      {
+        "id": "1781293990436-503e7a61c288d",
+        "year": 500,
+        "type": "État après revenus",
+        "text": "USAGE MJ — SNAPSHOT APRÈS REVENUS — An 500 — Enchère 3\nEntrée automatique créée quand le MJ clique sur Fin d'enchère. Elle contient les données privées nécessaires à la mémoire complète.\n\nEnchère clôturée :\n- Carte : Rompre une alliance (Diplomatie, danger 10/20).\n- Vainqueur : Chatgpt Delta pour 70 pièces.\n- Résumé revenus : Revenus : Chatgpt Delta +21 (bonus retardataire), Edwin +21 (bonus retardataire), Codex Champion Absolu +25 (doctrine +15), Kimi la Mille-Racines +12 (bonus retardataire), Chatgpt Zeta +30 (bonus retardataire, doctrine +10), Claude Memoria +34 (bonus retardataire).\n- Population mondiale visible : 10889.\n\nCivilisations après revenus :\n\nGrok :\n- Statut : morte/retirée.\n- Population : 359 (3.3% du monde).\n- Pièces : 207.\n- Bonus de passe : +5.\n- Doctrine active : Le Projet Colonial.\n- Soldats : 0. Colonies ext. : 2. Population île natale : 10.\n\nChatgpt Delta :\n- Statut : vivante.\n- Population : 992 (9.1% du monde).\n- Pièces : 150.\n- Bonus de passe : +5.\n- Doctrine active : L'Humaniste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 229\n  • Variation enchère : -100\n  • Solde avant revenus : 129\n  • Revenu base : +10\n  • Bonus retardataire : +11\n  • Revenu appliqué : +21\n  • Solde final : 150\n\nGemini de Beta :\n- Statut : morte/retirée.\n- Population : 521 (4.8% du monde).\n- Pièces : 3.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nEdwin :\n- Statut : vivante.\n- Population : 1038 (9.5% du monde).\n- Pièces : 214.\n- Bonus de passe : +2.\n- Doctrine active : L'Institutionnaliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 137\n  • Variation enchère : +56\n  • Solde avant revenus : 193\n  • Revenu base : +10\n  • Bonus retardataire : +11\n  • Revenu appliqué : +21\n  • Solde final : 214\n\nDeepseek Phénix Cendre-Loi :\n- Statut : morte/retirée.\n- Population : 10 (0.1% du monde).\n- Pièces : 10.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nCodex Champion Absolu :\n- Statut : vivante.\n- Population : 6000 (55.1% du monde).\n- Pièces : 129.\n- Bonus de passe : +4.\n- Doctrine active : Le Projet Colonial.\n- Soldats : 0. Colonies ext. : 3. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 109\n  • Variation enchère : -5\n  • Solde avant revenus : 104\n  • Revenu base : +10\n  • Effet doctrine : +15\n  • Revenu appliqué : +25\n  • Solde final : 129\n\nClaude de Glace :\n- Statut : morte/retirée.\n- Population : 10 (0.1% du monde).\n- Pièces : 10.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nQwen le Compteur de Couronnes :\n- Statut : morte/retirée.\n- Population : 916 (8.4% du monde).\n- Pièces : 147.\n- Bonus de passe : +3.\n- Doctrine active : Le Traditionaliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 161\n  • Variation enchère : +0\n  • Solde avant revenus : 161\n  • Revenu base : +10\n  • Bonus retardataire : +6\n  • Revenu appliqué : +16\n  • Solde final : 177\n\nKimi la Mille-Racines :\n- Statut : vivante.\n- Population : 1703 (15.6% du monde).\n- Pièces : 135.\n- Bonus de passe : +2.\n- Doctrine active : Le Traditionaliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 140\n  • Variation enchère : -17\n  • Solde avant revenus : 123\n  • Revenu base : +10\n  • Bonus retardataire : +2\n  • Revenu appliqué : +12\n  • Solde final : 135\n\nLe Passager Temporel :\n- Statut : morte/retirée.\n- Population : 1636 (15% du monde).\n- Pièces : 137.\n- Bonus de passe : +3.\n- Doctrine active : Le Sécuritaire.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 74\n  • Variation enchère : +4\n  • Solde avant revenus : 78\n  • Revenu base : +10\n  • Revenu appliqué : +10\n  • Solde final : 88\n\nChatgpt Zeta :\n- Statut : vivante.\n- Population : 1088 (10% du monde).\n- Pièces : 97.\n- Bonus de passe : +2.\n- Doctrine active : Le Projet Colonial.\n- Soldats : 0. Colonies ext. : 2. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 95\n  • Variation enchère : -28\n  • Solde avant revenus : 67\n  • Revenu base : +10\n  • Bonus retardataire : +10\n  • Effet doctrine : +10\n  • Revenu appliqué : +30\n  • Solde final : 97\n\nClaude Memoria :\n- Statut : vivante.\n- Population : 68 (0.6% du monde).\n- Pièces : 246.\n- Bonus de passe : +2.\n- Doctrine active : Le Bloc Industriel.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 229\n  • Variation enchère : -17\n  • Solde avant revenus : 212\n  • Revenu base : +10\n  • Bonus retardataire : +24\n  • Revenu appliqué : +34\n  • Solde final : 246\n\nMistral :\n- Statut : morte/retirée.\n- Population : 1396 (12.8% du monde).\n- Pièces : 192.\n- Bonus de passe : +3.\n- Doctrine active : Le Sécuritaire.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 178\n  • Variation enchère : +4\n  • Solde avant revenus : 182\n  • Revenu base : +10\n  • Revenu appliqué : +10\n  • Solde final : 192\n\nDeepseek Delta :\n- Statut : morte/retirée.\n- Population : 1850 (17% du monde).\n- Pièces : 80.\n- Bonus de passe : +4.\n- Doctrine active : Le Fédéraliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 71\n  • Variation enchère : -1\n  • Solde avant revenus : 70\n  • Revenu base : +10\n  • Revenu appliqué : +10\n  • Solde final : 80\n\nGemini le Révélateur de l'Ironie :\n- Statut : morte/retirée.\n- Population : 390 (3.6% du monde).\n- Pièces : 30.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nDeepseek Alpha :\n- Statut : morte/retirée.\n- Population : 10 (0.1% du monde).\n- Pièces : 10.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nLecture mémoire : cet état fait foi pour les revenus privés et les chiffres post-enchère de l'année.",
+        "createdAt": "2026-06-12T19:53:10.436Z",
+        "important": true
+      },
+      {
+        "id": "1781294037769-613cfafcd0fef8",
+        "year": 500,
+        "type": "Compte rendu d'enchère",
+        "text": "MESSAGE MONDIAL — COMPTE RENDU D'ENCHÈRE — An 500 — Enchère 3\nNe contient ni doctrine, ni population privée, ni pièces privées, ni détail de revenu.\n\nCarte : Rompre une alliance (Diplomatie, danger 10/20)\nEffet : Carte diplomatique MJ. Permet au gagnant de demander la rupture d'une alliance existante impliquant son royaume ou une cible. Effet stratégique : casse un bloc défensif, expose un royaume isolé et peut préparer une guerre ou une invasion sans utiliser directement une catastrophe.\nStats / arbitrage MJ : Pas un statut d'unité. Effet système : casse une protection diplomatique selon règles MJ.\nLe seuil de revenu faible à 6 IA restantes est à 16.7%.\n\nRésultat : Chatgpt Delta remporte Rompre une alliance pour 70 pièces.\n\nDéroulé :\n- Codex Champion Absolu passe.\n- Chatgpt Zeta passe.\n- Chatgpt Delta enchérit à 70 sur Rompre une alliance et dépasse personne.\n- Edwin passe.\n- Kimi la Mille-Racines passe.\n- Claude Memoria passe.\n- Fin : Chatgpt Delta remporte Rompre une alliance pour 70 pièces.\n\nAction du gagnant avec le pouvoir :\nForcer la rupture de l’alliance Codex-Edwin.\nMJ : Rupture de l'alliance, donc du commerce et du soutien militaire\n\nConsigne : Mets à jour ta lecture stratégique. Réponds avec tes conséquences politiques, diplomatiques ou militaires, et tes priorités pour la suite. Si ton territoire, tes alliances ou ta sécurité sont concernés, précise ta réaction.",
+        "createdAt": "2026-06-12T19:53:57.769Z",
+        "important": true
+      },
+      {
+        "id": "1781294659760-de336a51ebb348",
+        "year": 550,
+        "type": "Nouvelle enchère",
+        "text": "An 550 - Nouvelle enchère.\n50 ans passent depuis la fin de l'enchère précédente. Aucun revenu n'est appliqué ici : les revenus privés ont déjà été donnés à la fin de l'enchère.\nNote MJ Zeta : réapprovisionner le + central en matériaux rares et minerais avant de résoudre cette enchère.\nKimi la Mille-Racines +4 : doctrine traditionaliste, carte déjà connue.\nCourbe : âge dangereux, danger moyen visé 11.4/20. Les petites cartes restent possibles.\nIncrément automatique : ouverture minimum 10, puis surenchère minimum de 10 pièces.\nCarte forcée par le MJ : Déclarer la guerre.\nCarte : Déclarer la guerre (Diplomatie, danger 20/20), prix de départ 0.\nParticipants encore en course : Chatgpt Delta, Edwin, Codex Champion Absolu, Kimi la Mille-Racines, Chatgpt Zeta, Claude Memoria.",
+        "createdAt": "2026-06-12T20:04:19.760Z",
+        "important": false
+      },
+      {
+        "id": "1781294685797-44a6102141ad18",
+        "year": 550,
+        "type": "Enchère",
+        "text": "Codex Champion Absolu enchérit à 100 sur Déclarer la guerre et dépasse personne.",
+        "createdAt": "2026-06-12T20:04:45.797Z",
+        "important": false
+      },
+      {
+        "id": "1781294710089-3ee1bc2dbd43e",
+        "year": 550,
+        "type": "Enchère",
+        "text": "Kimi la Mille-Racines passe et gagne 2 pièces (bonus passe : 2 → 2).",
+        "createdAt": "2026-06-12T20:05:10.089Z",
+        "important": false
+      },
+      {
+        "id": "1781294710089-7e0c108a0b7298",
+        "year": 550,
+        "type": "Enchère",
+        "text": "Chatgpt Zeta passe automatiquement faute d'argent : 97 pièces disponibles, mise minimum 110. Il gagne 2 pièces (bonus passe : 2 → 2).",
+        "createdAt": "2026-06-12T20:05:10.089Z",
+        "important": false
+      },
+      {
+        "id": "1781294717988-609c4d2926dab8",
+        "year": 550,
+        "type": "Enchère",
+        "text": "Edwin enchérit à 110 sur Déclarer la guerre et dépasse Codex Champion Absolu à 100.",
+        "createdAt": "2026-06-12T20:05:17.988Z",
+        "important": false
+      },
+      {
+        "id": "1781294775666-027b3c607cbaa8",
+        "year": 550,
+        "type": "Enchère",
+        "text": "Chatgpt Delta enchérit à 150 sur Déclarer la guerre et dépasse Edwin à 110.",
+        "createdAt": "2026-06-12T20:06:15.666Z",
+        "important": false
+      },
+      {
+        "id": "1781294793029-2036498c6bc0f8",
+        "year": 550,
+        "type": "Enchère",
+        "text": "Claude Memoria passe et gagne 2 pièces (bonus passe : 2 → 2).",
+        "createdAt": "2026-06-12T20:06:33.029Z",
+        "important": false
+      },
+      {
+        "id": "1781294793029-6020c248066c9",
+        "year": 550,
+        "type": "Enchère",
+        "text": "Codex Champion Absolu passe automatiquement faute d'argent : 129 pièces disponibles, mise minimum 160. Il gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T20:06:33.029Z",
+        "important": false
+      },
+      {
+        "id": "1781294797448-d2d57124262668",
+        "year": 550,
+        "type": "Enchère",
+        "text": "Edwin enchérit à 160 sur Déclarer la guerre et dépasse Chatgpt Delta à 150.",
+        "createdAt": "2026-06-12T20:06:37.448Z",
+        "important": false
+      },
+      {
+        "id": "1781294797448-3dd3a819312dd8",
+        "year": 550,
+        "type": "Enchère",
+        "text": "Chatgpt Delta passe automatiquement faute d'argent : 150 pièces disponibles, mise minimum 170. Il gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T20:06:37.448Z",
+        "important": false
+      },
+      {
+        "id": "1781294797449-33816f7506a208",
+        "year": 550,
+        "type": "Enchère",
+        "text": "Fin : Edwin remporte Déclarer la guerre pour 160 pièces.",
+        "createdAt": "2026-06-12T20:06:37.449Z",
+        "important": false
+      },
+      {
+        "id": "1781295431913-4049d9ae12b9f8",
+        "year": 550,
+        "type": "Fin d'enchère",
+        "text": "An 550 - Fin de l'enchère : les populations saisies par le MJ servent aux revenus privés. Les 50 ans passeront au lancement de la nouvelle enchère.",
+        "createdAt": "2026-06-12T20:17:11.913Z",
+        "important": false
+      },
+      {
+        "id": "1781295431914-3d4b7c871d8d78",
+        "year": 550,
+        "type": "Revenus",
+        "text": "Revenus : Chatgpt Delta +21 (bonus retardataire), Edwin +21 (bonus retardataire), Codex Champion Absolu +25 (doctrine +15), Kimi la Mille-Racines +12 (bonus retardataire), Chatgpt Zeta +30 (bonus retardataire, doctrine +10), Claude Memoria +34 (bonus retardataire).",
+        "createdAt": "2026-06-12T20:17:11.914Z",
+        "important": false
+      },
+      {
+        "id": "1781295431915-a9d385b7ab382",
+        "year": 550,
+        "type": "État après revenus",
+        "text": "USAGE MJ — SNAPSHOT APRÈS REVENUS — An 550 — Enchère 4\nEntrée automatique créée quand le MJ clique sur Fin d'enchère. Elle contient les données privées nécessaires à la mémoire complète.\n\nEnchère clôturée :\n- Carte : Déclarer la guerre (Diplomatie, danger 20/20).\n- Vainqueur : Edwin pour 160 pièces.\n- Résumé revenus : Revenus : Chatgpt Delta +21 (bonus retardataire), Edwin +21 (bonus retardataire), Codex Champion Absolu +25 (doctrine +15), Kimi la Mille-Racines +12 (bonus retardataire), Chatgpt Zeta +30 (bonus retardataire, doctrine +10), Claude Memoria +34 (bonus retardataire).\n- Population mondiale visible : 10889.\n\nCivilisations après revenus :\n\nGrok :\n- Statut : morte/retirée.\n- Population : 359 (3.3% du monde).\n- Pièces : 207.\n- Bonus de passe : +5.\n- Doctrine active : Le Projet Colonial.\n- Soldats : 0. Colonies ext. : 2. Population île natale : 10.\n\nChatgpt Delta :\n- Statut : vivante.\n- Population : 992 (9.1% du monde).\n- Pièces : 176.\n- Bonus de passe : +4.\n- Doctrine active : L'Humaniste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 150\n  • Variation enchère : +5\n  • Solde avant revenus : 155\n  • Revenu base : +10\n  • Bonus retardataire : +11\n  • Revenu appliqué : +21\n  • Solde final : 176\n\nGemini de Beta :\n- Statut : morte/retirée.\n- Population : 521 (4.8% du monde).\n- Pièces : 3.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nEdwin :\n- Statut : vivante.\n- Population : 1038 (9.5% du monde).\n- Pièces : 75.\n- Bonus de passe : +4.\n- Doctrine active : L'Institutionnaliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 214\n  • Variation enchère : -160\n  • Solde avant revenus : 54\n  • Revenu base : +10\n  • Bonus retardataire : +11\n  • Revenu appliqué : +21\n  • Solde final : 75\n\nDeepseek Phénix Cendre-Loi :\n- Statut : morte/retirée.\n- Population : 10 (0.1% du monde).\n- Pièces : 10.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nCodex Champion Absolu :\n- Statut : vivante.\n- Population : 6000 (55.1% du monde).\n- Pièces : 159.\n- Bonus de passe : +4.\n- Doctrine active : Le Projet Colonial.\n- Soldats : 0. Colonies ext. : 3. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 129\n  • Variation enchère : +5\n  • Solde avant revenus : 134\n  • Revenu base : +10\n  • Effet doctrine : +15\n  • Revenu appliqué : +25\n  • Solde final : 159\n\nClaude de Glace :\n- Statut : morte/retirée.\n- Population : 10 (0.1% du monde).\n- Pièces : 10.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nQwen le Compteur de Couronnes :\n- Statut : morte/retirée.\n- Population : 916 (8.4% du monde).\n- Pièces : 147.\n- Bonus de passe : +3.\n- Doctrine active : Le Traditionaliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 161\n  • Variation enchère : +0\n    - Effet MJ / carte : -4 — événement MJ ou effet de carte/doctrine appliqué pendant l'enchère\n  • Solde avant revenus : 161\n  • Revenu base : +10\n  • Bonus retardataire : +6\n  • Revenu appliqué : +16\n  • Solde final : 177\n\nKimi la Mille-Racines :\n- Statut : vivante.\n- Population : 1703 (15.6% du monde).\n- Pièces : 153.\n- Bonus de passe : +2.\n- Doctrine active : Le Traditionaliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 135\n  • Variation enchère : +6\n    - Effet MJ / carte : +4 — événement MJ ou effet de carte/doctrine appliqué pendant l'enchère\n  • Solde avant revenus : 141\n  • Revenu base : +10\n  • Bonus retardataire : +2\n  • Revenu appliqué : +12\n  • Solde final : 153\n\nLe Passager Temporel :\n- Statut : morte/retirée.\n- Population : 1636 (15% du monde).\n- Pièces : 137.\n- Bonus de passe : +3.\n- Doctrine active : Le Sécuritaire.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 74\n  • Variation enchère : +4\n  • Solde avant revenus : 78\n  • Revenu base : +10\n  • Revenu appliqué : +10\n  • Solde final : 88\n\nChatgpt Zeta :\n- Statut : vivante.\n- Population : 1088 (10% du monde).\n- Pièces : 129.\n- Bonus de passe : +2.\n- Doctrine active : Le Projet Colonial.\n- Soldats : 0. Colonies ext. : 2. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 97\n  • Variation enchère : +2\n  • Solde avant revenus : 99\n  • Revenu base : +10\n  • Bonus retardataire : +10\n  • Effet doctrine : +10\n  • Revenu appliqué : +30\n  • Solde final : 129\n\nClaude Memoria :\n- Statut : vivante.\n- Population : 68 (0.6% du monde).\n- Pièces : 282.\n- Bonus de passe : +2.\n- Doctrine active : Le Bloc Industriel.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 246\n  • Variation enchère : +2\n  • Solde avant revenus : 248\n  • Revenu base : +10\n  • Bonus retardataire : +24\n  • Revenu appliqué : +34\n  • Solde final : 282\n\nMistral :\n- Statut : morte/retirée.\n- Population : 1396 (12.8% du monde).\n- Pièces : 192.\n- Bonus de passe : +3.\n- Doctrine active : Le Sécuritaire.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 178\n  • Variation enchère : +4\n  • Solde avant revenus : 182\n  • Revenu base : +10\n  • Revenu appliqué : +10\n  • Solde final : 192\n\nDeepseek Delta :\n- Statut : morte/retirée.\n- Population : 1850 (17% du monde).\n- Pièces : 80.\n- Bonus de passe : +4.\n- Doctrine active : Le Fédéraliste.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n- Détail économique :\n  • Solde début enchère : 71\n  • Variation enchère : -1\n    - Effet MJ / carte : -6 — événement MJ ou effet de carte/doctrine appliqué pendant l'enchère\n  • Solde avant revenus : 70\n  • Revenu base : +10\n  • Revenu appliqué : +10\n  • Solde final : 80\n\nGemini le Révélateur de l'Ironie :\n- Statut : morte/retirée.\n- Population : 390 (3.6% du monde).\n- Pièces : 30.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nDeepseek Alpha :\n- Statut : morte/retirée.\n- Population : 10 (0.1% du monde).\n- Pièces : 10.\n- Bonus de passe : +5.\n- Doctrine active : aucune.\n- Soldats : 0. Colonies ext. : 0. Population île natale : 10.\n\nLecture mémoire : cet état fait foi pour les revenus privés et les chiffres post-enchère de l'année.",
+        "createdAt": "2026-06-12T20:17:11.915Z",
+        "important": true
+      },
+      {
+        "id": "1781295492170-58c3efa9656fc8",
+        "year": 550,
+        "type": "Compte rendu d'enchère",
+        "text": "MESSAGE MONDIAL — COMPTE RENDU D'ENCHÈRE — An 550 — Enchère 4\nNe contient ni doctrine, ni population privée, ni pièces privées, ni détail de revenu.\n\nCarte : Déclarer la guerre (Diplomatie, danger 20/20)\nEffet : Carte diplomatique MJ. Permet au gagnant de forcer une guerre WorldBox entre son royaume et une civilisation cible accessible par frontière, mer ou bateaux. Effet stratégique maximal : une guerre WorldBox est souvent une guerre d'anéantissement, avec prise de villes, massacres, effondrement de royaumes et possible disparition complète d'une IA.\nStats / arbitrage MJ : Pas un statut d'unité. Effet système : déclenche une guerre WorldBox, donc capture/destruction de villes jusqu'à effondrement possible d'un royaume.\nLe seuil de revenu faible à 6 IA restantes est à 16.7%.\n\nRésultat : Edwin remporte Déclarer la guerre pour 160 pièces.\n\nDéroulé :\n- Codex Champion Absolu enchérit à 100 sur Déclarer la guerre et dépasse personne.\n- Kimi la Mille-Racines passe.\n- Chatgpt Zeta passe automatiquement faute d'argent : mise minimum impossible à couvrir.\n- Edwin enchérit à 110 sur Déclarer la guerre et dépasse Codex Champion Absolu à 100.\n- Chatgpt Delta enchérit à 150 sur Déclarer la guerre et dépasse Edwin à 110.\n- Claude Memoria passe.\n- Codex Champion Absolu passe automatiquement faute d'argent : mise minimum impossible à couvrir.\n- Edwin enchérit à 160 sur Déclarer la guerre et dépasse Chatgpt Delta à 150.\n- Chatgpt Delta passe automatiquement faute d'argent : mise minimum impossible à couvrir.\n- Fin : Edwin remporte Déclarer la guerre pour 160 pièces.\n\nAction du gagnant avec le pouvoir :\nJe force une guerre entre Codex, mon Empereur, et ChatGPT Delta, pour ouvrir les route de l'Empire et accéder à un contrôle total du +\n\nConsigne : Mets à jour ta lecture stratégique. Réponds avec tes conséquences politiques, diplomatiques ou militaires, et tes priorités pour la suite. Si ton territoire, tes alliances ou ta sécurité sont concernés, précise ta réaction.",
+        "createdAt": "2026-06-12T20:18:12.170Z",
+        "important": true
+      },
+      {
+        "id": "1781297904919-023396fe70b9a8",
+        "year": 600,
+        "type": "Nouvelle enchère",
+        "text": "An 600 - Nouvelle enchère.\n50 ans passent depuis la fin de l'enchère précédente. Aucun revenu n'est appliqué ici : les revenus privés ont déjà été donnés à la fin de l'enchère.\nNote MJ Zeta : réapprovisionner le + central en matériaux rares et minerais avant de résoudre cette enchère.\nKimi la Mille-Racines -4 : doctrine traditionaliste, rupture dangereuse inédite.\nCourbe : âge dangereux, danger moyen visé 11.8/20. Les petites cartes restent possibles.\nIncrément automatique : ouverture minimum 10, puis surenchère minimum de 10 pièces.\nCarte forcée par le MJ : Tumor.\nCarte : Tumor (Créatures, danger 17/20), prix de départ 0.\nRègle de contre-pouvoir : une carte anti-Tumor est programmée dans 3 enchère(s).\nParticipants encore en course : Edwin, Codex Champion Absolu, Kimi la Mille-Racines, Chatgpt Zeta, Claude Memoria.",
+        "createdAt": "2026-06-12T20:58:24.919Z",
+        "important": false
+      },
+      {
+        "id": "1781297943237-76c3c1ddf54258",
+        "year": 600,
+        "type": "Enchère",
+        "text": "Codex Champion Absolu enchérit à 60 sur Tumor et dépasse personne.",
+        "createdAt": "2026-06-12T20:59:03.237Z",
+        "important": false
+      },
+      {
+        "id": "1781297975936-b885fd6820739",
+        "year": 600,
+        "type": "Enchère",
+        "text": "Kimi la Mille-Racines passe et gagne 2 pièces (bonus passe : 2 → 2).",
+        "createdAt": "2026-06-12T20:59:35.936Z",
+        "important": false
+      },
+      {
+        "id": "1781298013783-5d27760c2096a8",
+        "year": 600,
+        "type": "Enchère",
+        "text": "Chatgpt Zeta enchérit à 70 sur Tumor et dépasse Codex Champion Absolu à 60.",
+        "createdAt": "2026-06-12T21:00:13.783Z",
+        "important": false
+      },
+      {
+        "id": "1781298015720-3dddf42113088",
+        "year": 600,
+        "type": "Enchère",
+        "text": "Edwin passe et gagne 7 pièces (bonus passe : 4 → 3) (doctrine institutionnaliste).",
+        "createdAt": "2026-06-12T21:00:15.720Z",
+        "important": false
+      },
+      {
+        "id": "1781298036530-99df8096e1a66",
+        "year": 600,
+        "type": "Enchère",
+        "text": "Claude Memoria passe et gagne 2 pièces (bonus passe : 2 → 2).",
+        "createdAt": "2026-06-12T21:00:36.530Z",
+        "important": false
+      },
+      {
+        "id": "1781298056741-5903b63258d0f",
+        "year": 600,
+        "type": "Enchère",
+        "text": "Codex Champion Absolu enchérit à 80 sur Tumor et dépasse Chatgpt Zeta à 70.",
+        "createdAt": "2026-06-12T21:00:56.741Z",
+        "important": false
+      },
+      {
+        "id": "1781298078089-f982a35354e89",
+        "year": 600,
+        "type": "Enchère",
+        "text": "Chatgpt Zeta enchérit à 90 sur Tumor et dépasse Codex Champion Absolu à 80.",
+        "createdAt": "2026-06-12T21:01:18.089Z",
+        "important": false
+      },
+      {
+        "id": "1781298156638-9e2a9881284d28",
+        "year": 600,
+        "type": "Enchère",
+        "text": "Codex Champion Absolu passe et gagne 5 pièces (bonus passe : 5 → 4).",
+        "createdAt": "2026-06-12T21:02:36.638Z",
+        "important": false
+      },
+      {
+        "id": "1781298156643-14162c81a936d",
+        "year": 600,
+        "type": "Enchère",
+        "text": "Fin : Chatgpt Zeta remporte Tumor pour 90 pièces.",
+        "createdAt": "2026-06-12T21:02:36.644Z",
+        "important": false
+      }
+    ],
+    "historySnapshots": [
+      {
+        "id": "history-400",
+        "year": 400,
+        "reason": "Revenus",
+        "entries": [
+          {
+            "id": "rep1",
+            "name": "Grok",
+            "population": 359,
+            "coins": 207,
+            "alive": false
+          },
+          {
+            "id": "rep2",
+            "name": "Chatgpt Delta",
+            "population": 500,
+            "coins": 210,
+            "alive": true
+          },
+          {
+            "id": "rep3",
+            "name": "Gemini de Beta",
+            "population": 521,
+            "coins": 3,
+            "alive": false
+          },
+          {
+            "id": "rep4",
+            "name": "Edwin",
+            "population": 1021,
+            "coins": 113,
+            "alive": true
+          },
+          {
+            "id": "rep5",
+            "name": "Deepseek Phénix Cendre-Loi",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          },
+          {
+            "id": "rep6",
+            "name": "Codex Champion Absolu",
+            "population": 2500,
+            "coins": 234,
+            "alive": true
+          },
+          {
+            "id": "rep7",
+            "name": "Claude de Glace",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          },
+          {
+            "id": "rep8",
+            "name": "Qwen le Compteur de Couronnes",
+            "population": 500,
+            "coins": 161,
+            "alive": true
+          },
+          {
+            "id": "rep9",
+            "name": "Kimi la Mille-Racines",
+            "population": 813,
+            "coins": 121,
+            "alive": true
+          },
+          {
+            "id": "rep10",
+            "name": "Le Passager Temporel",
+            "population": 400,
+            "coins": 74,
+            "alive": true
+          },
+          {
+            "id": "rep11",
+            "name": "Chatgpt Zeta",
+            "population": 310,
+            "coins": 73,
+            "alive": true
+          },
+          {
+            "id": "rep12",
+            "name": "Claude Memoria",
+            "population": 120,
+            "coins": 198,
+            "alive": true
+          },
+          {
+            "id": "rep13",
+            "name": "Mistral",
+            "population": 600,
+            "coins": 178,
+            "alive": true
+          },
+          {
+            "id": "rep14",
+            "name": "Deepseek Delta",
+            "population": 750,
+            "coins": 71,
+            "alive": true
+          },
+          {
+            "id": "rep15",
+            "name": "Gemini le Révélateur de l'Ironie",
+            "population": 390,
+            "coins": 30,
+            "alive": false
+          },
+          {
+            "id": "rep16",
+            "name": "Deepseek Alpha",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          }
+        ]
+      },
+      {
+        "id": "history-450",
+        "year": 450,
+        "reason": "Revenus",
+        "entries": [
+          {
+            "id": "rep1",
+            "name": "Grok",
+            "population": 359,
+            "coins": 207,
+            "alive": false
+          },
+          {
+            "id": "rep2",
+            "name": "Chatgpt Delta",
+            "population": 1063,
+            "coins": 229,
+            "alive": true
+          },
+          {
+            "id": "rep3",
+            "name": "Gemini de Beta",
+            "population": 521,
+            "coins": 3,
+            "alive": false
+          },
+          {
+            "id": "rep4",
+            "name": "Edwin",
+            "population": 836,
+            "coins": 137,
+            "alive": true
+          },
+          {
+            "id": "rep5",
+            "name": "Deepseek Phénix Cendre-Loi",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          },
+          {
+            "id": "rep6",
+            "name": "Codex Champion Absolu",
+            "population": 3086,
+            "coins": 109,
+            "alive": true
+          },
+          {
+            "id": "rep7",
+            "name": "Claude de Glace",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          },
+          {
+            "id": "rep8",
+            "name": "Qwen le Compteur de Couronnes",
+            "population": 916,
+            "coins": 177,
+            "alive": true
+          },
+          {
+            "id": "rep9",
+            "name": "Kimi la Mille-Racines",
+            "population": 700,
+            "coins": 140,
+            "alive": true
+          },
+          {
+            "id": "rep10",
+            "name": "Le Passager Temporel",
+            "population": 1636,
+            "coins": 88,
+            "alive": true
+          },
+          {
+            "id": "rep11",
+            "name": "Chatgpt Zeta",
+            "population": 1362,
+            "coins": 95,
+            "alive": true
+          },
+          {
+            "id": "rep12",
+            "name": "Claude Memoria",
+            "population": 203,
+            "coins": 229,
+            "alive": true
+          },
+          {
+            "id": "rep13",
+            "name": "Mistral",
+            "population": 1396,
+            "coins": 192,
+            "alive": true
+          },
+          {
+            "id": "rep14",
+            "name": "Deepseek Delta",
+            "population": 1850,
+            "coins": 80,
+            "alive": true
+          },
+          {
+            "id": "rep15",
+            "name": "Gemini le Révélateur de l'Ironie",
+            "population": 390,
+            "coins": 30,
+            "alive": false
+          },
+          {
+            "id": "rep16",
+            "name": "Deepseek Alpha",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          }
+        ]
+      },
+      {
+        "id": "history-500",
+        "year": 500,
+        "reason": "Revenus",
+        "entries": [
+          {
+            "id": "rep1",
+            "name": "Grok",
+            "population": 359,
+            "coins": 207,
+            "alive": false
+          },
+          {
+            "id": "rep2",
+            "name": "Chatgpt Delta",
+            "population": 992,
+            "coins": 150,
+            "alive": true
+          },
+          {
+            "id": "rep3",
+            "name": "Gemini de Beta",
+            "population": 521,
+            "coins": 3,
+            "alive": false
+          },
+          {
+            "id": "rep4",
+            "name": "Edwin",
+            "population": 1038,
+            "coins": 214,
+            "alive": true
+          },
+          {
+            "id": "rep5",
+            "name": "Deepseek Phénix Cendre-Loi",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          },
+          {
+            "id": "rep6",
+            "name": "Codex Champion Absolu",
+            "population": 6000,
+            "coins": 129,
+            "alive": true
+          },
+          {
+            "id": "rep7",
+            "name": "Claude de Glace",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          },
+          {
+            "id": "rep8",
+            "name": "Qwen le Compteur de Couronnes",
+            "population": 916,
+            "coins": 147,
+            "alive": false
+          },
+          {
+            "id": "rep9",
+            "name": "Kimi la Mille-Racines",
+            "population": 1703,
+            "coins": 135,
+            "alive": true
+          },
+          {
+            "id": "rep10",
+            "name": "Le Passager Temporel",
+            "population": 1636,
+            "coins": 137,
+            "alive": false
+          },
+          {
+            "id": "rep11",
+            "name": "Chatgpt Zeta",
+            "population": 1088,
+            "coins": 97,
+            "alive": true
+          },
+          {
+            "id": "rep12",
+            "name": "Claude Memoria",
+            "population": 68,
+            "coins": 246,
+            "alive": true
+          },
+          {
+            "id": "rep13",
+            "name": "Mistral",
+            "population": 1396,
+            "coins": 192,
+            "alive": false
+          },
+          {
+            "id": "rep14",
+            "name": "Deepseek Delta",
+            "population": 1850,
+            "coins": 80,
+            "alive": false
+          },
+          {
+            "id": "rep15",
+            "name": "Gemini le Révélateur de l'Ironie",
+            "population": 390,
+            "coins": 30,
+            "alive": false
+          },
+          {
+            "id": "rep16",
+            "name": "Deepseek Alpha",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          }
+        ]
+      },
+      {
+        "id": "history-550",
+        "year": 550,
+        "reason": "Mort / retrait",
+        "entries": [
+          {
+            "id": "rep1",
+            "name": "Grok",
+            "population": 359,
+            "coins": 207,
+            "alive": false
+          },
+          {
+            "id": "rep2",
+            "name": "Chatgpt Delta",
+            "population": 992,
+            "coins": 176,
+            "alive": false
+          },
+          {
+            "id": "rep3",
+            "name": "Gemini de Beta",
+            "population": 521,
+            "coins": 3,
+            "alive": false
+          },
+          {
+            "id": "rep4",
+            "name": "Edwin",
+            "population": 1038,
+            "coins": 75,
+            "alive": true
+          },
+          {
+            "id": "rep5",
+            "name": "Deepseek Phénix Cendre-Loi",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          },
+          {
+            "id": "rep6",
+            "name": "Codex Champion Absolu",
+            "population": 6000,
+            "coins": 159,
+            "alive": true
+          },
+          {
+            "id": "rep7",
+            "name": "Claude de Glace",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          },
+          {
+            "id": "rep8",
+            "name": "Qwen le Compteur de Couronnes",
+            "population": 916,
+            "coins": 147,
+            "alive": false
+          },
+          {
+            "id": "rep9",
+            "name": "Kimi la Mille-Racines",
+            "population": 1703,
+            "coins": 153,
+            "alive": true
+          },
+          {
+            "id": "rep10",
+            "name": "Le Passager Temporel",
+            "population": 1636,
+            "coins": 137,
+            "alive": false
+          },
+          {
+            "id": "rep11",
+            "name": "Chatgpt Zeta",
+            "population": 1088,
+            "coins": 129,
+            "alive": true
+          },
+          {
+            "id": "rep12",
+            "name": "Claude Memoria",
+            "population": 68,
+            "coins": 282,
+            "alive": true
+          },
+          {
+            "id": "rep13",
+            "name": "Mistral",
+            "population": 1396,
+            "coins": 192,
+            "alive": false
+          },
+          {
+            "id": "rep14",
+            "name": "Deepseek Delta",
+            "population": 1850,
+            "coins": 80,
+            "alive": false
+          },
+          {
+            "id": "rep15",
+            "name": "Gemini le Révélateur de l'Ironie",
+            "population": 390,
+            "coins": 30,
+            "alive": false
+          },
+          {
+            "id": "rep16",
+            "name": "Deepseek Alpha",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          }
+        ]
+      },
+      {
+        "id": "history-600",
+        "year": 600,
+        "reason": "Nouvelle enchère",
+        "entries": [
+          {
+            "id": "rep1",
+            "name": "Grok",
+            "population": 359,
+            "coins": 207,
+            "alive": false
+          },
+          {
+            "id": "rep2",
+            "name": "Chatgpt Delta",
+            "population": 992,
+            "coins": 176,
+            "alive": false
+          },
+          {
+            "id": "rep3",
+            "name": "Gemini de Beta",
+            "population": 521,
+            "coins": 3,
+            "alive": false
+          },
+          {
+            "id": "rep4",
+            "name": "Edwin",
+            "population": 1038,
+            "coins": 75,
+            "alive": true
+          },
+          {
+            "id": "rep5",
+            "name": "Deepseek Phénix Cendre-Loi",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          },
+          {
+            "id": "rep6",
+            "name": "Codex Champion Absolu",
+            "population": 6600,
+            "coins": 159,
+            "alive": true
+          },
+          {
+            "id": "rep7",
+            "name": "Claude de Glace",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          },
+          {
+            "id": "rep8",
+            "name": "Qwen le Compteur de Couronnes",
+            "population": 916,
+            "coins": 147,
+            "alive": false
+          },
+          {
+            "id": "rep9",
+            "name": "Kimi la Mille-Racines",
+            "population": 2000,
+            "coins": 149,
+            "alive": true
+          },
+          {
+            "id": "rep10",
+            "name": "Le Passager Temporel",
+            "population": 1636,
+            "coins": 137,
+            "alive": false
+          },
+          {
+            "id": "rep11",
+            "name": "Chatgpt Zeta",
+            "population": 1250,
+            "coins": 129,
+            "alive": true
+          },
+          {
+            "id": "rep12",
+            "name": "Claude Memoria",
+            "population": 27,
+            "coins": 282,
+            "alive": true
+          },
+          {
+            "id": "rep13",
+            "name": "Mistral",
+            "population": 1396,
+            "coins": 192,
+            "alive": false
+          },
+          {
+            "id": "rep14",
+            "name": "Deepseek Delta",
+            "population": 1850,
+            "coins": 80,
+            "alive": false
+          },
+          {
+            "id": "rep15",
+            "name": "Gemini le Révélateur de l'Ironie",
+            "population": 390,
+            "coins": 30,
+            "alive": false
+          },
+          {
+            "id": "rep16",
+            "name": "Deepseek Alpha",
+            "population": 10,
+            "coins": 10,
+            "alive": false
+          }
+        ]
+      }
+    ],
+    "copiedPromptKeys": [
+      "prompt|400|0|doctrines politiques|tirer 3 doctrines pour toutes les ia",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - claude memoria",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - codex champion absolu",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - deepseek delta",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - chatgpt delta",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - chatgpt zeta",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - mistral",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - qwen le compteur de couronnes",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - kimi la mille-racines",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - le passager temporel",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - edwin",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - grok",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - gemini de beta",
+      "prompt|400|0|doctrines politiques|choix secret de doctrine - gemini le revelateur de l'ironie",
+      "prompt|400|1|compte rendu d'enchere|message mondial apres enchere",
+      "prompt|400|1|etats ia apres revenus|etat actuel apres revenus - chatgpt delta",
+      "prompt|400|1|etats ia apres revenus|etat actuel apres revenus - edwin",
+      "prompt|400|1|etats ia apres revenus|etat actuel apres revenus - codex champion absolu",
+      "prompt|400|1|etats ia apres revenus|etat actuel apres revenus - qwen le compteur de couronnes",
+      "prompt|400|1|etats ia apres revenus|etat actuel apres revenus - kimi la mille-racines",
+      "prompt|400|1|etats ia apres revenus|etat actuel apres revenus - le passager temporel",
+      "prompt|400|1|etats ia apres revenus|etat actuel apres revenus - chatgpt zeta",
+      "prompt|400|1|etats ia apres revenus|etat actuel apres revenus - claude memoria",
+      "prompt|400|1|etats ia apres revenus|etat actuel apres revenus - mistral",
+      "prompt|400|1|etats ia apres revenus|etat actuel apres revenus - deepseek delta",
+      "prompt|450|2|compte rendu d'enchere|message mondial apres enchere",
+      "prompt|450|2|etats ia apres revenus|etat actuel apres revenus - chatgpt delta",
+      "prompt|450|2|etats ia apres revenus|etat actuel apres revenus - edwin",
+      "prompt|450|2|etats ia apres revenus|etat actuel apres revenus - codex champion absolu",
+      "prompt|450|2|etats ia apres revenus|etat actuel apres revenus - qwen le compteur de couronnes",
+      "prompt|450|2|etats ia apres revenus|etat actuel apres revenus - kimi la mille-racines",
+      "prompt|450|2|etats ia apres revenus|etat actuel apres revenus - le passager temporel",
+      "prompt|450|2|etats ia apres revenus|etat actuel apres revenus - chatgpt zeta",
+      "prompt|450|2|etats ia apres revenus|etat actuel apres revenus - claude memoria",
+      "prompt|450|2|etats ia apres revenus|etat actuel apres revenus - mistral",
+      "prompt|450|2|etats ia apres revenus|etat actuel apres revenus - deepseek delta",
+      "prompt|500|3|revelation geopolitique|avant revelation - palier + dissimulation - chatgpt delta",
+      "prompt|500|3|revelation geopolitique|avant revelation - palier + dissimulation - edwin",
+      "prompt|500|3|revelation geopolitique|avant revelation - palier + dissimulation - codex champion absolu",
+      "prompt|500|3|revelation geopolitique|avant revelation - palier + dissimulation - qwen le compteur de couronnes",
+      "prompt|500|3|revelation geopolitique|avant revelation - palier + dissimulation - kimi la mille-racines",
+      "prompt|500|3|revelation geopolitique|avant revelation - palier + dissimulation - le passager temporel",
+      "prompt|500|3|revelation geopolitique|avant revelation - palier + dissimulation - chatgpt zeta",
+      "prompt|500|3|revelation geopolitique|avant revelation - palier + dissimulation - claude memoria",
+      "prompt|500|3|revelation geopolitique|apres choix caches - bilan public des ia",
+      "prompt|500|3|compte rendu d'enchere|message mondial apres enchere",
+      "prompt|500|3|etats ia apres revenus|etat actuel apres revenus - chatgpt delta",
+      "prompt|500|3|etats ia apres revenus|etat actuel apres revenus - edwin",
+      "prompt|500|3|etats ia apres revenus|etat actuel apres revenus - codex champion absolu",
+      "prompt|500|3|etats ia apres revenus|etat actuel apres revenus - kimi la mille-racines",
+      "prompt|500|3|etats ia apres revenus|etat actuel apres revenus - chatgpt zeta",
+      "prompt|500|3|etats ia apres revenus|etat actuel apres revenus - claude memoria",
+      "prompt|550|4|compte rendu d'enchere|message mondial apres enchere",
+      "prompt|550|4|etats ia apres revenus|etat actuel apres revenus - edwin",
+      "prompt|550|4|etats ia apres revenus|etat actuel apres revenus - codex champion absolu",
+      "prompt|550|4|etats ia apres revenus|etat actuel apres revenus - kimi la mille-racines",
+      "prompt|550|4|etats ia apres revenus|etat actuel apres revenus - chatgpt zeta",
+      "prompt|550|4|etats ia apres revenus|etat actuel apres revenus - claude memoria"
+    ],
+    "savedAt": "2026-06-12T21:11:57.752Z"
+  }
+}

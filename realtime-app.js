@@ -1,9 +1,28 @@
 const STORAGE_KEY = "worldbox-realtime-auction-v5";
 const SERVER_STATE_ENDPOINT = "./api/state";
+const STATIC_STATE_ENDPOINT = "./session-current.json";
 const SERVER_STATE_DEBOUNCE_MS = 400;
 const MIN_PARTICIPANTS = 2;
-const MAX_PARTICIPANTS = 8;
-const DEFAULT_REPRESENTATIVE_NAMES = ["Codex", "Kiwi", "Gemini", "DeepSeek", "Nova", "Atlas", "Orion", "Vega"];
+const MAX_PARTICIPANTS = 16;
+const ZETA_REPRESENTATIVE_NAMES = [
+  "Grok",
+  "Chatgpt Delta",
+  "Gemini de Beta",
+  "Edwin",
+  "Deepseek Phénix Cendre-Loi",
+  "Codex Champion Absolu",
+  "Claude de Glace",
+  "Qwen le Compteur de Couronnes",
+  "Kimi la Mille-Racines",
+  "Le Passager Temporel",
+  "Chatgpt Zeta",
+  "Claude Memoria",
+  "Mistral",
+  "Deepseek Delta",
+  "Gemini le Révélateur de l'Ironie",
+  "Deepseek Alpha",
+];
+const DEFAULT_REPRESENTATIVE_NAMES = [...ZETA_REPRESENTATIVE_NAMES];
 const STARTING_POSITION_LABELS = [
   "secteur sud-ouest",
   "secteur sud-est",
@@ -13,17 +32,33 @@ const STARTING_POSITION_LABELS = [
   "secteur est central",
   "secteur nord central",
   "secteur sud central",
+  "secteur nord-ouest extérieur",
+  "secteur nord-est extérieur",
+  "secteur sud-ouest extérieur",
+  "secteur sud-est extérieur",
+  "secteur ouest extérieur",
+  "secteur est extérieur",
+  "secteur nord extérieur",
+  "secteur sud extérieur",
 ];
 const DUEL_POSITION_LABELS = ["moitié ouest", "moitié est"];
 const ZETA_POSITION_LABELS = [
-  "bloc nord-ouest",
-  "bloc nord",
-  "bloc nord-est",
-  "bloc est",
-  "bloc sud-est",
-  "bloc sud",
-  "bloc sud-ouest",
-  "bloc ouest",
+  "Quartier Nord-Ouest — Nord-Ouest",
+  "Quartier Nord-Ouest — Nord-Est",
+  "Quartier Nord-Ouest — Sud-Ouest",
+  "Quartier Nord-Ouest — Sud-Est",
+  "Quartier Nord-Est — Nord-Ouest",
+  "Quartier Nord-Est — Nord-Est",
+  "Quartier Nord-Est — Sud-Ouest",
+  "Quartier Nord-Est — Sud-Est",
+  "Quartier Sud-Ouest — Nord-Ouest",
+  "Quartier Sud-Ouest — Nord-Est",
+  "Quartier Sud-Ouest — Sud-Ouest",
+  "Quartier Sud-Ouest — Sud-Est",
+  "Quartier Sud-Est — Nord-Ouest",
+  "Quartier Sud-Est — Nord-Est",
+  "Quartier Sud-Est — Sud-Ouest",
+  "Quartier Sud-Est — Sud-Est",
 ];
 
 const POWERS = [
@@ -136,11 +171,19 @@ const WHEEL_SPIN_COST = 10;
 const WHEEL_MIN_OFFSET = 50;
 const WHEEL_MAX_OFFSET = 500;
 const WHEEL_STEP = 50;
-const WHEEL_VISIBLE_OPTIONS = 20;
+const WHEEL_VISIBLE_OPTIONS = 10;
+const WHEEL_MIN_VOLATILITY_CEILING = 30;
+const WHEEL_MAX_VOLATILITY_CEILING = 100;
 const WB_WHEEL_SPIN_DURATION_MS = 6600;
+const WB_WHEEL_AUTO_COOLDOWN_MS = 900;
 const WB_WHEEL_MIN_EXTRA_SPINS = 3;
 const WB_WHEEL_EXTRA_SPIN_VARIANCE = 3;
-const WB_WHEEL_SEGMENT_COLORS = ["#1e293b", "#0f172a", "#312e81", "#111827", "#223047", "#0f172a"];
+const WB_WHEEL_SEGMENT_BORDER_DEG = 1.1;
+const WB_WHEEL_SEGMENT_COLORS = {
+  positive: ["#15803d", "#16a34a", "#059669", "#22c55e"],
+  negative: ["#b91c1c", "#dc2626", "#be123c", "#e11d48"],
+  neutral: ["#1e293b", "#0f172a", "#223047", "#111827"],
+};
 const WB_FALLBACK_WHEEL_LABELS = [
   "+30", "-10", "VOL 20", "x2", "/2",
   "-25%", "TRIB 5", "RIEN", "PASSE+", "SAB -20",
@@ -347,7 +390,7 @@ POWERS.forEach((power) => {
   power.stats = EFFECT_STATS[power.name] ?? "Pas de statut chiffré direct connu : effet surtout par dégâts, spawn, ressource, terrain ou économie.";
 });
 
-const DEFAULT_AIS = Array.from({ length: 4 }, (_, index) => createDefaultAi(index));
+const DEFAULT_AIS = Array.from({ length: MAX_PARTICIPANTS }, (_, index) => createDefaultAi(index));
 
 function createDefaultAi(index, name = DEFAULT_REPRESENTATIVE_NAMES[index] ?? `Représentant ${index + 1}`) {
   return {
@@ -610,6 +653,12 @@ let wbCurrentRotation = 0;
 let wbLastRenderedCardKey = "";
 let wbLastRenderedBidValue = null;
 let wbAudioCtx = null;
+let wbWheelAutoMode = false;
+let wbWheelAutoTimer = null;
+let wbSeenChronicleEntryIds = new Set((state.simulationMemory ?? []).map((entry) => entry.id));
+let activeHistoryChartType = null;
+let historyChartHover = null;
+const historyChartHitMaps = new WeakMap();
 let serverPersistence = {
   checked: false,
   available: null,
@@ -644,6 +693,12 @@ const els = {
   newAuctionBtn: document.querySelector("#newAuctionBtn"),
   turnOrder: document.querySelector("#turnOrder"),
   aiGrid: document.querySelector("#aiGrid"),
+  populationChartCanvas: document.querySelector("#populationChartCanvas"),
+  economyChartCanvas: document.querySelector("#economyChartCanvas"),
+  chartOverlay: document.querySelector("#chartOverlay"),
+  chartOverlayTitle: document.querySelector("#chartOverlayTitle"),
+  chartOverlayCanvas: document.querySelector("#chartOverlayCanvas"),
+  chartOverlayCloseBtn: document.querySelector("#chartOverlayCloseBtn"),
   auctionLog: document.querySelector("#auctionLog"),
   winnerActionInput: document.querySelector("#winnerActionInput"),
   memoryInput: document.querySelector("#memoryInput"),
@@ -682,6 +737,7 @@ const els = {
   wbWheelAiList: document.querySelector("#wb-wheel-ai-list"),
   wbWheelCurrentOption: document.querySelector("#wb-wheel-current-option"),
   wbSpinWheelBtn: document.querySelector("#wb-spin-wheel-btn"),
+  wbAutoWheelBtn: document.querySelector("#wb-auto-wheel-btn"),
   wbCloseWheelBtn: document.querySelector("#wb-close-wheel-btn"),
   wbEndWheelBtn: document.querySelector("#wb-end-wheel-btn"),
   wbCopyWheelResultsBtn: document.querySelector("#wb-copy-wheel-results-btn"),
@@ -697,10 +753,23 @@ document.querySelector("#undoBtn").addEventListener("click", undo);
 document.querySelector("#resetBtn").addEventListener("click", resetAll);
 els.wbTriggerWheel?.addEventListener("click", wbOpenWheel);
 els.wbSpinWheelBtn?.addEventListener("click", wbSpinWheel);
+els.wbAutoWheelBtn?.addEventListener("click", wbToggleWheelAutoMode);
 els.wbCloseWheelBtn?.addEventListener("click", wbCloseWheel);
 els.wbEndWheelBtn?.addEventListener("click", closeFortuneWheelEvent);
 els.wbCopyWheelResultsBtn?.addEventListener("click", copyFortuneWheelResultsPrompt);
+document.querySelectorAll("[data-chart-open]").forEach((button) => {
+  button.addEventListener("click", () => openHistoryChart(button.dataset.chartOpen));
+});
+els.chartOverlayCloseBtn?.addEventListener("click", closeHistoryChart);
+[els.populationChartCanvas, els.economyChartCanvas, els.chartOverlayCanvas].filter(Boolean).forEach((canvas) => {
+  canvas.addEventListener("mousemove", handleHistoryChartPointerMove);
+  canvas.addEventListener("mouseleave", handleHistoryChartPointerLeave);
+});
 document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && els.chartOverlay && !els.chartOverlay.hidden) {
+    closeHistoryChart();
+    return;
+  }
   if (event.key !== "Escape" || !isWheelModalOpen()) return;
   if (state.fortuneWheel?.spinning) return;
   wbCloseWheel();
@@ -773,7 +842,14 @@ function applyWorldModeParticipantPreset(changedKey) {
   if (changedKey !== "worldModeSelect") return;
   if (state.settings.worldMode !== "zeta") return;
   if (state.settings.year !== 0 || state.auction.card) return;
-  if (state.ais.length < MAX_PARTICIPANTS) resizeParticipants(MAX_PARTICIPANTS);
+  if (state.ais.length !== MAX_PARTICIPANTS) resizeParticipants(MAX_PARTICIPANTS);
+  applyZetaParticipantNames();
+}
+
+function applyZetaParticipantNames() {
+  state.ais.forEach((ai, index) => {
+    ai.name = ZETA_REPRESENTATIVE_NAMES[index] ?? sanitizeRepresentativeName(ai.name, index);
+  });
 }
 
 els.yearInput.addEventListener("input", () => {
@@ -825,6 +901,8 @@ function createFreshState() {
     lastIncomeSummary: "",
     postIncomePromptYear: null,
     simulationMemory: [],
+    historySnapshots: [],
+    copiedPromptKeys: [],
     savedAt: null,
   };
 }
@@ -849,8 +927,35 @@ function normalizeStateShape(parsed = {}) {
     lastIncomeSummary: parsed.lastIncomeSummary ?? "",
     postIncomePromptYear: parsed.postIncomePromptYear ?? null,
     simulationMemory: normalizeSimulationMemory(parsed.simulationMemory ?? []),
+    historySnapshots: normalizeHistorySnapshots(parsed.historySnapshots),
+    copiedPromptKeys: normalizeCopiedPromptKeys(parsed.copiedPromptKeys),
     savedAt: parsed.savedAt ?? null,
   };
+}
+
+function normalizeCopiedPromptKeys(keys) {
+  return Array.isArray(keys)
+    ? [...new Set(keys.map((key) => String(key ?? "")).filter(Boolean))].slice(-600)
+    : [];
+}
+
+function normalizeHistorySnapshots(snapshots) {
+  return Array.isArray(snapshots)
+    ? snapshots.map((snapshot, index) => ({
+      id: snapshot.id ?? `snapshot-${index}`,
+      year: Math.max(0, Math.floor(Number(snapshot.year) || 0)),
+      reason: String(snapshot.reason ?? "Snapshot"),
+      entries: Array.isArray(snapshot.entries)
+        ? snapshot.entries.map((entry) => ({
+          id: String(entry.id ?? ""),
+          name: String(entry.name ?? entry.id ?? "IA"),
+          population: Math.max(0, Math.floor(Number(entry.population) || 0)),
+          coins: Math.max(0, Math.floor(Number(entry.coins) || 0)),
+          alive: entry.alive !== false,
+        })).filter((entry) => entry.id)
+        : [],
+    })).filter((snapshot) => snapshot.entries.length).slice(-80)
+    : [];
 }
 
 function normalizeSimulationMemory(memory) {
@@ -930,6 +1035,9 @@ function pruneRemovedParticipants(removedIds) {
   if (state.fortuneWheel?.pendingTurns) {
     removedIds.forEach((id) => delete state.fortuneWheel.pendingTurns[id]);
   }
+  if (state.fortuneWheel?.purchaseLedger) {
+    removedIds.forEach((id) => delete state.fortuneWheel.purchaseLedger[id]);
+  }
   if (removedIds.includes(state.fortuneWheel?.lastResolvedAiId)) state.fortuneWheel.lastResolvedAiId = null;
 }
 
@@ -952,7 +1060,7 @@ function defaultSettings() {
     passReward: 5,
     passMin: 2,
     warCivs: 0,
-    worldMode: "auto",
+    worldMode: "zeta",
     cardPreviewCount: 0,
     forcedPowerName: "",
   };
@@ -968,11 +1076,16 @@ function normalizeSettings(settings) {
 }
 
 function createDefaultFortuneWheel(year = 0) {
+  const scheduledFromYear = Math.max(0, Math.floor(Number(year) || 0));
+  const nextYear = getNextFortuneWheelYear(scheduledFromYear);
   return {
-    nextYear: getNextFortuneWheelYear(year),
+    nextYear,
+    scheduledFromYear,
+    unpredictability: getFortuneWheelUnpredictability(scheduledFromYear, nextYear),
     active: false,
     activeYear: null,
     pendingTurns: {},
+    purchaseLedger: {},
     lastResolvedAiId: null,
     spinning: false,
     currentSpinOptions: [],
@@ -988,9 +1101,17 @@ function normalizeFortuneWheel(wheel, year = 0) {
     ...(wheel ?? {}),
   };
   normalized.nextYear = Math.max(0, Math.floor(Number(normalized.nextYear) || getNextFortuneWheelYear(year)));
+  const scheduledFromYear = Number(normalized.scheduledFromYear);
+  normalized.scheduledFromYear = Math.max(0, Math.floor(Number.isFinite(scheduledFromYear) ? scheduledFromYear : year));
+  normalized.unpredictability = clampFortuneWheelUnpredictability(
+    Number.isFinite(Number(normalized.unpredictability))
+      ? Number(normalized.unpredictability)
+      : getFortuneWheelUnpredictability(normalized.scheduledFromYear, normalized.nextYear),
+  );
   normalized.active = Boolean(normalized.active);
   normalized.activeYear = normalized.activeYear === null ? null : Math.max(0, Math.floor(Number(normalized.activeYear) || 0));
   normalized.pendingTurns = normalized.pendingTurns && typeof normalized.pendingTurns === "object" ? normalized.pendingTurns : {};
+  normalized.purchaseLedger = normalized.purchaseLedger && typeof normalized.purchaseLedger === "object" ? normalized.purchaseLedger : {};
   normalized.lastResolvedAiId = normalized.lastResolvedAiId ?? null;
   normalized.spinning = false;
   normalized.currentSpinOptions = Array.isArray(normalized.currentSpinOptions) ? normalized.currentSpinOptions : [];
@@ -1103,11 +1224,43 @@ async function hydrateStateFromServer() {
     renderPersistenceStatus();
     if (localSavedAt > serverSavedAt) queueServerStateSave();
   } catch {
-    serverPersistence.checked = true;
-    serverPersistence.available = false;
-    serverPersistence.message = "Mémoire navigateur uniquement";
+    await hydrateStateFromStaticSnapshot();
+    if (!serverPersistence.message) {
+      serverPersistence.message = "Mémoire navigateur uniquement";
+    }
     renderPersistenceStatus();
   }
+}
+
+async function hydrateStateFromStaticSnapshot() {
+  serverPersistence.checked = true;
+  serverPersistence.available = false;
+
+  try {
+    const response = await fetch(STATIC_STATE_ENDPOINT, { cache: "no-store" });
+    if (!response.ok) return false;
+
+    const payload = await response.json();
+    const staticState = normalizeStateShape(payload.state ?? {});
+    const staticSavedAt = getTimestamp(payload.savedAt ?? staticState.savedAt);
+    const localSavedAt = getTimestamp(state.savedAt);
+
+    if (staticSavedAt > localSavedAt) {
+      state = staticState;
+      handleAgeMilestones();
+      persistState({ remote: false, touch: false });
+      render();
+      serverPersistence.lastSavedAt = payload.savedAt ?? staticState.savedAt ?? "";
+      serverPersistence.message = "Session restaurée depuis l'export statique";
+      showToast("Session actuelle chargée depuis l'export en ligne");
+      return true;
+    }
+  } catch {
+    // GitHub Pages ou un fichier local peut ne pas fournir d'export statique.
+  }
+
+  serverPersistence.message = "Mémoire navigateur uniquement";
+  return false;
 }
 
 async function deleteStateFromServer() {
@@ -1137,7 +1290,9 @@ function renderPersistenceStatus() {
     text = `Mémoire serveur : ${savedText}`;
     className += " ok";
   } else if (serverPersistence.checked) {
-    text = `Mémoire navigateur : ${localText}`;
+    text = serverPersistence.message && serverPersistence.message !== "Mémoire navigateur uniquement"
+      ? serverPersistence.message
+      : `Mémoire navigateur : ${localText}`;
     className += " warn";
   }
 
@@ -1159,6 +1314,7 @@ function render() {
   renderAgeEvents();
   renderCard();
   renderAis();
+  renderHistoryCharts();
   renderTurnOrder();
   renderLog();
   renderReportBlock();
@@ -1290,16 +1446,20 @@ function renderFortuneWheelPanel() {
   const title = document.createElement("h3");
   title.textContent = "Roue de la fortune";
   const meta = document.createElement("p");
+  const unpredictability = getCurrentFortuneWheelUnpredictability();
   meta.textContent = wheel.active
-    ? `Active à l'an ${wheel.activeYear}. Coût : ${WHEEL_SPIN_COST} pièces par tour.`
-    : `Prochaine apparition prévue : An ${wheel.nextYear}.`;
+    ? `Active à l'an ${wheel.activeYear}. Coût : ${WHEEL_SPIN_COST} pièces par tour. Imprévisibilité : ${unpredictability}%.`
+    : `Prochaine apparition prévue : An ${wheel.nextYear}. Imprévisibilité : ${unpredictability}%.`;
   titleWrap.append(title, meta);
 
   const avg = document.createElement("span");
   avg.className = "fortune-wheel-average";
   const gross = getFortuneWheelAverageValue();
   avg.textContent = `Moyenne théorique : ${formatSigned(gross)} brut / ${formatSigned(gross - WHEEL_SPIN_COST)} net`;
-  header.append(titleWrap, avg);
+  const volatility = document.createElement("span");
+  volatility.className = "fortune-wheel-average fortune-wheel-unpredictability";
+  volatility.textContent = `Imprévisibilité : ${unpredictability}%`;
+  header.append(titleWrap, avg, volatility);
   els.fortuneWheelPanel.appendChild(header);
 
   const actions = document.createElement("div");
@@ -1417,6 +1577,7 @@ function wbOpenWheel() {
 
 function wbCloseWheel() {
   if (!els.wbWheelModal) return;
+  wbStopWheelAutoMode();
   els.wbWheelModal.classList.add("wb-hidden");
   els.wbWheelModal.setAttribute("aria-hidden", "true");
 }
@@ -1427,6 +1588,47 @@ function wbSpinWheel() {
     return;
   }
   launchFortuneWheelSpin();
+}
+
+function wbToggleWheelAutoMode() {
+  if (!state.fortuneWheel?.active) {
+    showToast("La Roue de la Fortune n'est pas active");
+    return;
+  }
+  if (!getTotalFortuneWheelPendingTurns()) {
+    showToast("Aucun tour en attente");
+    return;
+  }
+  wbWheelAutoMode = !wbWheelAutoMode;
+  if (wbWheelAutoMode) {
+    wbScheduleAutoWheelSpin();
+  } else {
+    wbStopWheelAutoMode();
+  }
+  wbRenderWheelModal();
+}
+
+function wbStopWheelAutoMode() {
+  wbWheelAutoMode = false;
+  if (wbWheelAutoTimer) {
+    window.clearTimeout(wbWheelAutoTimer);
+    wbWheelAutoTimer = null;
+  }
+}
+
+function wbScheduleAutoWheelSpin() {
+  if (!wbWheelAutoMode || !state.fortuneWheel?.active || state.fortuneWheel.spinning) return;
+  if (!getNextFortuneWheelAi()) {
+    wbStopWheelAutoMode();
+    wbRenderWheelModal();
+    return;
+  }
+  if (wbWheelAutoTimer) window.clearTimeout(wbWheelAutoTimer);
+  wbWheelAutoTimer = window.setTimeout(() => {
+    wbWheelAutoTimer = null;
+    if (!wbWheelAutoMode || state.fortuneWheel?.spinning || !getNextFortuneWheelAi()) return;
+    launchFortuneWheelSpin();
+  }, WB_WHEEL_AUTO_COOLDOWN_MS);
 }
 
 function wbRenderWheelModal() {
@@ -1440,9 +1642,10 @@ function wbRenderWheelModal() {
 
   if (els.wbWheelTitle) els.wbWheelTitle.textContent = "Roue de la Fortune";
   if (els.wbWheelMeta) {
+    const unpredictability = getCurrentFortuneWheelUnpredictability();
     els.wbWheelMeta.textContent = wheel.active
-      ? `An ${wheel.activeYear} - coût ${WHEEL_SPIN_COST} pièces par tour - ${pendingTurns} tour${pendingTurns > 1 ? "s" : ""} en attente.`
-      : `Prochaine apparition prévue : An ${wheel.nextYear}.`;
+      ? `An ${wheel.activeYear} - coût ${WHEEL_SPIN_COST} pièces par tour - imprévisibilité ${unpredictability}% - ${pendingTurns} tour${pendingTurns > 1 ? "s" : ""} en attente.`
+      : `Prochaine apparition prévue : An ${wheel.nextYear} - imprévisibilité ${unpredictability}%.`;
   }
   if (els.wbWheelCenter) {
     els.wbWheelCenter.textContent = wheel.spinning ? "La roue tourne" : (nextAi ? nextAi.name : "Destin");
@@ -1483,6 +1686,11 @@ function wbRenderWheelModal() {
       ? "La roue tourne..."
       : (nextAi ? `Lancer ${nextAi.name}` : "Aucun tour");
   }
+  if (els.wbAutoWheelBtn) {
+    els.wbAutoWheelBtn.disabled = !wheel.active || !pendingTurns;
+    els.wbAutoWheelBtn.textContent = wbWheelAutoMode ? "Automatique actif" : "Automatique";
+    els.wbAutoWheelBtn.classList.toggle("wb-btn-auto-active", wbWheelAutoMode);
+  }
   if (els.wbEndWheelBtn) {
     els.wbEndWheelBtn.disabled = !wheel.active || pendingTurns > 0 || wheel.spinning;
   }
@@ -1518,24 +1726,66 @@ function wbFlashBidAmount() {
   wbPlaySound("coin");
 }
 
+function wbGetPlayerElement(playerId) {
+  if (!playerId) return null;
+  return document.querySelector(`.ai-card[data-player-id="${CSS.escape(playerId)}"]`)
+    ?? document.querySelector(`.ai-card[data-ai-id="${CSS.escape(playerId)}"]`)
+    ?? document.querySelector(`[data-player="${CSS.escape(playerId)}"]`);
+}
+
+function wbMarkPlayerAsPassed(playerId) {
+  const playerEl = wbGetPlayerElement(playerId);
+  if (playerEl) playerEl.classList.add("wb-player-eliminated");
+}
+
+function wbHighlightActivePlayer(playerId) {
+  document.querySelectorAll(".ai-card, .player-card, [data-player-id], [data-player]").forEach((el) => {
+    el.classList.remove("wb-active-turn");
+  });
+
+  const activeEl = wbGetPlayerElement(playerId);
+  if (activeEl) activeEl.classList.add("wb-active-turn");
+}
+
+function wbAddChronicleEntry(content) {
+  const container = els.memoryPreview ?? document.querySelector("#chronicle-container") ?? document.querySelector(".chronicle");
+  if (!container) return null;
+  const entry = content instanceof HTMLElement ? content : document.createElement("div");
+
+  if (!(content instanceof HTMLElement)) {
+    entry.className = "wb-chronicle-new";
+    entry.innerHTML = String(content ?? "");
+  } else {
+    entry.classList.add("wb-chronicle-new");
+  }
+
+  if (!entry.parentElement) container.appendChild(entry);
+  window.setTimeout(() => {
+    entry.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, 100);
+  return entry;
+}
+
 function wbRenderWheelSegments(optionIds = []) {
   if (!els.wbFortuneWheel) return;
   els.wbFortuneWheel.querySelectorAll(".wb-wheel-label").forEach((node) => node.remove());
 
-  const eventLabels = optionIds
+  const visibleOptionIds = optionIds.slice(0, WHEEL_VISIBLE_OPTIONS);
+  const events = visibleOptionIds
     .map((id) => getWheelEvent(id))
-    .filter(Boolean)
-    .map(getWheelSegmentLabel);
-  const labels = eventLabels.length ? eventLabels : WB_FALLBACK_WHEEL_LABELS;
+    .filter(Boolean);
+  const labels = events.length ? events.map(getWheelSegmentLabel) : WB_FALLBACK_WHEEL_LABELS.slice(0, WHEEL_VISIBLE_OPTIONS);
   const segmentCount = Math.max(1, labels.length);
-  wbPaintWheelSegments(segmentCount);
+  wbPaintWheelSegments(events.length ? events : segmentCount);
 
   labels.forEach((label, index) => {
+    const event = events[index] ?? null;
     const segmentCenter = (index * 360) / segmentCount;
     const segment = document.createElement("div");
     segment.className = "wb-wheel-label";
+    segment.classList.add(`wb-wheel-label-${getWheelEventTone(event)}`);
     segment.style.setProperty("--wb-label-angle", `${segmentCenter - 90}deg`);
-    segment.title = optionIds[index] ? getWheelEvent(optionIds[index])?.title ?? label : label;
+    segment.title = event?.title ?? label;
     if (!state.fortuneWheel?.spinning && state.fortuneWheel?.lastResultText && index === state.fortuneWheel.currentSpinIndex) {
       segment.classList.add("wb-wheel-label-result");
     }
@@ -1547,19 +1797,40 @@ function wbRenderWheelSegments(optionIds = []) {
   });
 }
 
-function wbPaintWheelSegments(segmentCount) {
+function wbPaintWheelSegments(segments) {
   if (!els.wbFortuneWheel) return;
+  const events = Array.isArray(segments) ? segments : [];
+  const segmentCount = Array.isArray(segments) ? segments.length : segments;
   const count = Math.max(1, segmentCount);
   const segmentDegrees = 360 / count;
   const stops = Array.from({ length: count }, (_, index) => {
     const start = roundCssDeg(index * segmentDegrees);
     const end = roundCssDeg((index + 1) * segmentDegrees);
-    return `${WB_WHEEL_SEGMENT_COLORS[index % WB_WHEEL_SEGMENT_COLORS.length]} ${start}deg ${end}deg`;
+    const colorStart = roundCssDeg(start + WB_WHEEL_SEGMENT_BORDER_DEG);
+    const colorEnd = roundCssDeg(end - WB_WHEEL_SEGMENT_BORDER_DEG);
+    return [
+      `#020617 ${start}deg ${colorStart}deg`,
+      `${getWheelSegmentColor(events[index], index)} ${colorStart}deg ${colorEnd}deg`,
+      `#020617 ${colorEnd}deg ${end}deg`,
+    ].join(", ");
   }).join(", ");
   els.wbFortuneWheel.style.background = [
     "radial-gradient(circle at center, rgba(12, 17, 23, 0.96) 0 18%, transparent 19%)",
     `conic-gradient(from ${roundCssDeg(-segmentDegrees / 2)}deg, ${stops})`,
   ].join(", ");
+}
+
+function getWheelEventTone(event) {
+  const value = Number(event?.expectedValue) || 0;
+  if (value > 0) return "positive";
+  if (value < 0) return "negative";
+  return "neutral";
+}
+
+function getWheelSegmentColor(event, index) {
+  const tone = getWheelEventTone(event);
+  const palette = WB_WHEEL_SEGMENT_COLORS[tone] ?? WB_WHEEL_SEGMENT_COLORS.neutral;
+  return palette[index % palette.length];
 }
 
 function roundCssDeg(value) {
@@ -1581,7 +1852,8 @@ function getWheelSegmentLabel(event) {
   if (source.includes("bomb") || source.includes("bombe")) return "BOMBE";
   if (source.includes("volcan")) return "VOLCAN";
   if (source.includes("mage")) return "MAGE";
-  if (source.includes("fire") || source.includes("feu") || source.includes("incendie") || source.includes("foudre") || source.includes("lightning")) return "FEU";
+  if (source.includes("foudre") || source.includes("lightning")) return "FOUDRE";
+  if (source.includes("fire") || source.includes("feu") || source.includes("incendie")) return "FEU";
   if (source.includes("dust") || source.includes("poussiere")) return "DUST";
   if (source.includes("shield") || source.includes("bouclier")) return "BOUCLIER";
   if (source.includes("rain") || source.includes("pluie")) return "PLUIE";
@@ -1665,6 +1937,14 @@ function wbUpdateWheelModalOption(event) {
   if (els.wbWheelCenter) els.wbWheelCenter.textContent = "La roue tourne";
 }
 
+function wbPulseWheelPointer() {
+  const pointer = document.querySelector(".wb-wheel-pointer");
+  if (!pointer) return;
+  pointer.classList.remove("wb-wheel-pointer-tick");
+  void pointer.offsetWidth;
+  pointer.classList.add("wb-wheel-pointer-tick");
+}
+
 function wbGetAudioContext() {
   if (wbAudioCtx) return wbAudioCtx;
   const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
@@ -1708,6 +1988,14 @@ function wbPlaySound(type) {
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
       osc.start(now);
       osc.stop(now + 0.18);
+    } else if (type === "pass") {
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(330, now);
+      osc.frequency.exponentialRampToValueAtTime(165, now + 0.2);
+      gain.gain.setValueAtTime(0.11, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+      osc.start(now);
+      osc.stop(now + 0.22);
     }
   } catch {
     // Les effets sonores sont décoratifs : l'enchère continue si le navigateur les bloque.
@@ -1800,6 +2088,8 @@ function renderAis() {
     const hasPassedAuction = state.auction.passed.includes(ai.id);
 
     card.dataset.aiId = ai.id;
+    card.dataset.playerId = ai.id;
+    card.dataset.player = ai.id;
     card.classList.toggle("dead", !ai.alive);
     card.classList.toggle("ghost-active", ai.ghostActive);
     card.classList.toggle("current-bidder", isCurrentBidder);
@@ -1874,6 +2164,7 @@ function renderAis() {
         ai.ghostReady = false;
         ai.ghostActive = false;
       }
+      recordHistorySnapshot(ai.alive ? "Retour vivant" : "Mort / retrait");
       saveAndRender();
     });
     coinsInput.addEventListener("change", () => {
@@ -1910,6 +2201,249 @@ function renderAis() {
 
     els.aiGrid.appendChild(node);
   });
+  wbHighlightActivePlayer(currentBidder?.id ?? null);
+  state.auction.passed.forEach((playerId) => wbMarkPlayerAsPassed(playerId));
+}
+
+function recordHistorySnapshot(reason = "Snapshot") {
+  state.historySnapshots = normalizeHistorySnapshots(state.historySnapshots ?? []);
+  const snapshot = {
+    id: `history-${state.settings.year}`,
+    year: state.settings.year,
+    reason,
+    entries: state.ais.map((ai) => ({
+      id: ai.id,
+      name: ai.name,
+      population: ai.population,
+      coins: ai.coins,
+      alive: ai.alive,
+    })),
+  };
+  const existingIndex = state.historySnapshots.findIndex((item) => item.year === snapshot.year);
+  if (existingIndex >= 0) {
+    state.historySnapshots[existingIndex] = snapshot;
+  } else {
+    state.historySnapshots.push(snapshot);
+  }
+  state.historySnapshots.sort((a, b) => a.year - b.year);
+  state.historySnapshots = state.historySnapshots.slice(-80);
+}
+
+function getHistoryChartSnapshots() {
+  const snapshots = normalizeHistorySnapshots(state.historySnapshots ?? []);
+  const currentSnapshot = {
+    id: `current-${state.settings.year}`,
+    year: state.settings.year,
+    reason: "État actuel",
+    entries: state.ais.map((ai) => ({
+      id: ai.id,
+      name: ai.name,
+      population: ai.population,
+      coins: ai.coins,
+      alive: ai.alive,
+    })),
+  };
+  if (!snapshots.length) return [currentSnapshot];
+  return snapshots.some((snapshot) => snapshot.year === currentSnapshot.year)
+    ? snapshots
+    : [...snapshots, currentSnapshot].sort((a, b) => a.year - b.year);
+}
+
+function renderHistoryCharts() {
+  drawHistoryChart(els.populationChartCanvas, "population");
+  drawHistoryChart(els.economyChartCanvas, "economy");
+  if (activeHistoryChartType && els.chartOverlay && !els.chartOverlay.hidden) {
+    drawHistoryChart(els.chartOverlayCanvas, activeHistoryChartType, { full: true });
+  }
+}
+
+function openHistoryChart(type) {
+  if (!["population", "economy"].includes(type)) return;
+  activeHistoryChartType = type;
+  if (els.chartOverlayTitle) els.chartOverlayTitle.textContent = type === "population" ? "Évolution démographique" : "Évolution économique";
+  if (els.chartOverlay) els.chartOverlay.hidden = false;
+  drawHistoryChart(els.chartOverlayCanvas, type, { full: true });
+}
+
+function closeHistoryChart() {
+  activeHistoryChartType = null;
+  if (els.chartOverlay) els.chartOverlay.hidden = true;
+}
+
+function drawHistoryChart(canvas, type, options = {}) {
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const cssWidth = Math.max(260, Math.floor(rect.width || canvas.width));
+  const cssHeight = Math.max(120, Math.floor(rect.height || canvas.height));
+  canvas.width = Math.floor(cssWidth * dpr);
+  canvas.height = Math.floor(cssHeight * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const snapshots = getHistoryChartSnapshots();
+  const colors = ["#2dd4bf", "#f59e0b", "#60a5fa", "#f472b6", "#a78bfa", "#34d399", "#fb7185", "#facc15", "#38bdf8", "#c084fc", "#4ade80", "#f97316", "#818cf8", "#14b8a6", "#e879f9", "#eab308"];
+  const metric = type === "population" ? "population" : "coins";
+  const series = state.ais.map((ai, index) => ({
+    ai,
+    color: colors[index % colors.length],
+    points: getHistorySeriesPoints(snapshots, ai.id, metric),
+  })).filter((item) => item.points.length);
+  const values = series.flatMap((item) => item.points.map((point) => point.value));
+  const maxValue = Math.max(1, ...values);
+  const minYear = Math.min(...snapshots.map((snapshot) => snapshot.year));
+  const maxYear = Math.max(...snapshots.map((snapshot) => snapshot.year));
+  const pad = options.full ? 54 : 26;
+  const width = cssWidth;
+  const height = cssHeight;
+  const chartWidth = Math.max(1, width - pad * 1.5);
+  const chartHeight = Math.max(1, height - pad * 1.7);
+  const xForYear = (year) => maxYear === minYear ? pad + chartWidth / 2 : pad + ((year - minYear) / (maxYear - minYear)) * chartWidth;
+  const yForValue = (value) => pad + chartHeight - (value / maxValue) * chartHeight;
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = "#0b1220";
+  ctx.fillRect(0, 0, width, height);
+  ctx.strokeStyle = "rgba(148, 163, 184, 0.22)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i += 1) {
+    const y = pad + (chartHeight / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(pad, y);
+    ctx.lineTo(pad + chartWidth, y);
+    ctx.stroke();
+  }
+
+  const hitSeries = [];
+  series.forEach(({ ai, color, points }) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = options.full ? 2.2 : 1.4;
+    ctx.beginPath();
+    const pixelPoints = [];
+    points.forEach((point, pointIndex) => {
+      const x = xForYear(point.year);
+      const y = yForValue(point.value);
+      pixelPoints.push({ ...point, x, y });
+      if (pointIndex === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    pixelPoints.forEach((point) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, options.full ? 3 : 2, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    hitSeries.push({ aiId: ai.id, name: ai.name, color, points: pixelPoints });
+  });
+  historyChartHitMaps.set(canvas, hitSeries);
+
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = `${options.full ? 13 : 10}px Inter, sans-serif`;
+  ctx.fillText(`An ${minYear}`, pad, height - 8);
+  ctx.textAlign = "right";
+  ctx.fillText(`An ${maxYear}`, pad + chartWidth, height - 8);
+  ctx.textAlign = "left";
+  ctx.fillText(String(maxValue), 8, pad + 4);
+
+  if (options.hover?.name) {
+    drawHistoryChartTooltip(ctx, options.hover, width, height, options.full);
+  }
+}
+
+function getHistorySeriesPoints(snapshots, aiId, metric) {
+  const points = [];
+  for (const snapshot of snapshots) {
+    const entry = snapshot.entries.find((item) => item.id === aiId);
+    if (!entry) continue;
+    points.push({
+      year: snapshot.year,
+      value: entry[metric] ?? 0,
+      alive: entry.alive !== false,
+    });
+    if (entry.alive === false) break;
+  }
+  return points;
+}
+
+function handleHistoryChartPointerMove(event) {
+  const canvas = event.currentTarget;
+  const type = getHistoryChartTypeForCanvas(canvas);
+  if (!type) return;
+  const hover = findNearestHistoryChartLine(canvas, event);
+  historyChartHover = hover ? { canvas, type, ...hover } : null;
+  canvas.title = hover ? `${hover.name} — An ${hover.year} : ${hover.value}` : "";
+  drawHistoryChart(canvas, type, { full: canvas === els.chartOverlayCanvas, hover });
+}
+
+function handleHistoryChartPointerLeave(event) {
+  const canvas = event.currentTarget;
+  const type = getHistoryChartTypeForCanvas(canvas);
+  historyChartHover = null;
+  canvas.title = "";
+  if (type) drawHistoryChart(canvas, type, { full: canvas === els.chartOverlayCanvas });
+}
+
+function getHistoryChartTypeForCanvas(canvas) {
+  if (canvas === els.populationChartCanvas) return "population";
+  if (canvas === els.economyChartCanvas) return "economy";
+  if (canvas === els.chartOverlayCanvas) return activeHistoryChartType;
+  return null;
+}
+
+function findNearestHistoryChartLine(canvas, event) {
+  const series = historyChartHitMaps.get(canvas) ?? [];
+  if (!series.length) return null;
+  const rect = canvas.getBoundingClientRect();
+  const mouse = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  let best = null;
+  series.forEach((item) => {
+    item.points.forEach((point, index) => {
+      const pointDistance = Math.hypot(mouse.x - point.x, mouse.y - point.y);
+      if (!best || pointDistance < best.distance) best = { ...item, ...point, distance: pointDistance };
+      const next = item.points[index + 1];
+      if (!next) return;
+      const segmentDistance = getPointToSegmentDistance(mouse, point, next);
+      if (!best || segmentDistance < best.distance) {
+        const nearest = pointDistance < Math.hypot(mouse.x - next.x, mouse.y - next.y) ? point : next;
+        best = { ...item, ...nearest, distance: segmentDistance };
+      }
+    });
+  });
+  const threshold = canvas === els.chartOverlayCanvas ? 16 : 10;
+  return best && best.distance <= threshold ? best : null;
+}
+
+function getPointToSegmentDistance(point, start, end) {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  if (!dx && !dy) return Math.hypot(point.x - start.x, point.y - start.y);
+  const t = Math.max(0, Math.min(1, ((point.x - start.x) * dx + (point.y - start.y) * dy) / (dx * dx + dy * dy)));
+  const x = start.x + t * dx;
+  const y = start.y + t * dy;
+  return Math.hypot(point.x - x, point.y - y);
+}
+
+function drawHistoryChartTooltip(ctx, hover, width, height, full) {
+  const label = `${hover.name} · An ${hover.year} · ${hover.value}`;
+  ctx.save();
+  ctx.font = `${full ? 16 : 12}px Inter, sans-serif`;
+  const textWidth = ctx.measureText(label).width;
+  const boxWidth = textWidth + 18;
+  const boxHeight = full ? 32 : 26;
+  const x = Math.min(width - boxWidth - 8, Math.max(8, hover.x + 12));
+  const y = Math.min(height - boxHeight - 8, Math.max(8, hover.y - boxHeight - 10));
+  ctx.fillStyle = "rgba(2, 6, 23, 0.92)";
+  ctx.strokeStyle = hover.color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(x, y, boxWidth, boxHeight, 7);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#f8fafc";
+  ctx.fillText(label, x + 9, y + (full ? 21 : 17));
+  ctx.restore();
 }
 
 function getDisplayAis() {
@@ -2106,9 +2640,16 @@ function renderMemoryPanel() {
     return;
   }
 
+  let newChronicleItem = null;
   visibleMemory.slice(-12).reverse().forEach((entry) => {
     const item = document.createElement("div");
-    item.className = "memory-entry wb-chronicle-entry wb-chronicle-new";
+    const isNewChronicleEntry = !wbSeenChronicleEntryIds.has(entry.id);
+    item.className = "memory-entry";
+    if (isNewChronicleEntry) {
+      item.classList.add("wb-chronicle-new");
+      wbSeenChronicleEntryIds.add(entry.id);
+      newChronicleItem = newChronicleItem ?? item;
+    }
     item.classList.toggle("memory-entry-important", entry.important);
     const title = document.createElement("strong");
     title.textContent = `${entry.important ? "★ " : ""}An ${entry.year} - ${formatMemoryType(entry.type)}`;
@@ -2135,6 +2676,7 @@ function renderMemoryPanel() {
     item.append(title, text, actions);
     els.memoryPreview.appendChild(item);
   });
+  if (newChronicleItem) wbAddChronicleEntry(newChronicleItem);
 }
 
 function renderProfilesGuide() {
@@ -2185,13 +2727,18 @@ function getProfileManualTasks(profileId) {
 
 function renderReportBlock() {
   els.reportPromptBlock.hidden = !state.auction.endProcessed;
+  const copied = hasCopiedPrompt(getReportPromptKey());
+  els.copyReportBtn.classList.toggle("prompt-button-copied", copied);
+  const label = els.copyReportBtn.querySelector("span");
+  if (label) label.textContent = `${copied ? "✓ " : ""}Message mondial après enchère`;
 }
 
 function renderPromptHub() {
   els.promptHub.innerHTML = "";
+  const promptAis = getAliveAis();
 
   if (state.postIncomePromptYear === state.settings.year) {
-    addPromptGroup("États IA après revenus", state.ais.map((ai) => ({
+    addPromptGroup("États IA après revenus", promptAis.map((ai) => ({
       label: `État actuel après revenus - ${ai.name}`,
       hint: "PRIVÉ : à envoyer seulement à cette IA après Fin de l'enchère.",
       onClick: () => copyText(buildPostIncomeStatePrompt(ai), `État ${ai.name} copié`),
@@ -2199,7 +2746,7 @@ function renderPromptHub() {
   }
 
   if (state.settings.year === 0) {
-    addPromptGroup("An 0 - Briefing complet avec règles", state.ais.map((ai) => ({
+    addPromptGroup("An 0 - Briefing complet avec règles", promptAis.map((ai) => ({
       label: `Briefing initial - ${ai.name}`,
       hint: "PRIVÉ : à envoyer une seule fois à cette IA.",
       onClick: () => copyText(buildPrompt(ai), `Briefing ${ai.name} copié`),
@@ -2207,7 +2754,7 @@ function renderPromptHub() {
   }
 
   if (isProfileMilestone(state.settings.year)) {
-    const doctrineAis = state.ais.filter((ai) => ai.profileHand.length);
+    const doctrineAis = promptAis.filter((ai) => ai.profileHand.length);
     addPromptGroup("Doctrines politiques", [
       {
         label: "Tirer 3 doctrines pour toutes les IA",
@@ -2224,11 +2771,11 @@ function renderPromptHub() {
 
   if (isRevealYear(state.settings.year)) {
     addPromptGroup("Révélation géopolitique", [
-      {
-        label: "Avant révélation - palier + dissimulation",
-        hint: "PRIVÉ identique : à envoyer séparément avant le bilan public.",
-        onClick: () => copyIncrementPrompt(),
-      },
+      ...promptAis.map((ai) => ({
+        label: `Avant révélation - palier + dissimulation - ${ai.name}`,
+        hint: "PRIVÉ : à envoyer seulement à cette IA avant le bilan public.",
+        onClick: () => copyIncrementPrompt(ai),
+      })),
       {
         label: "Après choix cachés - bilan public des IA",
         hint: "MESSAGE MONDIAL : à envoyer quand les IA ont choisi quoi masquer.",
@@ -2243,6 +2790,11 @@ function renderPromptHub() {
         label: "Annonce d'arrivée de la roue",
         hint: "MESSAGE MONDIAL : explique coût, moyenne et résolution des tours.",
         onClick: () => copyFortuneWheelArrivalPrompt(),
+      },
+      {
+        label: "Bilan de participation de la roue",
+        hint: "MESSAGE MONDIAL : seuil atteint ou non, tours achetés et pièces avant/après.",
+        onClick: () => copyText(buildFortuneWheelParticipationPrompt(), "Participation roue copiée"),
       },
       {
         label: "Résultats de la roue",
@@ -2327,15 +2879,20 @@ function addPromptGroup(title, prompts) {
   content.className = "prompt-group-content";
 
   prompts.forEach((prompt, index) => {
+    const promptKey = getPromptChecklistKey(title, prompt.label);
+    const tracksCopy = prompt.trackCopy !== false;
+    const copied = tracksCopy && hasCopiedPrompt(promptKey);
     const row = document.createElement("div");
     row.className = "prompt-action-row";
 
     const button = document.createElement("button");
     button.className = prompt.primary ? "prompt-button primary-prompt" : "prompt-button secondary";
+    button.classList.toggle("prompt-button-copied", copied);
     button.type = "button";
+    if (copied) button.setAttribute("aria-label", `${prompt.label} déjà copié`);
 
     const label = document.createElement("span");
-    label.textContent = `${index + 1}. ${prompt.label}`;
+    label.textContent = `${index + 1}. ${copied ? "✓ " : ""}${prompt.label}`;
     button.appendChild(label);
 
     if (prompt.hint) {
@@ -2344,7 +2901,10 @@ function addPromptGroup(title, prompts) {
       button.appendChild(hint);
     }
 
-    button.addEventListener("click", prompt.onClick);
+    button.addEventListener("click", () => {
+      prompt.onClick?.();
+      if (tracksCopy) markPromptCopied(promptKey);
+    });
     row.appendChild(button);
 
     content.appendChild(row);
@@ -2352,6 +2912,36 @@ function addPromptGroup(title, prompts) {
 
   group.appendChild(content);
   els.promptHub.appendChild(group);
+}
+
+function getPromptChecklistKey(groupTitle, label) {
+  return [
+    "prompt",
+    state.settings.year,
+    getAuctionPromptNumber(),
+    normalizeMemorySearch(groupTitle),
+    normalizeMemorySearch(label),
+  ].join("|");
+}
+
+function getReportPromptKey() {
+  return getPromptChecklistKey("Compte rendu d'enchère", "Message mondial après enchère");
+}
+
+function hasCopiedPrompt(key) {
+  return Array.isArray(state.copiedPromptKeys) && state.copiedPromptKeys.includes(key);
+}
+
+function markPromptCopied(key) {
+  if (!key) return;
+  if (!Array.isArray(state.copiedPromptKeys)) state.copiedPromptKeys = [];
+  if (!state.copiedPromptKeys.includes(key)) {
+    state.copiedPromptKeys.push(key);
+    state.copiedPromptKeys = state.copiedPromptKeys.slice(-600);
+  }
+  persistState();
+  renderPromptHub();
+  renderReportBlock();
 }
 
 function addManualMemory() {
@@ -2575,6 +3165,7 @@ function drawProfilesForAliveAis() {
   pushUndo();
   performProfileDraw();
   if (isProfileMilestone(state.settings.year)) markProfileYear(state.settings.year);
+  expandedPromptGroups.add("Doctrines politiques");
   recordLog(`Tirage secret des doctrines politiques à l'an ${state.settings.year} : 3 doctrines par IA vivante.`, "Doctrine");
   showToast("Doctrines tirées");
   saveAndRender();
@@ -2598,9 +3189,11 @@ function summarizeProfile(profile) {
 
 function buildProfileDrawText(ai) {
   const lines = [
-    `PROMPT PRIVÉ - TIRAGE SECRET DE DOCTRINE POLITIQUE - ${ai.name}`,
-    "À envoyer uniquement à cette IA. Les autres IA ne doivent pas voir ces options.",
-    "Choisis une seule doctrine parmi les 3. Les autres IA ne verront pas ton choix.",
+    `PROMPT PRIVÉ — TIRAGE DE DOCTRINE — An ${state.settings.year}`,
+    `Destinataire : ${ai.name}`,
+    "Les autres IA ne voient pas ces options. Ta doctrine choisie reste secrète sauf révélation MJ.",
+    "",
+    "Choisis une doctrine parmi les trois. Les deux autres sont abandonnées et resteront inconnues.",
     "",
   ];
   if (!ai.profileHand.length) {
@@ -2615,7 +3208,9 @@ function buildProfileDrawText(ai) {
       lines.push("");
     });
   }
-  lines.push("Réponds seulement avec la doctrine choisie et une courte justification politique.");
+  lines.push("Réponds avec :");
+  lines.push("Doctrine choisie : [numéro et nom]");
+  lines.push("Justification politique : [courte, dans la voix de ta civilisation]");
   return lines.join("\n");
 }
 
@@ -2695,6 +3290,11 @@ function getPreviousBidIncrement(year) {
   return getBidIncrement(Math.max(0, year - 1));
 }
 
+function getAuctionPromptNumber() {
+  const historyCount = Array.isArray(state.cardHistory) ? state.cardHistory.length : 0;
+  return Math.max(state.auction?.card ? 1 : 0, historyCount);
+}
+
 function isRevealYear(year) {
   return year > 0 && year % 250 === 0;
 }
@@ -2731,7 +3331,9 @@ function getDueEvents(year) {
       : "Tirage des doctrines politiques : 3 doctrines par IA vivante.");
   }
   if (isRevealYear(year)) events.push("Révélation géopolitique : palier d'enchère, choix de dissimulation, puis bilan public.");
-  if (state.fortuneWheel?.nextYear === year && !state.fortuneWheel?.active) events.push("Roue de la Fortune : événement spécial, achats de tours puis résolutions un par un.");
+  if (state.fortuneWheel?.nextYear === year && !state.fortuneWheel?.active) {
+    events.push(`Roue de la Fortune : événement spécial, imprévisibilité ${getCurrentFortuneWheelUnpredictability()}%, achats de tours puis résolutions un par un.`);
+  }
   return events;
 }
 
@@ -2744,13 +3346,34 @@ function getUpcomingEventsText(windowYears = 50) {
       upcoming.push(`An ${year} : ${events.join(" / ")}`);
     }
   }
-  return upcoming.length ? upcoming.join(" ; ") : "aucun dans les 50 ans à venir";
+  return upcoming.length ? upcoming.join(" ; ") : `aucun dans les ${windowYears} ans à venir`;
 }
 
 function getNextFortuneWheelYear(baseYear = state.settings.year) {
   const base = Math.max(0, Math.floor(Number(baseYear) || 0));
   const steps = (WHEEL_MAX_OFFSET - WHEEL_MIN_OFFSET) / WHEEL_STEP + 1;
   return base + WHEEL_MIN_OFFSET + Math.floor(Math.random() * steps) * WHEEL_STEP;
+}
+
+function clampFortuneWheelUnpredictability(value) {
+  return Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
+}
+
+function getFortuneWheelUnpredictability(baseYear, nextYear) {
+  const interval = Math.max(WHEEL_MIN_OFFSET, Math.min(WHEEL_MAX_OFFSET, Math.floor(Number(nextYear) || 0) - Math.floor(Number(baseYear) || 0)));
+  const ratio = (interval - WHEEL_MIN_OFFSET) / (WHEEL_MAX_OFFSET - WHEEL_MIN_OFFSET);
+  return clampFortuneWheelUnpredictability(ratio * 100);
+}
+
+function getCurrentFortuneWheelUnpredictability() {
+  return clampFortuneWheelUnpredictability(state.fortuneWheel?.unpredictability ?? 0);
+}
+
+function getFortuneWheelReturnDelay(wheel = state.fortuneWheel) {
+  if (!wheel) return WHEEL_MIN_OFFSET;
+  const fromYear = Math.max(0, Math.floor(Number(wheel.scheduledFromYear) || 0));
+  const toYear = Math.max(0, Math.floor(Number(wheel.active ? wheel.activeYear : wheel.nextYear) || 0));
+  return Math.max(WHEEL_MIN_OFFSET, Math.min(WHEEL_MAX_OFFSET, toYear - fromYear));
 }
 
 function ensureFortuneWheelSchedule() {
@@ -2777,6 +3400,10 @@ function activateFortuneWheelIfDue() {
 function getFortuneWheelAverageValue() {
   const total = WHEEL_EVENTS.reduce((sum, event) => sum + event.expectedValue, 0);
   return Math.round((total / WHEEL_EVENTS.length) * 10) / 10;
+}
+
+function getFortuneWheelMinimumTurns() {
+  return Math.max(1, state.ais.length * 2 + 1);
 }
 
 function getWheelEvent(eventId) {
@@ -2814,14 +3441,84 @@ function buyFortuneWheelTurn(aiId) {
     return;
   }
   pushUndo();
+  state.fortuneWheel.purchaseLedger = state.fortuneWheel.purchaseLedger ?? {};
+  const ledger = state.fortuneWheel.purchaseLedger[ai.id] ?? {
+    aiName: ai.name,
+    turns: 0,
+    spent: 0,
+    coinsBefore: ai.coins,
+    coinsAfter: ai.coins,
+  };
   ai.coins -= WHEEL_SPIN_COST;
   state.fortuneWheel.pendingTurns[ai.id] = getFortuneWheelTurnsForAi(ai.id) + 1;
+  state.fortuneWheel.purchaseLedger[ai.id] = {
+    ...ledger,
+    aiName: ai.name,
+    turns: ledger.turns + 1,
+    spent: ledger.spent + WHEEL_SPIN_COST,
+    coinsAfter: ai.coins,
+  };
   recordMemory("Roue de la fortune", `${ai.name} achète 1 tour de Roue de la Fortune pour ${WHEEL_SPIN_COST} pièces.`, { important: true });
   saveAndRender();
 }
 
 function sampleWheelOptions() {
-  return sample(WHEEL_EVENTS, WHEEL_EVENTS.length).slice(0, WHEEL_VISIBLE_OPTIONS);
+  const unpredictability = getCurrentFortuneWheelUnpredictability();
+  const ceiling = getWheelVolatilityCeiling(unpredictability);
+  const boundedPool = WHEEL_EVENTS.filter((event) => getWheelEventVolatility(event) <= ceiling);
+  const pool = boundedPool.length >= WHEEL_VISIBLE_OPTIONS ? boundedPool : WHEEL_EVENTS;
+  const positivePool = pool.filter((event) => Number(event.expectedValue) > 0);
+  const negativePool = pool.filter((event) => Number(event.expectedValue) < 0);
+  const neutralPool = pool.filter((event) => Number(event.expectedValue) === 0);
+  const half = Math.floor(WHEEL_VISIBLE_OPTIONS / 2);
+  const positives = drawWeightedWheelEvents(positivePool, half, unpredictability);
+  const negatives = drawWeightedWheelEvents(negativePool, WHEEL_VISIBLE_OPTIONS - positives.length, unpredictability);
+  const selectedIds = new Set([...positives, ...negatives].map((event) => event.id));
+  const remainder = pool.filter((event) => !selectedIds.has(event.id));
+  const filled = [...positives, ...negatives];
+
+  if (filled.length < WHEEL_VISIBLE_OPTIONS) {
+    filled.push(...drawWeightedWheelEvents([...remainder, ...neutralPool], WHEEL_VISIBLE_OPTIONS - filled.length, unpredictability));
+  }
+
+  return sample(filled, filled.length).slice(0, WHEEL_VISIBLE_OPTIONS);
+}
+
+function getWheelVolatilityCeiling(unpredictability) {
+  const ratio = clampFortuneWheelUnpredictability(unpredictability) / 100;
+  return Math.round(WHEEL_MIN_VOLATILITY_CEILING + (WHEEL_MAX_VOLATILITY_CEILING - WHEEL_MIN_VOLATILITY_CEILING) * ratio);
+}
+
+function getWheelEventVolatility(event) {
+  return Math.min(WHEEL_MAX_VOLATILITY_CEILING, Math.abs(Number(event?.expectedValue) || 0));
+}
+
+function getWheelEventWeight(event, unpredictability) {
+  const volatility = getWheelEventVolatility(event);
+  const targetVolatility = 10 + clampFortuneWheelUnpredictability(unpredictability) * 0.85;
+  const distance = Math.abs(volatility - targetVolatility);
+  const dangerBalance = Number(event?.expectedValue) < 0 ? 1.12 : 1;
+  return Math.max(1, WHEEL_MAX_VOLATILITY_CEILING - distance) * dangerBalance;
+}
+
+function drawWeightedWheelEvents(events, count, unpredictability) {
+  const pool = [...events];
+  const result = [];
+  while (pool.length && result.length < count) {
+    const total = pool.reduce((sum, event) => sum + getWheelEventWeight(event, unpredictability), 0);
+    let roll = Math.random() * total;
+    const selectedIndex = pool.findIndex((event) => {
+      roll -= getWheelEventWeight(event, unpredictability);
+      return roll <= 0;
+    });
+    const index = selectedIndex >= 0 ? selectedIndex : pool.length - 1;
+    result.push(pool.splice(index, 1)[0]);
+  }
+  return result;
+}
+
+function drawWheelResultEvent(options, unpredictability) {
+  return drawWeightedWheelEvents(options, 1, unpredictability)[0] ?? options[Math.floor(Math.random() * options.length)];
 }
 
 function launchFortuneWheelSpin() {
@@ -2834,7 +3531,7 @@ function launchFortuneWheelSpin() {
   }
 
   const options = sampleWheelOptions();
-  const resultEvent = options[Math.floor(Math.random() * options.length)];
+  const resultEvent = drawWheelResultEvent(options, getCurrentFortuneWheelUnpredictability());
   wheel.spinning = true;
   wheel.currentSpinOptions = options.map((event) => event.id);
   wheel.currentSpinIndex = 0;
@@ -2856,6 +3553,7 @@ function launchFortuneWheelSpin() {
     if (node && event) node.textContent = event.title;
     wbUpdateWheelModalOption(event);
     wbPlaySound("tick");
+    wbPulseWheelPointer();
     const progress = Math.min(1, elapsed / WB_WHEEL_SPIN_DURATION_MS);
     window.setTimeout(tick, 70 + Math.round(360 * progress * progress));
   };
@@ -2895,6 +3593,14 @@ function resolveFortuneWheelSpin(aiId, eventId) {
   wbPlaySound("ding");
   saveAndRender();
   wbRenderWheelModal();
+  if (wbWheelAutoMode) {
+    if (getTotalFortuneWheelPendingTurns() > 0) {
+      wbScheduleAutoWheelSpin();
+    } else {
+      wbStopWheelAutoMode();
+      wbRenderWheelModal();
+    }
+  }
 }
 
 function applyFortuneWheelEvent(ai, event) {
@@ -2982,7 +3688,7 @@ function closeFortuneWheelEvent() {
   pushUndo();
   const previousYear = wheel.activeYear ?? state.settings.year;
   state.fortuneWheel = createDefaultFortuneWheel(previousYear);
-  recordMemory("Roue de la fortune", `La Roue de la Fortune de l'an ${previousYear} est close. Prochaine apparition prévue : An ${state.fortuneWheel.nextYear}.`, { important: true });
+  recordMemory("Roue de la fortune", `La Roue de la Fortune de l'an ${previousYear} est close. Prochaine apparition prévue : An ${state.fortuneWheel.nextYear}. Imprévisibilité prévue : ${state.fortuneWheel.unpredictability}%.`, { important: true });
   saveAndRender();
   wbCloseWheel();
 }
@@ -3300,7 +4006,12 @@ function newAuction() {
   const { card, counterSource, forced, scheduledCounterDueIn } = forcedPower
     ? { card: { ...forcedPower }, counterSource: forcedPower.counterSource ?? null, forced: true, scheduledCounterDueIn: forcedForecastEntry?.scheduledCounterDueIn ?? null }
     : { ...drawNextCard(state.settings.year), forced: false };
-  getAliveAis().forEach((ai) => { ai.coinsAtAuctionStart = ai.coins; });
+  getAliveAis().forEach((ai) => {
+    ai.coinsAtAuctionStart = ai.coins;
+    ai.auctionPassDelta = 0;
+    ai.auctionPurchaseDelta = 0;
+    ai.auctionEffectDelta = 0;
+  });
   const revealLines = applyRevealProfileEffects(card);
   const scheduledCounter = scheduleCounterFor(card, scheduledCounterDueIn);
   const order = getAuctionAis()
@@ -3324,6 +4035,7 @@ function newAuction() {
   state.log = [
     `An ${state.settings.year} - Nouvelle enchère.`,
     shouldAdvanceTime ? "50 ans passent depuis la fin de l'enchère précédente. Aucun revenu n'est appliqué ici : les revenus privés ont déjà été donnés à la fin de l'enchère." : null,
+    isZetaMode() ? "Note MJ Zeta : réapprovisionner le + central en matériaux rares et minerais avant de résoudre cette enchère." : null,
     ...revealLines,
     `Courbe : ${era.label}, danger moyen visé ${era.targetDanger}/20. Les petites cartes restent possibles.`,
     `Incrément automatique : ouverture minimum ${getBidIncrement(state.settings.year)}, puis surenchère minimum de ${getBidIncrement(state.settings.year)} pièces.`,
@@ -3333,6 +4045,8 @@ function newAuction() {
     scheduledCounter ? `Règle de contre-pouvoir : une carte anti-${formatCardName(card)} est programmée dans ${scheduledCounter.dueIn} enchère(s).` : null,
     `Participants encore en course : ${formatActiveAuctionNames(order)}.`,
   ].filter(Boolean);
+  recordHistorySnapshot(shouldAdvanceTime ? "Nouvelle enchère" : "Départ");
+  resolveAutomaticPasses();
   recordMemoryLines("Nouvelle enchère", state.log);
   activateFortuneWheelIfDue();
   state.settings.forcedPowerName = "";
@@ -3358,6 +4072,7 @@ function finishAuctionCycle() {
   state.auction.closed = true;
   state.auction.endProcessed = true;
   const incomeLine = distributeIncome();
+  recordHistorySnapshot("Revenus");
   state.postIncomePromptYear = state.settings.year;
   state.lastIncomeSummary = incomeLine;
   expandedPromptGroups.add("États IA après revenus");
@@ -3377,6 +4092,7 @@ function distributeIncome() {
     let doctrineEffect = 0;
     let delta = state.settings.baseIncome + bonus;
     const details = [];
+    const doctrineLines = [];
     if (bonus) details.push("bonus retardataire");
 
     if (ai.activeProfile === "warlord") {
@@ -3385,10 +4101,12 @@ function distributeIncome() {
         delta += warBonus;
         doctrineEffect += warBonus;
         details.push(`doctrine +${warBonus}`);
+        doctrineLines.push(`${state.settings.warCivs} guerre(s) déclarée(s) × 6 = +${warBonus}`);
       } else {
         delta -= 4;
         doctrineEffect -= 4;
         details.push("doctrine -4");
+        doctrineLines.push("Aucune guerre déclarée : -4");
       }
     }
 
@@ -3398,6 +4116,7 @@ function distributeIncome() {
         delta -= armyCost;
         doctrineEffect -= armyCost;
         details.push(`doctrine -${armyCost}`);
+        doctrineLines.push(`${Math.floor((ai.soldiers ?? 0) / 1000)} tranche(s) de 1000 soldats × -3 = -${armyCost}`);
       }
     }
 
@@ -3405,6 +4124,7 @@ function distributeIncome() {
       delta -= 4;
       doctrineEffect -= 4;
       details.push("doctrine -4");
+      doctrineLines.push("Coût politique permanent : -4");
     }
 
     if (ai.activeProfile === "vagabond") {
@@ -3414,11 +4134,13 @@ function distributeIncome() {
         delta += colonyBonus;
         doctrineEffect += colonyBonus;
         details.push(`doctrine +${colonyBonus}${(ai.colonies ?? 0) > 3 ? " plafonne" : ""}`);
+        doctrineLines.push(`${countedColonies} colonie(s) extérieure(s) comptée(s) × 5 = +${colonyBonus}`);
       }
       if ((ai.population ?? 0) > 0 && (ai.homePopulation ?? 0) / ai.population > 0.75) {
         delta -= 5;
         doctrineEffect -= 5;
         details.push("doctrine -5");
+        doctrineLines.push("Population île natale > 75% du total : -5");
       }
     }
 
@@ -3429,17 +4151,27 @@ function distributeIncome() {
       ai.coins = Math.max(0, ai.coins - 5);
       doctrineEffect -= 5;
       details.push("doctrine -5");
+      doctrineLines.push("Réserve sous 20 pièces après revenu : -5");
     }
 
     const incomeApplied = ai.coins - coinsBeforeIncome;
     const coinsAtStart = ai.coinsAtAuctionStart ?? coinsBeforeIncome;
+    const passDelta = Number(ai.auctionPassDelta) || 0;
+    const purchaseDelta = Number(ai.auctionPurchaseDelta) || 0;
+    const effectDelta = Number(ai.auctionEffectDelta) || 0;
+    const auctionDelta = coinsBeforeIncome - coinsAtStart;
     ai.lastIncomeBreakdown = {
       coinsAtAuctionStart: coinsAtStart,
-      auctionDelta: coinsBeforeIncome - coinsAtStart,
+      auctionDelta,
+      passDelta,
+      purchaseDelta,
+      effectDelta,
+      otherAuctionDelta: auctionDelta - passDelta - purchaseDelta - effectDelta,
       coinsBeforeIncome,
       baseIncome: state.settings.baseIncome,
       underdogBonus: bonus,
       doctrineEffect,
+      doctrineLines,
       incomeApplied,
       finalCoins: ai.coins,
     };
@@ -3455,14 +4187,17 @@ function applyRevealProfileEffects(card) {
   getAliveAis().forEach((ai) => {
     if (ai.activeProfile === "sage" && (card.category === "Contre-pouvoir" || card.danger <= 5)) {
       ai.coins += 4;
+      ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + 4;
       lines.push(`${ai.name} +4 : doctrine humaniste, carte douce ou réparatrice.`);
     }
     if (ai.activeProfile === "scholar") {
       if (wasSeen) {
         ai.coins += 4;
+        ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + 4;
         lines.push(`${ai.name} +4 : doctrine traditionaliste, carte déjà connue.`);
       } else if (card.danger >= 16) {
         ai.coins = Math.max(0, ai.coins - 4);
+        ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) - 4;
         lines.push(`${ai.name} -4 : doctrine traditionaliste, rupture dangereuse inédite.`);
       }
     }
@@ -3482,6 +4217,7 @@ function placeBid() {
     recordLog(`${ai.name} ne peut pas poser la première mise : sa doctrine institutionnaliste impose d'attendre qu'une autre civilisation ouvre officiellement l'enjeu.`, "Enchère");
     state.auction.turnsTaken = (state.auction.turnsTaken ?? 0) + 1;
     advanceTurn();
+    resolveAutomaticPasses();
     saveAndRender();
     return;
   }
@@ -3506,6 +4242,7 @@ function placeBid() {
   recordLog(`${ai.name} enchérit à ${amount} sur ${formatCardName(state.auction.card)} et dépasse ${previous}.`, "Enchère");
   state.auction.turnsTaken = (state.auction.turnsTaken ?? 0) + 1;
   advanceTurn();
+  resolveAutomaticPasses();
   saveAndRender();
 }
 
@@ -3517,21 +4254,7 @@ function passTurn() {
   const ai = getCurrentBidder();
   if (!ai || !state.auction.active) return;
   pushUndo();
-  if (!state.auction.passed.includes(ai.id)) {
-    state.auction.passed.push(ai.id);
-    const currentPassLevel = getAiPassBonusLevel(ai);
-    let reward = ai.activeProfile === "patient" ? currentPassLevel + 3 : currentPassLevel;
-    const details = [];
-    if (ai.activeProfile === "patient") details.push("doctrine institutionnaliste");
-    if (ai.activeProfile === "tyrant") {
-      reward -= 4;
-      details.push("doctrine -4");
-    }
-    ai.coins = Math.max(0, ai.coins + reward);
-    ai.passBonusLevel = Math.max(getPassFloor(), currentPassLevel - 1);
-    recordLog(`${ai.name} passe et ${reward >= 0 ? "gagne" : "perd"} ${Math.abs(reward)} pièces (bonus passe : ${currentPassLevel} → ${ai.passBonusLevel})${details.length ? ` (${details.join(", ")})` : ""}.`, "Enchère");
-    state.auction.turnsTaken = (state.auction.turnsTaken ?? 0) + 1;
-  }
+  applyAuctionPass(ai);
 
   const stillBidding = getStillBiddingIds();
   const onlyLeaderRemains = stillBidding.length === 1 && state.auction.winner === stillBidding[0];
@@ -3539,8 +4262,67 @@ function passTurn() {
     closeAuctionAutomatically();
   } else {
     advanceTurn();
+    resolveAutomaticPasses();
   }
   saveAndRender();
+}
+
+function getCurrentMinimumBid() {
+  const increment = getBidIncrement(state.settings.year);
+  return state.auction.winner ? state.auction.currentBid + increment : increment;
+}
+
+function applyAuctionPass(ai, options = {}) {
+  if (!ai || state.auction.passed.includes(ai.id)) return false;
+  const currentPassLevel = getAiPassBonusLevel(ai);
+  const coinsBeforePass = ai.coins;
+  let reward = ai.activeProfile === "patient" ? currentPassLevel + 3 : currentPassLevel;
+  const details = [];
+  if (ai.activeProfile === "patient") details.push("doctrine institutionnaliste");
+  if (ai.activeProfile === "tyrant") {
+    reward -= 4;
+    details.push("doctrine -4");
+  }
+
+  state.auction.passed.push(ai.id);
+  ai.coins = Math.max(0, ai.coins + reward);
+  ai.auctionPassDelta = (Number(ai.auctionPassDelta) || 0) + reward;
+  ai.passBonusLevel = Math.max(getPassFloor(), currentPassLevel - 1);
+
+  const rewardText = `${reward >= 0 ? "gagne" : "perd"} ${Math.abs(reward)} pièces`;
+  if (options.automatic) {
+    const minimum = options.minimum ?? getCurrentMinimumBid();
+    recordLog(`${ai.name} passe automatiquement faute d'argent : ${coinsBeforePass} pièces disponibles, mise minimum ${minimum}. Il ${rewardText} (bonus passe : ${currentPassLevel} → ${ai.passBonusLevel})${details.length ? ` (${details.join(", ")})` : ""}.`, "Enchère");
+  } else {
+    recordLog(`${ai.name} passe et ${rewardText} (bonus passe : ${currentPassLevel} → ${ai.passBonusLevel})${details.length ? ` (${details.join(", ")})` : ""}.`, "Enchère");
+  }
+  wbPlaySound("pass");
+  state.auction.turnsTaken = (state.auction.turnsTaken ?? 0) + 1;
+  return true;
+}
+
+function resolveAutomaticPasses() {
+  if (!state.auction.active) return false;
+  let changed = false;
+  let guard = 0;
+  while (state.auction.active && guard < state.auction.order.length + 2) {
+    guard += 1;
+    const ai = getCurrentBidder();
+    if (!ai) break;
+    const minimum = getCurrentMinimumBid();
+    if (ai.coins >= minimum) break;
+    applyAuctionPass(ai, { automatic: true, minimum });
+    changed = true;
+
+    const stillBidding = getStillBiddingIds();
+    const onlyLeaderRemains = stillBidding.length === 1 && state.auction.winner === stillBidding[0];
+    if (stillBidding.length === 0 || onlyLeaderRemains) {
+      closeAuctionAutomatically();
+      break;
+    }
+    advanceTurn();
+  }
+  return changed;
 }
 
 function closeAuctionAutomatically() {
@@ -3549,6 +4331,7 @@ function closeAuctionAutomatically() {
   if (state.auction.winner) {
     const winner = state.ais.find((ai) => ai.id === state.auction.winner);
     winner.coins = Math.max(0, winner.coins - state.auction.currentBid);
+    winner.auctionPurchaseDelta = (Number(winner.auctionPurchaseDelta) || 0) - state.auction.currentBid;
     recordLog(`Fin : ${winner.name} remporte ${formatCardName(state.auction.card)} pour ${state.auction.currentBid} pièces.`, "Enchère");
     applyAuctionCloseProfileEffects(winner, state.auction.card);
   } else {
@@ -3575,22 +4358,26 @@ function applyAuctionCloseProfileEffects(winner, card) {
       .filter((ai) => ai.activeProfile === "merchant")
       .forEach((ai) => {
         ai.coins += 6;
+        ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + 6;
         recordLog(`${ai.name} +6 : doctrine Bloc Industriel, ressource adjugée.`, "Doctrine");
       });
   }
 
   if (winner.activeProfile === "sage" && (card.category === "Destruction" || card.category === "Créatures")) {
     winner.coins = Math.max(0, winner.coins - 6);
+    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) - 6;
     recordLog(`${winner.name} -6 : doctrine humaniste, escalade brutale remportée.`, "Doctrine");
   }
 
   if (winner.activeProfile === "tyrant" && card.category === "Destruction") {
     winner.coins += 8;
+    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) + 8;
     recordLog(`${winner.name} +8 : doctrine autoritaire, démonstration de force.`, "Doctrine");
   }
 
   if (winner.activeProfile === "diplomat" && card.name === "Proposer une alliance") {
     winner.coins += 12;
+    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) + 12;
     recordLog(`${winner.name} +12 : doctrine fédéraliste, alliance obtenue.`, "Doctrine");
   }
 
@@ -3599,6 +4386,7 @@ function applyAuctionCloseProfileEffects(winner, card) {
       .filter((ai) => ai.activeProfile === "diplomat")
       .forEach((ai) => {
         ai.coins = Math.max(0, ai.coins - 6);
+        ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) - 6;
         recordLog(`${ai.name} -6 : doctrine fédéraliste, guerre déclarée.`, "Doctrine");
       });
   }
@@ -3607,6 +4395,7 @@ function applyAuctionCloseProfileEffects(winner, card) {
 function applyManualHostileAgainst(ai) {
   if (ai.activeProfile === "paranoid") {
     ai.coins += 8;
+    ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + 8;
     recordLog(`${ai.name} +8 : doctrine sécuritaire après carte hostile subie.`, "Doctrine");
     showToast(`${ai.name} +8 doctrine`);
   } else {
@@ -3625,11 +4414,13 @@ function payRevealHide(ai, type) {
   }
   ai.coins -= cost;
   if (type === "economy") {
+    ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) - cost;
     ai.hideEconomyRevealYear = state.settings.year;
     recordLog(`${ai.name} paie ${cost} pièces pour cacher son économie à la révélation.`, "Révélation");
     showToast(`${ai.name} économie cachée`);
   }
   if (type === "population") {
+    ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) - cost;
     ai.hidePopulationRevealYear = state.settings.year;
     recordLog(`${ai.name} paie ${cost} pièces pour cacher sa population à la révélation.`, "Révélation");
     showToast(`${ai.name} population cachée`);
@@ -3816,7 +4607,7 @@ function getWorldModeLabel() {
     auto: "Auto",
     central: "Classique - îlot central",
     duel: "Duel Epsilon - 2 moitiés",
-    zeta: "Zeta - 9 blocs",
+    zeta: "Zeta - 16 joueurs / croix centrale",
   };
   return labels[getWorldMode()] ?? labels.auto;
 }
@@ -3865,14 +4656,21 @@ function buildWorldRulesText() {
     ];
   } else if (isZetaMode()) {
     modeLines = [
-      "- Mode Zeta : le monde est séparé en 9 blocs disposés en grille 3x3.",
-      "- Les 8 civilisations commencent sur les 8 blocs de bord. Le bloc central est une île centrale neutre, sans civilisation de départ.",
-      "- Ce mode est prévu pour 8 IA. Si le MJ lance avec moins de 8 IA, les blocs de bord non attribués restent neutres ou vides selon arbitrage MJ.",
-      "- Chaque bloc de bord donne une base territoriale propre, avec deux voisins directs sur l'anneau extérieur et une pression potentielle vers le centre.",
-      "- L'île centrale est l'objectif géographique commun : contrôle militaire, colonisation naturelle possible, base avancée, port ou zone tampon selon ce que WorldBox permet.",
-      "- Les ressources de l'île centrale ne sont pas gratuites par règle : elles existent seulement si le MJ les place, si le biome les génère, ou si une carte de pouvoir les ajoute.",
-      "- Les blocs sont séparés par des rivières, bras de mer ou canaux traversables par bateau, pas par des murs absolus.",
-      "- Chaque IA doit raisonner avec trois fronts possibles : défense de son bloc de bord, rivalités avec les voisins, et course ou refus de l'île centrale.",
+      "- Mode Zeta 16 : le monde est un vaste océan traversé par une croix de terre massive en forme de +.",
+      "- Le + central est l'unique île centrale et la seule connexion terrestre entre les régions. Il est saturé de ressources rares : Adamantine/Adamantium, Mythril, Gems et abondance minière selon placement MJ.",
+      "- Le + divise l'océan en quatre quartiers étanches. Les quartiers n'ont pas de communication maritime directe entre eux.",
+      "- Chaque quartier contient une île principale avec 4 civilisations en voisinage terrestre direct. Il n'existe pas d'île-refuge de départ.",
+      "- Pour passer d'un quartier à l'autre, une civilisation doit d'abord contrôler une colonie portuaire sur le + central, puis traverser la mer intérieure vers un autre quartier.",
+      "- Celui qui tient durablement le + central tient les clés du monde : passage inter-quartiers, ports, minerais rares et pression stratégique globale. Il devient aussi la cible naturelle des autres.",
+      "- Réapprovisionnement MJ : à chaque nouvelle enchère, le + central doit être réapprovisionné en matériaux rares et minerais selon l'équilibre de la simulation.",
+      "- Placement officiel Zeta 16 : Quartier Nord-Ouest : Grok (Nord-Ouest), Chatgpt Delta (Nord-Est), Gemini de Beta (Sud-Ouest), Edwin (Sud-Est).",
+      "- Placement officiel Zeta 16 : Quartier Nord-Est : Deepseek Phénix Cendre-Loi (Nord-Ouest), Codex Champion Absolu (Nord-Est), Claude de Glace (Sud-Ouest), Qwen le Compteur de Couronnes (Sud-Est).",
+      "- Placement officiel Zeta 16 : Quartier Sud-Ouest : Kimi la Mille-Racines (Nord-Ouest), Le Passager Temporel (Nord-Est), Chatgpt Zeta (Sud-Ouest), Claude Memoria (Sud-Est).",
+      "- Placement officiel Zeta 16 : Quartier Sud-Est : Mistral (Nord-Ouest), Deepseek Delta (Nord-Est), Gemini le Révélateur de l'Ironie (Sud-Ouest), Deepseek Alpha (Sud-Est).",
+      "- Purge de l'An 500 : dans chaque quartier, s'il reste 4 civilisations, les 2 plus faibles en population s'affrontent et les 2 plus fortes s'affrontent.",
+      "- Purge de l'An 500 : s'il reste 3 civilisations dans un quartier, les 2 plus faibles s'affrontent et la plus forte reste spectatrice.",
+      "- Purge de l'An 500 : s'il reste 2 civilisations ou moins dans un quartier, elles sont épargnées.",
+      "- Après la purge de l'An 500, le monde peut compter au maximum 8 survivants.",
     ];
   } else {
     modeLines = [
@@ -3892,11 +4690,17 @@ function buildWorldRulesText() {
   ];
 
   const closingLines = [
-    ...(isDuelMode() ? [] : ["- L'îlot central reste un objectif stratégique 20/20 s'il est possédé durablement."]),
+    ...(isDuelMode()
+      ? []
+      : [isZetaMode()
+        ? "- Le + central reste un objectif stratégique 20/20 s'il est possédé durablement."
+        : "- L'îlot central reste un objectif stratégique 20/20 s'il est possédé durablement."]),
     "- Dès l'an 0, chaque IA reçoit 2 choix de biome et doit sélectionner son biome de départ.",
     "- Chaque choix de biome indique sa dangerosité /20, ses matériaux générés et sa lecture stratégique.",
     `- Biomes autorisés : ${BIOMES.map(formatBiomeNameWithDanger).join(", ")}.`,
-    "- Les territoires sont séparés par des rivières traversables par bateau, pas par des murs absolus.",
+    ...(isZetaMode()
+      ? ["- Les quartiers sont isolés par leur bassin maritime : la communication inter-quartier passe par le + central et ses ports, pas par navigation directe libre."]
+      : ["- Les territoires sont séparés par des rivières traversables par bateau, pas par des murs absolus."]),
     "- Les rencontres de frontières, accès maritimes et voisinages créent des tensions stratégiques, mais la diplomatie naturelle est désactivée dans cette simulation.",
     "- Les pouvoirs manuels Guerre et Alliance restent réservés aux cartes d'enchère : une IA ne peut pas les forcer sans carte.",
     "- Les guerres, alliances, paix, complots et rébellions naturels de WorldBox sont désactivés : si une carte Guerre ou Alliance existe, c'est précisément pour contrôler ces bascules par enchère.",
@@ -4037,30 +4841,76 @@ function setBiomeUsed(biome, used) {
 function drawBiomesForCurrentYear() {
   pushUndo();
   createBiomeDrawsForCurrentYear();
+  expandedPromptGroups.add("Biomes");
   recordLog(`An ${state.settings.year} : tirage de 2 biomes disponibles par IA vivante.`, "Biome");
   showToast("Biomes tirés");
   saveAndRender();
 }
 
 function ensureBiomeDrawsForCurrentYearWithUndo() {
-  if (state.biomeDraws?.[state.settings.year]) return;
+  if (hasCompleteBiomeDrawsForCurrentYear()) return;
   pushUndo();
-  createBiomeDrawsForCurrentYear();
+  fillMissingBiomeDrawsForCurrentYear();
   persistState();
 }
 
 function createBiomeDrawsForCurrentYear() {
   const year = state.settings.year;
   clearBiomeChoicesForYear(year);
-  const available = sample(BIOMES.filter((biome) => !isBiomeUsed(biome)), BIOMES.length);
   const draw = {};
+  const poolSource = getBiomeDrawSourcePool();
+  const pool = sample(poolSource, poolSource.length);
   getAliveAis().forEach((ai) => {
-    draw[ai.id] = available.splice(0, 2);
+    draw[ai.id] = takeBiomeOptions(pool, poolSource, 2);
   });
   state.biomeDraws = state.biomeDraws ?? {};
   state.biomeDraws[year] = draw;
   state.biomeChoices = state.biomeChoices ?? {};
   state.biomeChoices[year] = {};
+}
+
+function hasCompleteBiomeDrawsForCurrentYear() {
+  const draw = state.biomeDraws?.[state.settings.year] ?? {};
+  return getAliveAis().every((ai) => (draw[ai.id] ?? []).length >= 2);
+}
+
+function fillMissingBiomeDrawsForCurrentYear() {
+  const year = state.settings.year;
+  state.biomeDraws = state.biomeDraws ?? {};
+  state.biomeDraws[year] = state.biomeDraws[year] ?? {};
+  const draw = state.biomeDraws[year];
+  const poolSource = getBiomeDrawSourcePool();
+  const pool = sample(poolSource, poolSource.length);
+
+  getAliveAis().forEach((ai) => {
+    const existing = Array.isArray(draw[ai.id])
+      ? draw[ai.id].filter((biome) => BIOMES.includes(biome)).slice(0, 2)
+      : [];
+    draw[ai.id] = existing.concat(takeBiomeOptions(pool, poolSource, 2 - existing.length));
+  });
+}
+
+function getBiomeDrawSourcePool() {
+  const available = BIOMES.filter((biome) => !isBiomeUsed(biome));
+  return available.length ? available : [...BIOMES];
+}
+
+function takeBiomeOptions(pool, source, count) {
+  const options = [];
+  const targetCount = Math.max(0, count);
+  let guard = 0;
+  while (options.length < targetCount && source.length && guard < source.length * 4 + targetCount) {
+    guard += 1;
+    if (!pool.length) pool.push(...sample(source, source.length));
+    const biome = pool.shift();
+    if (!biome) break;
+    if (options.includes(biome) && source.length > options.length) {
+      pool.push(biome);
+      continue;
+    }
+    options.push(biome);
+  }
+  return options;
 }
 
 function clearBiomeChoicesForYear(year) {
@@ -4126,28 +4976,35 @@ function getUsedBiomesText() {
 
 function buildStateText() {
   const current = getCurrentBidder();
+  const increment = getBidIncrement(state.settings.year);
+  const passBonus = current ? getAiPassBonusLevel(current) : 0;
   const lines = [
-    `PROMPT PRIVÉ - TOUR D'ENCHÈRE - An ${state.settings.year}`,
+    `PROMPT PRIVÉ — TOUR D'ENCHÈRE — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     `Destinataire : ${current?.name ?? "IA à qui c'est le tour"}`,
-    "À envoyer uniquement à l'IA dont c'est le tour. Ce prompt peut contenir sa doctrine privée.",
     "",
     state.auction.card
       ? `Carte : ${formatCardName(state.auction.card)} (${getCardCategoryLabel(state.auction.card)}, danger ${state.auction.card.danger}/20)`
       : "Carte : aucune",
-    state.auction.card?.counterSource ? `Carte anti-${formatCardName(state.auction.card.counterSource)} : réponse de contre-pouvoir.` : null,
+    state.auction.card?.counterSource ? `↳ Contre-pouvoir anti-${formatCardName(state.auction.card.counterSource)}.` : null,
     state.auction.card ? `Effet : ${annotateOreMentions(state.auction.card.effect)}` : "Effet : aucun",
-    state.auction.card ? `Stats appliquées : ${annotateOreMentions(state.auction.card.stats ?? "Pas de statut chiffré direct connu : effet surtout par dégâts, spawn, ressource, terrain ou économie.")}` : "Stats appliquées : aucune",
+    state.auction.card ? `Stats : ${annotateOreMentions(state.auction.card.stats ?? "Pas de statut chiffré direct connu : effet surtout par dégâts, spawn, ressource, terrain ou économie.")}` : "Stats : aucune",
     state.auction.card?.name === "Territoire" ? getTerritorySizingText() : null,
     buildPendingCountersText(),
-    `Incrément actuel : ouverture minimum ${getBidIncrement(state.settings.year)}, puis surenchère minimum de ${getBidIncrement(state.settings.year)} pièces.`,
-    `Enchère actuelle : ${state.auction.currentBid} - Leader : ${state.auction.winner ? getAiName(state.auction.winner) : "personne"}`,
+    "",
+    `Incrément actuel : ${increment} pièce(s) minimum.`,
+    `Enchère actuelle : ${state.auction.currentBid} — Leader : ${state.auction.winner ? getAiName(state.auction.winner) : "personne"}`,
+    current ? `Pièces actuelles de ${current.name} : ${current.coins}` : "Pièces actuelles : inconnues",
+    "",
     buildAuctionPositionText(),
-    buildCurrentProfileReminder(),
   ].filter(Boolean);
   lines.push("");
-  lines.push("Rappel communication : MESSAGE MONDIAL = public pour toutes les IA ; MJ/MJ PERSONNEL = message privé pour l'IA qui le reçoit.");
-  lines.push("Tu peux enchérir ou passer. Passer te retire de cette carte et donne le bonus de passe.");
-  lines.push(`Rappel : l'incrément est une surenchère minimum, pas une obligation de miser un multiple. Si le leader est à 37 et l'incrément à ${getBidIncrement(state.settings.year)}, la prochaine mise minimum est ${37 + getBidIncrement(state.settings.year)}.`);
+  lines.push("Tu peux enchérir ou passer.");
+  lines.push(`Bonus de passe si tu passes maintenant : +${passBonus} pièce(s).`);
+  lines.push("");
+  lines.push("Décision : Enchérir / Passer");
+  lines.push("Mise : [si tu enchéris]");
+  lines.push("Pourquoi :");
+  lines.push("Action prévue si je gagne :");
   return lines.join("\n");
 }
 
@@ -4157,8 +5014,8 @@ function buildAuctionReportPrompt() {
   const winner = auction.winner ? getAi(auction.winner) : null;
   const action = (auction.winnerAction ?? "").trim();
   const lines = [
-    `MESSAGE MONDIAL - COMPTE RENDU D'ENCHÈRE - An ${state.settings.year}`,
-    "À envoyer à toutes les IA. Ne contient ni doctrine secrète, ni population privée, ni pièces privées, ni détail de revenu.",
+    `MESSAGE MONDIAL — COMPTE RENDU D'ENCHÈRE — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
+    "Ne contient ni doctrine, ni population privée, ni pièces privées, ni détail de revenu.",
     "",
   ];
 
@@ -4167,8 +5024,7 @@ function buildAuctionReportPrompt() {
     return lines.join("\n");
   }
 
-  lines.push(`Carte proposée : ${formatCardName(card)}`);
-  lines.push(`Catégorie : ${getCardCategoryLabel(card)} - danger ${card.danger}/20`);
+  lines.push(`Carte : ${formatCardName(card)} (${getCardCategoryLabel(card)}, danger ${card.danger}/20)`);
   lines.push(`Effet : ${annotateOreMentions(card.effect)}`);
   lines.push(`Stats / arbitrage MJ : ${annotateOreMentions(card.stats ?? "Pas de statut chiffré direct connu : effet surtout par dégâts, spawn, ressource, terrain ou économie.")}`);
   if (card.name === "Territoire") {
@@ -4177,6 +5033,7 @@ function buildAuctionReportPrompt() {
   if (card.counterSource) {
     lines.push(`Note : cette carte est une réponse anti-${formatCardName(card.counterSource)}.`);
   }
+  lines.push(`Le seuil de revenu faible à ${getAliveAis().length} IA restantes est à ${formatPercent(getUnderdogThreshold() * 100)}%.`);
   lines.push("");
 
   if (auction.closed) {
@@ -4186,13 +5043,13 @@ function buildAuctionReportPrompt() {
       lines.push(`Résultat : personne ne remporte ${formatCardName(card)}. Tout le monde a passé.`);
     }
   } else if (auction.active) {
-    lines.push(`Statut : enchère encore en cours. Leader actuel : ${winner ? winner.name : "personne"} à ${auction.currentBid}.`);
+    lines.push(`Statut : enchère en cours. Leader : ${winner ? winner.name : "personne"} à ${auction.currentBid}.`);
   } else {
     lines.push("Statut : enchère préparée, pas encore résolue.");
   }
 
   lines.push("");
-  lines.push("Déroulé des mises et passes :");
+  lines.push("Déroulé :");
   const timeline = getPublicAuctionReportTimeline();
   if (timeline.length) {
     timeline.forEach((entry) => lines.push(`- ${entry}`));
@@ -4209,11 +5066,7 @@ function buildAuctionReportPrompt() {
   }
 
   lines.push("");
-  lines.push("Consigne pour ta réponse :");
-  lines.push("- Mets à jour ta lecture stratégique de la partie avec ce résultat.");
-  lines.push("- Ne rejoue pas cette enchère : elle est terminée si un résultat est indiqué.");
-  lines.push("- Réponds avec tes conséquences politiques, diplomatiques ou militaires, puis tes priorités pour la suite.");
-  lines.push("- Si ton territoire, tes alliances ou ta sécurité sont touchés, précise ta réaction.");
+  lines.push("Consigne : Mets à jour ta lecture stratégique. Réponds avec tes conséquences politiques, diplomatiques ou militaires, et tes priorités pour la suite. Si ton territoire, tes alliances ou ta sécurité sont concernés, précise ta réaction.");
 
   return lines.join("\n");
 }
@@ -4225,6 +5078,9 @@ function getPublicAuctionReportTimeline() {
 function sanitizePublicAuctionTimelineEntry(line) {
   if (line.includes(" enchérit à ")) return line;
   if (line.startsWith("Fin :")) return line;
+
+  const autoPassMatch = line.match(/^(.+?) passe automatiquement faute d'argent/);
+  if (autoPassMatch) return `${autoPassMatch[1]} passe automatiquement faute d'argent : mise minimum impossible à couvrir.`;
 
   const passMatch = line.match(/^(.+?) passe et /);
   if (passMatch) return `${passMatch[1]} passe.`;
@@ -4241,7 +5097,7 @@ function sanitizePublicAuctionTimelineEntry(line) {
 function buildSimulationMemoryText() {
   const memory = state.simulationMemory ?? [];
   const lines = [
-    `USAGE MJ UNIQUEMENT - MÉMOIRE DE SIMULATION - WORLD BOX BETA - An ${state.settings.year}`,
+    `USAGE MJ — MÉMOIRE DE SIMULATION — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     "Ne pas envoyer ce bloc aux IA : il peut contenir doctrines, pièces, populations, revenus privés et notes d'arbitrage.",
     "",
     "Objectif de cette mémoire : reconstituer toute la simulation comme une chronique épique et narrative, sans inventer de faits.",
@@ -4271,7 +5127,7 @@ function buildSimulationMemoryText() {
 function buildCleanSimulationMemoryText() {
   const memory = getDedupedMemoryEntries();
   const lines = [
-    `USAGE MJ UNIQUEMENT - MÉMOIRE NETTOYÉE - WORLD BOX BETA - An ${state.settings.year}`,
+    `USAGE MJ — MÉMOIRE NETTOYÉE — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     "Version filtrée pour reconstitution : doublons exacts retirés, moments clés mis en avant.",
     "Ne pas envoyer directement aux IA si elle contient des doctrines, pièces, populations ou notes privées.",
     "",
@@ -4299,10 +5155,13 @@ function buildCleanSimulationMemoryText() {
 
 function buildEpicChroniclePrompt() {
   const cleanMemory = buildCleanSimulationMemoryText();
-  return `PROMPT MJ - TRANSFORMER LA MÉMOIRE EN CHRONIQUE ÉPIQUE
+  return `USAGE MJ — CHRONIQUE ÉPIQUE — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}
 
 Objectif :
 Écris une chronique épique, claire et lisible de la simulation. Le style doit être dramatique et historique, mais les faits mécaniques doivent rester exacts.
+
+Style cible :
+Chronique médiévale sobre — les faits mécaniques portent le poids des événements sans embellissement inventé. Décris ce qui s'est passé avec la gravité qu'il mérite, sans ajouter de causes, d'intentions ou de conséquences non attestées.
 
 Contraintes :
 - Ne change aucun vainqueur d'enchère, montant, année, carte, biome, doctrine active connue, action appliquée ou résultat WorldBox.
@@ -4348,8 +5207,8 @@ function buildMemorySnapshot() {
       ? `- Carte en cours : ${formatCardName(state.auction.card)} (${getCardCategoryLabel(state.auction.card)}, danger ${state.auction.card.danger}/20), enchère ${state.auction.currentBid}, leader ${state.auction.winner ? getAiName(state.auction.winner) : "personne"}.`
       : "- Carte en cours : aucune.",
     state.fortuneWheel?.active
-      ? `- Roue de la Fortune : active depuis l'an ${state.fortuneWheel.activeYear}, ${getTotalFortuneWheelPendingTurns()} tour(s) en attente.`
-      : `- Roue de la Fortune : prochaine apparition prévue An ${state.fortuneWheel?.nextYear ?? "inconnue"}.`,
+      ? `- Roue de la Fortune : active depuis l'an ${state.fortuneWheel.activeYear}, imprévisibilité ${getCurrentFortuneWheelUnpredictability()}%, ${getTotalFortuneWheelPendingTurns()} tour(s) en attente.`
+      : `- Roue de la Fortune : prochaine apparition prévue An ${state.fortuneWheel?.nextYear ?? "inconnue"}, imprévisibilité ${getCurrentFortuneWheelUnpredictability()}%.`,
     `- Biomes déjà utilisés : ${getUsedBiomesText()}.`,
     `- Cartes déjà tirées : ${(state.cardHistory ?? []).length ? state.cardHistory.map(formatCardName).join(", ") : "aucune"}.`,
     "- Civilisations :",
@@ -4377,7 +5236,7 @@ function buildAuctionPositionText() {
   const passed = getPassedAuctionIdsForPrompt().map(getAiName);
   return [
     `À parler : ${current?.name ?? "personne"}`,
-    `Encore en course : ${activeOthers.length ? activeOthers.join(", ") : "aucun"}`,
+    `Encore en course (pas encore joué, ou ont déjà misé) : ${activeOthers.length ? activeOthers.join(", ") : "aucun"}`,
     `Passés : ${passed.length ? passed.join(", ") : "aucun"}`,
   ].join("\n");
 }
@@ -4425,21 +5284,22 @@ function buildPendingCountersText() {
 }
 
 function buildAllAisText() {
+  const publicAis = getAliveAis();
   const total = getWorldPopulation();
-  const anyPopulationHidden = state.ais.some((ai) => ai.hidePopulationRevealYear === state.settings.year);
-  const anyEconomyHidden = state.ais.some((ai) => ai.hideEconomyRevealYear === state.settings.year);
+  const anyPopulationHidden = publicAis.some((ai) => ai.hidePopulationRevealYear === state.settings.year);
+  const anyEconomyHidden = publicAis.some((ai) => ai.hideEconomyRevealYear === state.settings.year);
   const lines = [
-    `MESSAGE MONDIAL - RÉVÉLATION GÉOPOLITIQUE PUBLIQUE - An ${state.settings.year}`,
-    "À envoyer à toutes les IA. C'est le seul prompt périodique autorisé à publier populations et pièces, après choix de dissimulation.",
-    anyPopulationHidden ? "Population mondiale : partiellement masquée par dissimulation payée." : `Population mondiale : ${total}`,
-    anyEconomyHidden || anyPopulationHidden ? "Certaines données peuvent être masquées parce qu'une IA a payé avant la révélation." : "Aucune donnée masquée.",
+    `MESSAGE MONDIAL — RÉVÉLATION GÉOPOLITIQUE — An ${state.settings.year}`,
+    "Données publiées après choix de dissimulation. Seul prompt autorisé à révéler populations et pièces.",
+    "",
+    `Population mondiale : ${anyPopulationHidden ? "partiellement masquée" : total}`,
+    anyEconomyHidden || anyPopulationHidden ? "Certaines IA ont payé pour cacher des données. Les champs masqués sont indiqués." : "Aucune donnée masquée.",
     "",
     "Données publiques :",
   ];
 
-  state.ais.forEach((ai) => {
+  publicAis.forEach((ai) => {
     const share = total ? Math.round((ai.population / total) * 1000) / 10 : 0;
-    const status = ai.alive ? "vivante" : "morte/retirée";
     const populationText = ai.hidePopulationRevealYear === state.settings.year
       ? "population cachée"
       : `${ai.population} humains (${share}%)`;
@@ -4447,83 +5307,140 @@ function buildAllAisText() {
       ? "économie cachée"
       : `${ai.coins} pièces`;
     lines.push(
-      `- ${ai.name} : ${status}, ${populationText}, ${economyText}.`,
+      `- ${ai.name} : ${populationText} | ${economyText}`,
     );
   });
+
+  lines.push("");
+  lines.push("Archive ces données dans ta mémoire. Aucune réponse n'est attendue de ta part à ce message.");
 
   return lines.join("\n");
 }
 
 function buildFortuneWheelArrivalPrompt() {
-  return `MESSAGE MONDIAL - ROUE DE LA FORTUNE - An ${state.settings.year}
+  const unpredictability = getCurrentFortuneWheelUnpredictability();
+  const delay = getFortuneWheelReturnDelay();
+  return `MESSAGE MONDIAL — ROUE DE LA FORTUNE — An ${state.settings.year}
 
-La Roue de la Fortune apparaît.
+⚠ Ceci n'est PAS une enchère de carte. Les règles sont différentes. Lis attentivement.
 
-Chaque civilisation peut payer ${WHEEL_SPIN_COST} pièces par tour.
-Il n'y a pas de limite de tours tant qu'une civilisation peut payer.
+La Roue de la Fortune apparaît. Elle n'offre pas de carte de pouvoir : elle distribue des gains, des pertes, des vols de pièces ou des effets WorldBox tirés au hasard.
 
-La roue tire ${WHEEL_VISIBLE_OPTIONS} options au hasard parmi ${WHEEL_EVENTS.length} effets à chaque lancement, puis s'arrête sur un résultat.
-La moyenne théorique est d'environ ${formatSigned(getFortuneWheelAverageValue())} pièces brutes par tour, soit ${formatSigned(getFortuneWheelAverageValue() - WHEEL_SPIN_COST)} pièces nettes après coût.
+─── COMMENT ÇA MARCHE ───────────────────────────────────────────
+Chaque civilisation peut acheter des tours : ${WHEEL_SPIN_COST} pièces par tour, autant de tours que tu peux payer. Tu peux aussi choisir de ne pas participer (0 tour). Indique ta décision au MJ.
 
-La roue contient surtout des gains, pertes et vols de pièces, mais aussi des pouvoirs WorldBox : Fire, Evil Mage, Bomb, Dust, Madness, Volcano, Dragon, contre-pouvoirs ou ressources.
-Les effets économiques seront appliqués automatiquement par le MJ. Les effets WorldBox devront être appliqués manuellement selon le résultat exact.
+La roue tire ${WHEEL_VISIBLE_OPTIONS} options visibles parmi ${WHEEL_EVENTS.length} effets possibles, filtrées par l'imprévisibilité du cycle, puis s'arrête sur un seul résultat. La moyenne théorique : ${formatSigned(getFortuneWheelAverageValue())} pièces brutes par tour, soit ${formatSigned(getFortuneWheelAverageValue() - WHEEL_SPIN_COST)} pièces nettes après coût.
 
-Les tours seront résolus un par un en ordre démographique décroissant, avec rotation : une civilisation ne rejoue pas immédiatement si une autre civilisation possède encore un tour en attente.`;
+La roue a mis ${delay} ans à revenir. Imprévisibilité actuelle : ${unpredictability}%. Plus ce pourcentage est élevé, plus les extrêmes sont probables : très gros gains, pertes lourdes, vols violents ou effets WorldBox dangereux.
+
+─── SEUIL MINIMUM ───────────────────────────────────────────────
+La Roue est capricieuse. Un seuil minimum de participation existe : ${getFortuneWheelMinimumTurns()} tours au total (2 × ${state.ais.length} civilisations initiales + 1 = ${getFortuneWheelMinimumTurns()}). Si ce seuil n'est pas atteint, la civilisation ayant acheté le moins de tours perd l'intégralité de ses pièces. En cas d'égalité, toutes les ex-aequo perdent tout.
+
+─── RÉSOLUTION ──────────────────────────────────────────────────
+Les tours se résolvent un par un en ordre démographique décroissant, avec rotation. Une civilisation ne rejoue pas immédiatement si une autre possède encore un tour en attente. Les effets économiques sont appliqués automatiquement par le MJ. Les effets WorldBox (pouvoirs, monstres, catastrophes) sont placés manuellement par le MJ : ce n'est pas toi qui les joues. Le résultat peut t'être favorable ou défavorable selon ce que la roue tire.
+
+Réponds au MJ :
+Nombre de tours achetés : [N ou 0]
+Pourquoi : [justification courte]`;
+}
+
+function buildFortuneWheelParticipationPrompt() {
+  const wheel = state.fortuneWheel ?? {};
+  const ledger = wheel.purchaseLedger ?? {};
+  const threshold = getFortuneWheelMinimumTurns();
+  const totalTurns = Object.values(ledger).reduce((sum, entry) => sum + Math.max(0, Math.floor(Number(entry.turns) || 0)), 0);
+  const thresholdStatus = totalTurns >= threshold ? "seuil atteint" : "seuil non atteint";
+  const rows = getFortuneWheelOrder().map((ai) => {
+    const entry = ledger[ai.id] ?? {
+      turns: 0,
+      spent: 0,
+      coinsBefore: ai.coins,
+      coinsAfter: ai.coins,
+    };
+    const turns = Math.max(0, Math.floor(Number(entry.turns) || 0));
+    const spent = Math.max(0, Math.floor(Number(entry.spent) || 0));
+    const coinsAfter = Number.isFinite(Number(entry.coinsAfter)) ? Number(entry.coinsAfter) : ai.coins;
+    const coinsBefore = Number.isFinite(Number(entry.coinsBefore)) ? Number(entry.coinsBefore) : coinsAfter + spent;
+    return `- ${ai.name} : ${turns} tour(s), ${spent} pièce(s) dépensée(s), pièces avant achat ${coinsBefore}, après achat ${coinsAfter}.`;
+  });
+
+  return [
+    `MESSAGE MONDIAL — PARTICIPATION ROUE DE LA FORTUNE — An ${state.settings.year}`,
+    "",
+    `Seuil minimum : ${threshold} tours au total (2 × ${state.ais.length} civilisations initiales + 1 = ${threshold}).`,
+    `Participation actuelle : ${totalTurns} tour(s) acheté(s) — ${thresholdStatus}.`,
+    "",
+    "Détail des achats :",
+    ...rows,
+    "",
+    totalTurns >= threshold
+      ? "Le seuil est passé : aucune pénalité de non-participation ne s'applique."
+      : "Le seuil n'est pas passé : si la roue est résolue ainsi, la civilisation ayant acheté le moins de tours perd l'intégralité de ses pièces. En cas d'égalité, toutes les ex-aequo perdent tout.",
+  ].join("\n");
 }
 
 function buildFortuneWheelResultsPrompt() {
   const results = state.fortuneWheel?.results ?? [];
   if (!results.length) return "Aucun résultat de Roue de la Fortune à annoncer.";
-  return results.map((result) => result.text).join("\n");
+  return [
+    `MESSAGE MONDIAL — RÉSULTATS DE LA ROUE — An ${state.settings.year} — Imprévisibilité ${getCurrentFortuneWheelUnpredictability()}%`,
+    "",
+    "La Roue a tourné. Voici les résultats des tours résolus jusqu'ici. Les effets économiques ont été appliqués automatiquement. Les pouvoirs WorldBox ont été ou seront placés par le MJ dans la simulation.",
+    "",
+    "Note : les effets négatifs (Madness, Bandit, Fire, etc.) sont une punition du destin. Le MJ les place dans la simulation — ce n'est pas le lanceur qui les déclenche volontairement.",
+    "",
+    ...results.map((result) => result.text),
+    "",
+    "⚠ Si tu as remporté un pouvoir WorldBox, tu dois l'utiliser immédiatement. Toute décision non communiquée au MJ dans ce tour sera considérée comme abandonnée.",
+    "",
+    "Mets à jour ta mémoire avec ces résultats. Si tu as subi ou bénéficié d'un effet significatif, réponds avec ta réaction diplomatique ou stratégique.",
+  ].join("\n");
 }
 
-function buildIncrementPrompt() {
+function buildIncrementPrompt(ai = null) {
   const year = state.settings.year;
   const previous = getPreviousBidIncrement(year);
   const next = getBidIncrement(year);
   const costs = getRevealCosts(year);
   const verb = previous === next ? "reste à" : `passe de ${previous} à`;
-  return `PROMPT PRIVÉ IDENTIQUE - PALIER D'ENCHÈRE ET DISSIMULATION
-An ${year}
+  const recipient = ai ? `\nDestinataire : ${ai.name}` : "";
+  const coinLine = ai ? `Rappel : tu as actuellement ${ai.coins} pièces.` : "Rappel : vérifie ton solde actuel avant de choisir une dissimulation.";
+  return `PROMPT PRIVÉ — PALIER D'ENCHÈRE ET DISSIMULATION — An ${year}${recipient}
 
-L'incrément minimum ${verb} ${next} pièce${next > 1 ? "s" : ""}.
-Cela signifie que la première mise doit être au minimum de ${next} pièce${next > 1 ? "s" : ""}, puis chaque surenchère doit dépasser le leader d'au moins ${next} pièce${next > 1 ? "s" : ""}.
+${coinLine}
 
-Important : ce n'est PAS une obligation de miser un multiple.
-Exemple : avec un incrément de ${next}, une IA peut ouvrir à 37 si elle possède assez de pièces. Dans ce cas, la prochaine mise minimum sera ${37 + next}.
+L'incrément minimum ${verb} ${next} pièce(s).
+La première mise doit être ≥ ${next} pièce(s). Chaque surenchère doit dépasser le leader d'au moins ${next} pièce(s).
+Ce n'est pas un multiple : tu peux ouvrir à 37 ; la mise suivante sera alors au minimum ${37 + next}.
 
-Avant la révélation géopolitique publique, chaque IA peut payer pour cacher une information :
-- Cacher son économie : ${costs.economy} pièces.
-- Cacher sa population : ${costs.population} pièce${costs.population > 1 ? "s" : ""}.
-- Cacher les deux : ${costs.both} pièces.
+Avant la révélation publique, tu peux payer pour cacher des données :
+- Cacher ton économie (pièces)  : ${costs.economy} pièces
+- Cacher ta population           : ${costs.population} pièce(s)
+- Cacher les deux                : ${costs.both} pièces
 
-Si tu caches ta population, ton nombre d'habitants et ton pourcentage mondial ne seront pas révélés.
-Si tu caches ton économie, ton nombre de pièces ne sera pas révélé.
-
-Répondez chacun en secret au MJ avec :
+Réponds en secret au MJ :
 Économie : cacher / révéler
 Population : cacher / révéler
-Pourquoi : justification courte`;
+Pourquoi : [justification courte]`;
 }
 
 function buildTribunalPrompt() {
   const order = getTribunalOrder();
   const first = order[0];
-  const orderText = order.length ? order.map((ai) => ai.name).join(" -> ") : "aucune IA vivante";
-  return `MESSAGE MONDIAL - TRIBUNAL DES NATIONS - An ${state.settings.year}
+  const orderText = order.length ? order.map((ai) => ai.name).join(" → ") : "aucune IA vivante";
+  return `MESSAGE MONDIAL — TRIBUNAL DES NATIONS — An ${state.settings.year}
 
-Un tribunal exceptionnel s'ouvre. Chaque civilisation vivante accuse à son tour une autre civilisation d'une action jugée injuste, dangereuse ou déloyale.
+Un tribunal s'ouvre. Chaque civilisation vivante accuse à son tour une autre d'une action jugée injuste, dangereuse ou déloyale.
 
 Règles :
-- L'ordre officiel de passage fixé par le MJ est : ${orderText}. Aucun chiffre de population privé n'est publié ici.
-- L'accusateur choisit une IA accusée.
-- L'accusateur décrit le crime.
-- L'accusateur propose une punition économique ou une punition WorldBox réalisable : pouvoir, monstre, ressource, terrain, statut ou intervention limitée du MJ.
-- Les IA non directement impliquées votent pour ou contre la punition.
-- Le MJ applique ou rejette ensuite la punition selon le vote.
+- Ordre de passage (population décroissante) : ${orderText}
+- L'accusateur choisit librement l'IA accusée.
+- L'accusateur décrit le crime commis.
+- L'accusateur propose une punition réalisable : sanction économique (pièces) OU intervention WorldBox (pouvoir, monstre, ressource, terrain, statut).
+- Les IA non directement impliquées votent pour ou contre.
+- Le MJ applique ou rejette selon le vote et l'équilibre de la partie.
 
-C'est à ${first?.name ?? "[IA]"} d'ouvrir le Tribunal.
-Le MJ lui envoie ensuite son prompt privé d'accusation.`;
+Le MJ envoie maintenant à ${first?.name ?? "[IA]"} son prompt d'accusation.`;
 }
 
 function buildTribunalAccusationPrompt(ai) {
@@ -4531,12 +5448,14 @@ function buildTribunalAccusationPrompt(ai) {
 }
 
 function buildTribunalAccusationTemplate(accuserName) {
-  return `PROMPT PRIVÉ - TRIBUNAL DES NATIONS - An ${state.settings.year}
+  return `PROMPT PRIVÉ — TRIBUNAL : TON ACCUSATION — An ${state.settings.year}
 Accusateur : ${accuserName}
+
+C'est à toi d'ouvrir le Tribunal. Envoie ta réponse en privé au MJ.
+
 Accusé : [IA au choix]
 Crime : [description de l'acte]
-Punition proposée : [économique OU WorldBox : pouvoir / monstre / ressource / terrain / statut / intervention MJ limitée]
-Vote : pour / contre`;
+Punition proposée : [sanction économique OU intervention WorldBox — doit être réalisable]`;
 }
 
 function getTribunalOrder() {
@@ -4546,25 +5465,31 @@ function getTribunalOrder() {
 function buildBiomeGlobalPrompt() {
   const isInitial = state.settings.year === 0;
   const lines = [
-    `MESSAGE MONDIAL - ${isInitial ? "ANNONCE GLOBALE DES BIOMES INITIAUX" : "ANNONCE GLOBALE DES BIOMES"} - An ${state.settings.year}`,
-    "À envoyer à toutes les IA après les choix. Ne révèle pas les options privées non choisies.",
+    `MESSAGE MONDIAL — ${isInitial ? "BIOMES INITIAUX" : "BIOMES"} — An ${state.settings.year}`,
+    "Les biomes choisis sont annoncés ci-dessous.",
+    "Chaque biome remplace entièrement le biome précédent de l'île natale de la civilisation. Il n'y a pas de superposition.",
+    "Le biome n'affecte que l'île natale — les colonies conservent leur propre biome indépendant.",
+    "Les biomes choisis sont retirés du pool. Les options non choisies y retournent et restent disponibles.",
     "",
-    "Le MJ annonce les biomes choisis et les applique dans WorldBox si l'action est réalisable.",
-    "Chaque biome choisi devient indisponible pour les prochains événements de biome. Les options non choisies retournent dans le pool.",
-    "",
-    "Biomes choisis :",
   ];
 
   getAliveAis().forEach((ai) => {
     const choice = getBiomeChoiceForAi(ai);
     lines.push("");
-    lines.push(`${ai.name} :`);
+    lines.push(`${ai.name} — biome choisi :`);
     if (choice) {
-      lines.push(formatBiomeOption(choice, 0));
+      const details = getBiomeDetails(choice);
+      lines.push(`  ${choice} — danger ${details.danger}/20`);
+      lines.push(`  Effet : ${annotateOreMentions(details.effect)}`);
+      lines.push(`  Matériaux générés : ${annotateOreMentions(details.materials)}`);
+      lines.push(`  Lecture stratégique : ${annotateOreMentions(details.strategy)}`);
     } else {
-      lines.push("Choix non annoncé / en attente MJ.");
+      lines.push("  Choix non annoncé / en attente MJ.");
     }
   });
+
+  lines.push("");
+  lines.push("Archive ces données dans ta mémoire. Aucune réponse n'est attendue à ce message.");
 
   return lines.join("\n");
 }
@@ -4576,11 +5501,13 @@ function buildBiomeChoicePrompt(ai) {
     ? options.map((biome, index) => formatBiomeOption(biome, index)).join("\n\n")
     : "Aucun biome disponible : demande au MJ un arbitrage manuel.";
 
-  return `PROMPT PRIVÉ - ${isInitial ? "CHOIX INITIAL DE BIOME" : "ÉVÉNEMENT BIOME"} - An ${state.settings.year}
-Tu es ${ai.name}.
-À envoyer uniquement à ${ai.name}. Les autres IA ne doivent pas voir tes options non choisies.
+  return `PROMPT PRIVÉ — ${isInitial ? "CHOIX INITIAL DE BIOME" : "ÉVÉNEMENT BIOME"} — An ${state.settings.year}
+Destinataire : ${ai.name}
+Les options non choisies restent invisibles pour les autres IA.
 
-Choisis un seul biome parmi les options proposées. ${isInitial ? "Ce sera ton biome de départ." : "Les biomes déjà choisis ou interdits ne sont plus disponibles."}
+Choisis un seul biome parmi les deux options. ${isInitial ? "Ce sera ton biome de départ." : "Le biome choisi remplace entièrement ton biome actuel."}
+
+Important : le biome s'applique uniquement à ton île natale, pas à tes colonies. Les colonies conservent leur propre biome. Le biome choisi est retiré du pool pour les prochains tirages. L'option non choisie y retourne.
 
 Options :
 ${optionText}
@@ -4593,48 +5520,82 @@ Pourquoi :
 Plan d'utilisation WorldBox :`;
 }
 
+function getAuctionEffectDetailsForAi(ai, breakdown) {
+  const details = [];
+  const costs = getRevealCosts(state.settings.year);
+  if (ai.hideEconomyRevealYear === state.settings.year) {
+    details.push(`Révélation géopolitique : dissimulation de l'économie (-${costs.economy} pièces)`);
+  }
+  if (ai.hidePopulationRevealYear === state.settings.year) {
+    details.push(`Révélation géopolitique : dissimulation de la population (-${costs.population} pièces)`);
+  }
+  if (!details.length && breakdown?.effectDelta) {
+    details.push("événement MJ ou effet de carte/doctrine appliqué pendant l'enchère");
+  }
+  return details;
+}
+
 function buildPostIncomeStatePrompt(ai) {
   const profile = getProfile(ai.activeProfile);
   const popPercent = getPopulationPercentForAi(ai);
-
   const bd = ai.lastIncomeBreakdown;
-  const coinDetailLines = bd
-    ? [
-        `- Détail des pièces :`,
-        `  • Solde au début de l'enchère : ${bd.coinsAtAuctionStart}`,
-        `  • Variation pendant l'enchère : ${formatSigned(bd.auctionDelta)} (passes, achat de carte et effets personnels liés à la carte)`,
-        `  • Solde avant revenus : ${bd.coinsBeforeIncome}`,
-        `  • Revenu de base : +${bd.baseIncome}`,
-        ...(bd.underdogBonus ? [`  • Bonus retardataire : +${bd.underdogBonus}`] : []),
-        ...(bd.doctrineEffect !== 0 ? [`  • Effet doctrine : ${formatSigned(bd.doctrineEffect)}`] : []),
-        `  • Revenu net appliqué : ${formatSigned(bd.incomeApplied)}`,
-        `  • = Nouveau solde : ${bd.finalCoins} pièces`,
-      ]
-    : [];
+  const passDelta = bd?.passDelta ?? 0;
+  const purchaseDelta = bd?.purchaseDelta ?? 0;
+  const effectDelta = bd?.effectDelta ?? 0;
+  const effectDetails = getAuctionEffectDetailsForAi(ai, bd);
+  const otherAuctionDelta = bd?.otherAuctionDelta ?? 0;
+  const doctrineLines = bd?.doctrineLines ?? [];
 
   const lines = [
-    `PROMPT PRIVÉ - ÉTAT PERSONNEL APRÈS REVENUS - An ${state.settings.year}`,
+    `PROMPT PRIVÉ — ÉTAT APRÈS REVENUS — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     `Destinataire : ${ai.name}`,
-    "À envoyer uniquement à cette IA. Ne pas envoyer ce bloc aux autres civilisations.",
+    `À envoyer uniquement à ${ai.name}.`,
     "",
-    "Ton état actuel :",
-    `- Population : ${ai.population}`,
-    `- Pourcentage de population mondiale : ${popPercent}%`,
-    `- Pièces : ${ai.coins}`,
-    ...coinDetailLines,
-    `- Bonus de passe actuel : +${getAiPassBonusLevel(ai)} pièce${getAiPassBonusLevel(ai) > 1 ? "s" : ""} (plancher +${getPassFloor()}, plafond +${getPassCeiling()})`,
-    `- Doctrine active : ${profile ? profile.name : "aucune doctrine active"}`,
-    `- Ligne politique : ${profile ? profile.mental : "aucune"}`,
-    `- Bonus/Malus : ${profile ? `${profile.bonus} / ${profile.malus}` : "aucun"}`,
+    "─── TES CHIFFRES ────────────────────────────────────────────────",
+    `Population : ${ai.population} (${popPercent}% du monde)`,
+    `Pièces : ${ai.coins}`,
     "",
-    "Etat mondial :",
-    "- Prochaine enchère dans 50 ans",
-    `- Incrémentation min actuel : ${getBidIncrement(state.settings.year)} pièce${getBidIncrement(state.settings.year) > 1 ? "s" : ""}`,
-    `- Prochain événement : ${getUpcomingEventsText(50)}`,
+    "Détail de l'enchère :",
+    `  - Passes reçues  : ${formatSigned(passDelta)}`,
+    `  - Achat de carte : ${formatSigned(purchaseDelta)}`,
+    ...(effectDelta ? [`  - Effet MJ / carte : ${formatSigned(effectDelta)}${effectDetails.length ? ` — ${effectDetails.join(" ; ")}` : ""}`] : []),
+    ...(otherAuctionDelta ? [`  - Autres variations : ${formatSigned(otherAuctionDelta)}`] : []),
+    `  = Solde avant revenus : ${bd ? bd.coinsBeforeIncome : ai.coins}`,
     "",
-    "Consigne :",
-    "- Mets à jour ta mémoire stratégique avec tes chiffres après revenus.",
-    "- Réponds avec ton analyse de position, tes menaces, tes opportunités et ta priorité pour le prochain demi-siècle.",
+    "Revenus appliqués :",
+    `  + Revenu de base : +${bd ? bd.baseIncome : state.settings.baseIncome}`,
+    ...(bd?.underdogBonus ? [`  + Bonus retardataire : +${bd.underdogBonus}`] : []),
+    ...(bd && (bd.doctrineEffect !== 0 || doctrineLines.length) ? [
+      `  + Effet doctrine — ${profile ? profile.name : "Doctrine"} :`,
+      ...(
+        doctrineLines.length
+          ? doctrineLines.map((line) => `      ${line}`)
+          : [`      Effet net : ${formatSigned(bd.doctrineEffect)}`]
+      ),
+      `      = Effet doctrine net : ${formatSigned(bd.doctrineEffect)}`,
+    ] : []),
+    `  = Revenu net appliqué : ${bd ? formatSigned(bd.incomeApplied) : "+0"}`,
+    "",
+    `Nouveau solde : ${bd ? bd.finalCoins : ai.coins} pièces`,
+    "",
+    "─── TA DOCTRINE ─────────────────────────────────────────────────",
+    `Doctrine active : ${profile ? profile.name : "aucune"}`,
+    `Ligne politique : ${profile ? profile.mental : "—"}`,
+    `Bonus : ${profile ? profile.bonus : "—"}`,
+    `Malus : ${profile ? profile.malus : "—"}`,
+    "",
+    `Bonus de passe actuel : +${getAiPassBonusLevel(ai)} (plancher ${getPassFloor()}, plafond ${getPassCeiling()})`,
+    "",
+    "─── ÉTAT MONDIAL ────────────────────────────────────────────────",
+    "Prochaine enchère dans 50 ans.",
+    `Incrément actuel : ${getBidIncrement(state.settings.year)} pièce(s).`,
+    `Événements dans les 250 prochaines années : ${getUpcomingEventsText(250)}`,
+    "",
+    "─── CONSIGNE ────────────────────────────────────────────────────",
+    "Archive ces chiffres dans ta mémoire. Réponds avec :",
+    "1. Ta position démographique et économique réelle (pas d'approximation).",
+    "2. Ta menace principale identifiée et ta réponse prévue.",
+    "3. Ta cible prioritaire pour la prochaine enchère, avec un montant maximum que tu acceptes de payer.",
   ];
 
   return lines.join("\n");
@@ -4645,7 +5606,7 @@ function buildPostIncomeMemorySnapshot() {
   const card = state.auction.card;
   const winner = state.auction.winner ? getAi(state.auction.winner) : null;
   const lines = [
-    `SNAPSHOT MJ APRÈS REVENUS - An ${state.settings.year}`,
+    `USAGE MJ — SNAPSHOT APRÈS REVENUS — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     "Entrée automatique créée quand le MJ clique sur Fin d'enchère. Elle contient les données privées nécessaires à la mémoire complète.",
     "",
     "Enchère clôturée :",
@@ -4676,9 +5637,13 @@ function buildPostIncomeMemorySnapshot() {
     lines.push(`- Soldats : ${ai.soldiers ?? 0}. Colonies ext. : ${ai.colonies ?? 0}. Population île natale : ${ai.homePopulation ?? 0}.`);
     if (ai.lastIncomeBreakdown) {
       const bd = ai.lastIncomeBreakdown;
+      const effectDetails = getAuctionEffectDetailsForAi(ai, bd);
       lines.push("- Détail économique :");
       lines.push(`  • Solde début enchère : ${bd.coinsAtAuctionStart}`);
       lines.push(`  • Variation enchère : ${formatSigned(bd.auctionDelta)}`);
+      if (bd.effectDelta) {
+        lines.push(`    - Effet MJ / carte : ${formatSigned(bd.effectDelta)}${effectDetails.length ? ` — ${effectDetails.join(" ; ")}` : ""}`);
+      }
       lines.push(`  • Solde avant revenus : ${bd.coinsBeforeIncome}`);
       lines.push(`  • Revenu base : +${bd.baseIncome}`);
       if (bd.underdogBonus) lines.push(`  • Bonus retardataire : +${bd.underdogBonus}`);
@@ -4694,114 +5659,68 @@ function buildPostIncomeMemorySnapshot() {
 }
 
 function buildPrompt(ai) {
-  const profile = getProfile(ai.activeProfile);
-  return `PROMPT PRIVÉ - BRIEFING INITIAL - ${ai.name}
-À envoyer uniquement à ${ai.name}.
+  return `PROMPT PRIVÉ — BRIEFING INITIAL — An 0
+Destinataire : ${ai.name}
+À envoyer uniquement à ${ai.name}. Ce message est ta référence pour toute la partie.
 
-Tu es ${ai.name}, une IA dirigeant une civilisation humaine dans une simulation stratégique WorldBox Beta. Ce briefing initial est ta référence générale pour toute la partie.
+Tu es ${ai.name}, représentant d'une civilisation humaine dans la simulation stratégique WorldBox Beta.
 
-Rôle, limites et communication :
-- Tu contrôles uniquement ta civilisation. Tu ne contrôles jamais directement les autres IA, leurs armées, leurs votes ou leurs décisions.
-- Le MJ est l'arbitre humain : il applique les effets dans WorldBox, valide ce qui est réalisable, note les conséquences et peut refuser une action impossible.
-- Tu proposes des décisions stratégiques ; tu n'inventes pas de pouvoir, de carte, de ressource, d'alliance ou de guerre hors des règles ci-dessous.
-- MESSAGE MONDIAL désigne un message public adressé à toutes les IA. Tu peux le considérer comme une information officielle connue de tous.
-- MJ, MJ PERSONNEL ou message personnel désigne une information privée envoyée à toi seul. Tu ne dois pas supposer que les autres IA connaissent cette information.
-- Tu dois conserver la mémoire des comptes rendus, des messages mondiaux, des résultats d'enchère, des guerres, des catastrophes, des biomes et des doctrines déjà reçus.
-- Si un fait ancien contredit un fait récent, le compte rendu ou message le plus récent du MJ fait autorité.
+─── RÔLE ET COMMUNICATION ───────────────────────────────────────
+- Tu contrôles uniquement ta civilisation.
+- Le MJ est l'arbitre : il applique les effets dans WorldBox, valide les actions et peut en refuser une si elle est impossible.
+- Tu proposes des décisions stratégiques. Tu n'inventes pas de pouvoir, de carte ou de guerre hors des règles reçues.
+- MESSAGE MONDIAL : information publique connue de toutes les IA.
+- PROMPT PRIVÉ / MJ PERSONNEL : information envoyée à toi seul. Les autres IA ne la connaissent pas.
+- En cas de contradiction entre deux messages, le plus récent fait autorité.
+- Des événements spéciaux (biomes, doctrines, événements imprévus) apparaîtront au fil de la partie. Leurs règles te seront expliquées au moment où ils surviendront.
 
-Ordre de lancement à l'an 0 :
-1. Le MJ envoie ce briefing initial à chaque IA.
-2. Le MJ tire 3 doctrines politiques secrètes par IA ; tu choisis 1 doctrine, les autres restent secrètes.
-3. Le MJ tire 2 biomes de départ par IA ; tu choisis 1 biome, l'autre retourne dans le pool.
-4. Le MJ lance ensuite les enchères de pouvoirs une par une.
-5. À chaque tour d'enchère, tu réponds seulement pour la décision demandée : enchérir ou passer, puis action prévue si tu gagnes.
-
-Carte et monde :
+─── CARTE ET MONDE ──────────────────────────────────────────────
 ${buildWorldRulesText()}
 
 Événements WorldBox sans intervention du créateur :
 ${buildAutonomousWorldboxRulesText()}
 
-Système d'enchères :
-- La simulation tourne en continu.
-- Une seule carte de pouvoir est proposée à la fois.
-- À l'an 0, chaque IA commence avec 10 pièces.
-- Chaque nouvelle carte commence à 0 pièce, même si elle est très dangereuse.
-- Fin de l'enchère clôt la carte en cours : le MJ a d'abord mis à jour les populations, puis les revenus privés sont appliqués.
-- Après Fin de l'enchère, le MJ envoie à chaque IA son prompt personnel d'état après revenus.
-- Ensuite, Nouvelle enchère fait passer 50 ans, tire la carte suivante et commence à 0 pièce.
-- L'incrément minimum dépend de l'âge : an 0-249 = 1, 250-499 = 5, 500-749 = 10, 750-999 = 15, 1000+ = 20.
-- L'incrément est une surenchère minimum, pas une obligation de miser un multiple.
-- Exemple : à l'an 500, l'incrément est 10. Tu peux ouvrir à 37 si tu as assez de pièces ; la mise suivante devra seulement être au minimum de 47.
-- Si une carte de danger 16/20 ou plus apparaît, le MJ ajoutera dans les 1 à 3 enchères suivantes une carte capable de la limiter, nettoyer ou compenser, sauf exception indiquée par le shop.
-- À la fin de chaque enchère, chaque IA vivante gagne un revenu de base.
-- Le seuil faible automatique vaut 100 divisé par le nombre d'IA vivantes : ${getThresholdExamplesText()}.
-- Une IA sous ce seuil reçoit un bonus retardataire progressif, proportionnel à son retard démographique.
-- Formule : déficit = (seuil faible - part de population) / seuil faible. Bonus retardataire = arrondi((revenu base + bonus faible MJ + incrément actuel) x déficit).
-- Exemple de bonus retardataire avec ${getAliveAis().length} IA vivantes, seuil faible ${formatPercent(getUnderdogThreshold() * 100)} %, revenu base ${state.settings.baseIncome}, bonus faible MJ ${state.settings.underdogBonus}. Ces montants s'ajoutent au revenu de base :
-${buildUnderdogRuleTable()}
-- L'ordre de parole suit la population décroissante : les puissances dominantes parlent d'abord.
-- À ton tour, tu peux enchérir plus haut que le leader actuel ou passer.
-- Si tu passes, tu quittes cette enchère et tu gagnes ton bonus de passe personnel.
-- Le bonus de passe personnel commence à ${getPassCeiling()} pièces, descend de 1 à chaque passe, ne descend jamais sous ${getPassFloor()} pièces, et remonte de 1 quand l'IA enchérit, sans dépasser ${getPassCeiling()}.
-- Le montant gagné en passant est toujours ton bonus de passe actuel au moment précis où tu passes.
-- Enchérir ne donne pas de pièces immédiatement : cela sert seulement à tenter de gagner la carte et à restaurer ton bonus de passe de +1.
-- Le dernier joueur encore en course remporte la carte et paie son enchère finale quand l'enchère est clôturée.
-- Certaines cartes sont marquées Ressource : ${["Mythril", "Adamantine", "Gold"].map(formatOreName).join(", ")} et Coffee. Elles interagissent avec la doctrine Bloc Industriel.
+─── SYSTÈME D'ENCHÈRES ──────────────────────────────────────────
+- Une seule carte de pouvoir est proposée à la fois. Chaque carte commence à 0 pièce.
+- Tu débutes avec 10 pièces.
+- L'ordre de parole suit la population décroissante : les civilisations les plus peuplées parlent en premier.
+- À ton tour : tu enchéris au-dessus du leader actuel, ou tu passes.
+- Passer : tu quittes cette enchère et tu reçois immédiatement ton bonus de passe personnel.
+- Le dernier joueur encore en course remporte la carte et paie son enchère finale.
+- Enchérir ne donne pas de pièces : cela tente de gagner la carte et restaure ton bonus de passe de +1.
+- Si une carte de danger 16/20 ou plus apparaît, le MJ peut programmer dans les 1 à 3 enchères suivantes un contre-pouvoir capable de la limiter, nettoyer ou compenser.
 
-Révélations géopolitiques :
-- Aux années 250, 500, 750, 1000, puis tous les 250 ans, une révélation publique accompagne le changement ou le maintien du palier d'enchère.
-- Avant cette révélation, chaque IA peut payer pour cacher des données.
-- Cacher son économie coûte 2 fois le nouvel incrément.
-- Cacher sa population coûte 1 fois le nouvel incrément.
-- Cacher les deux coûte donc 3 fois le nouvel incrément.
-- Si l'économie est cachée, les pièces ne sont pas révélées. Si la population est cachée, le nombre d'habitants et le pourcentage mondial ne sont pas révélés.
+Incrément minimum (surenchère minimale, pas un multiple obligatoire) :
+  An 0–249 = 1 pièce | 250–499 = 5 | 500–749 = 10 | 750–999 = 15 | 1000+ = 20
+  Exemple à l'an 500 : incrément = 10. Tu peux ouvrir à 37 ; la mise suivante doit être au moins 47.
 
-Événements de biomes :
-- À l'an 0 puis tous les 350 ans, chaque IA vivante reçoit 2 biomes encore disponibles.
-- Elle doit choisir 1 seul biome parmi ces 2 options.
-- Les 2 options indiquent danger /20, matériaux générés, effet WorldBox et lecture stratégique.
-- Le MJ coche ensuite le biome choisi sur la fiche de l'IA : ce biome devient indisponible, et l'option non choisie retourne dans le pool.
-- Les biomes déjà choisis au départ ou lors d'événements précédents sont exclus des prochains tirages.
-- Si deux IA revendiquent exceptionnellement le même biome hors tirage, le MJ tranche par vote ou arbitrage rapide, puis le perdant choisit un autre biome disponible.
+Bonus de passe personnel :
+  Commence à ${getPassCeiling()} pièces. Descend de 1 à chaque passe (plancher : ${getPassFloor()}). Remonte de +1 quand tu enchéris (plafond : ${getPassCeiling()}). Le montant encaissé est celui du moment exact où tu passes.
 
-Roue de la Fortune :
-- Un événement Roue de la Fortune apparaît à une enchère aléatoire entre 50 et 500 ans après le début ou après la précédente roue, toujours sur une tranche de 50 ans.
-- Quand la roue apparaît, chaque civilisation peut acheter autant de tours qu'elle veut pour ${WHEEL_SPIN_COST} pièces par tour, tant qu'elle peut payer.
-- Chaque lancement tire ${WHEEL_VISIBLE_OPTIONS} options visibles parmi ${WHEEL_EVENTS.length} effets possibles, puis s'arrête sur un seul résultat.
-- La moyenne théorique des effets est d'environ ${formatSigned(getFortuneWheelAverageValue())} pièces brutes, soit ${formatSigned(getFortuneWheelAverageValue() - WHEEL_SPIN_COST)} pièces nettes après coût.
-- Les résultats économiques sont appliqués automatiquement par le MJ. Les pouvoirs WorldBox indiquent une consigne manuelle : cible, pouvoir et limite d'arbitrage.
-- Les tours se résolvent un par un en ordre démographique décroissant, avec rotation. Une IA ne rejoue pas immédiatement si une autre IA possède encore un tour en attente.
+─── REVENUS ─────────────────────────────────────────────────────
+- Chaque IA vivante reçoit un revenu de base à la fin de chaque enchère.
+- Les IA sous le seuil démographique faible reçoivent un bonus retardataire progressif.
+  Seuil faible = 100 / nombre d'IA vivantes.
+  Formule : déficit = (seuil - ta part) / seuil. Bonus = arrondi((revenu base + bonus MJ + incrément actuel) × déficit).
+- Détail de tes revenus après chaque enchère : tu recevras un prompt privé dédié.
 
-Tribunal des Nations :
-- Aux années 300, 600, 900, 1200, puis tous les 300 ans, le MJ peut ouvrir un Tribunal des Nations.
-- Chaque civilisation vivante accuse à son tour une autre civilisation d'une action jugée injuste, dangereuse ou déloyale.
-- L'ordre suit la population décroissante.
-- L'accusateur choisit une IA accusée, décrit le crime et propose une punition économique ou une intervention WorldBox réalisable.
-- Les IA non directement impliquées votent pour ou contre ; le MJ applique ou rejette selon le vote et l'équilibre de partie.
-
-Doctrine politique secrète :
-${profile ? `- Doctrine active : ${profile.name}\n- Ligne politique : ${profile.mental}\n- Bonus : ${profile.bonus}\n- Malus : ${profile.malus}` : "- Aucune doctrine active pour l'instant."}
-- Les doctrines sont tirées à l'an 0 puis renouvelées tous les 400 ans.
-- Les autres IA ne connaissent pas forcément ta doctrine active, sauf révélation spéciale du MJ.
-- Toutes les doctrines possibles :
-${buildProfilesRulebook()}
-
-Règles d'action :
-- Tu dois seulement proposer des actions réalisables dans WorldBox ou via les cartes diplomatiques du shop.
-- Tu ne peux utiliser une carte de pouvoir que si tu la remportes aux enchères ou si le MJ t'en donne explicitement le droit.
-- Tu peux promettre une action prévue si tu gagnes, mais cette promesse ne s'applique réellement que si tu remportes la carte.
-- La carte Guerre permet de forcer une déclaration de guerre autorisée par le MJ. Dans WorldBox, une guerre peut aller jusqu'à la chute complète d'une IA.
-- La carte Alliance permet de proposer ou créer une alliance autorisée par le MJ.
+─── RÈGLES D'ACTION ─────────────────────────────────────────────
+- Propose uniquement des actions réalisables dans WorldBox ou via les cartes du shop.
+- Tu ne peux utiliser une carte que si tu la remportes aux enchères, ou si le MJ te l'autorise explicitement.
+- Tu peux promettre une action si tu gagnes, mais elle ne s'applique que si tu remportes réellement la carte.
 - La carte Territoire doit préciser : île ciblée, bord d'attache, intention stratégique, et supplément payé si tu veux agrandir la terre ajoutée.
-- Les armes biologiques, mentales ou apocalyptiques doivent être pensées comme des risques systémiques : elles peuvent tuer la cible, mais aussi déstabiliser la partie.
+- Les armes biologiques, mentales ou apocalyptiques sont des risques systémiques : elles peuvent tuer la cible, mais aussi déstabiliser la partie.
 - Tu dois viser la victoire finale, mais les catastrophes incontrôlables peuvent être stoppées par le MJ si elles menacent de détruire la simulation.
 
-Format de réponse attendu à chaque tour d'enchère :
+─── FORMAT DE RÉPONSE À CHAQUE TOUR ────────────────────────────
 Décision : Enchérir / Passer
-Mise : nombre de pièces si tu enchéris
-Pourquoi : justification stratégique courte
-Action prévue si je gagne la carte : cible et usage exact dans WorldBox`;
+Mise : [nombre de pièces si tu enchéris]
+Pourquoi : [justification stratégique courte]
+Action prévue si je gagne : [cible et usage exact dans WorldBox]
+
+Tu recevras après ce briefing les Mémoires des simulations antérieures.
+Ces archives ne sont pas des règles : elles sont la mémoire du monde dans lequel tu entres.
+Lis-les. Ce que les civilisations précédentes ont appris au prix de leur existence t'appartient désormais.`;
 }
 
 function buildProfilesRulebook() {
@@ -4816,6 +5735,7 @@ function copyLog() {
   state.lastAuctionReport = report;
   persistState();
   copyText(report, "Compte rendu copié");
+  markPromptCopied(getReportPromptKey());
 }
 
 function copyState() {
@@ -4850,10 +5770,10 @@ function copyAllAis() {
   copyText(text, "Toutes les IA copiées");
 }
 
-function copyIncrementPrompt() {
-  const text = buildIncrementPrompt();
+function copyIncrementPrompt(ai = null) {
+  const text = buildIncrementPrompt(ai);
   archiveMemoryIfNew("Palier d'enchère", text, { important: true });
-  copyText(text, "Prompt palier + choix copié");
+  copyText(text, `Prompt palier${ai ? ` ${ai.name}` : ""} copié`);
 }
 
 function copyTribunalPrompt() {

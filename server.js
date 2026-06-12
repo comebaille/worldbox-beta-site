@@ -6,7 +6,9 @@ const ROOT = __dirname;
 const PORT = Number(process.env.PORT || 5173);
 const STATE_DIR = path.join(ROOT, ".worldbox-state");
 const STATE_FILE = path.join(STATE_DIR, "state.json");
+const BACKUP_DIR = path.join(STATE_DIR, "backups");
 const MAX_STATE_BYTES = 5 * 1024 * 1024;
+const MAX_STATE_BACKUPS = 60;
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -92,9 +94,11 @@ function handleStateApi(req, res) {
       };
 
       fs.mkdirSync(STATE_DIR, { recursive: true });
+      backupCurrentState();
       const tempFile = `${STATE_FILE}.tmp`;
       fs.writeFileSync(tempFile, JSON.stringify(payload, null, 2));
       fs.renameSync(tempFile, STATE_FILE);
+      pruneStateBackups();
 
       res.writeHead(200, { "content-type": MIME_TYPES[".json"] });
       res.end(JSON.stringify({ ok: true, savedAt }));
@@ -103,7 +107,11 @@ function handleStateApi(req, res) {
   }
 
   if (req.method === "DELETE") {
-    if (fs.existsSync(STATE_FILE)) fs.unlinkSync(STATE_FILE);
+    if (fs.existsSync(STATE_FILE)) {
+      backupCurrentState();
+      fs.unlinkSync(STATE_FILE);
+      pruneStateBackups();
+    }
     res.writeHead(200, { "content-type": MIME_TYPES[".json"] });
     res.end(JSON.stringify({ ok: true }));
     return;
@@ -111,6 +119,27 @@ function handleStateApi(req, res) {
 
   res.writeHead(405, { "content-type": "text/plain; charset=utf-8" });
   res.end("Méthode non autorisée.");
+}
+
+function backupCurrentState() {
+  if (!fs.existsSync(STATE_FILE)) return;
+  fs.mkdirSync(BACKUP_DIR, { recursive: true });
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  fs.copyFileSync(STATE_FILE, path.join(BACKUP_DIR, `state-${stamp}.json`));
+}
+
+function pruneStateBackups() {
+  if (!fs.existsSync(BACKUP_DIR)) return;
+  const backups = fs.readdirSync(BACKUP_DIR)
+    .filter((name) => /^state-.+\.json$/.test(name))
+    .map((name) => ({
+      name,
+      path: path.join(BACKUP_DIR, name),
+      mtime: fs.statSync(path.join(BACKUP_DIR, name)).mtimeMs,
+    }))
+    .sort((a, b) => b.mtime - a.mtime);
+
+  backups.slice(MAX_STATE_BACKUPS).forEach((backup) => fs.unlinkSync(backup.path));
 }
 
 function readRequestBody(req, maxBytes, callback) {
