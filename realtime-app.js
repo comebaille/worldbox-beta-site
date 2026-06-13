@@ -2350,6 +2350,14 @@ function drawHistoryChart(canvas, type, options = {}) {
   });
   historyChartHitMaps.set(canvas, hitSeries);
 
+  hitSeries.forEach((item, index) => {
+    drawHistoryChartLineLabel(ctx, item, index, {
+      full: Boolean(options.full),
+      width,
+      height,
+    });
+  });
+
   ctx.fillStyle = "#94a3b8";
   ctx.font = `${options.full ? 13 : 10}px Inter, sans-serif`;
   ctx.fillText(`An ${minYear}`, pad, height - 8);
@@ -2357,10 +2365,6 @@ function drawHistoryChart(canvas, type, options = {}) {
   ctx.fillText(`An ${maxYear}`, pad + chartWidth, height - 8);
   ctx.textAlign = "left";
   ctx.fillText(String(maxValue), 8, pad + 4);
-
-  if (options.hover?.name) {
-    drawHistoryChartTooltip(ctx, options.hover, width, height, options.full);
-  }
 }
 
 function getHistorySeriesPoints(snapshots, aiId, metric) {
@@ -2382,10 +2386,9 @@ function handleHistoryChartPointerMove(event) {
   const canvas = event.currentTarget;
   const type = getHistoryChartTypeForCanvas(canvas);
   if (!type) return;
-  const hover = findNearestHistoryChartLine(canvas, event);
-  historyChartHover = hover ? { canvas, type, ...hover } : null;
-  canvas.title = hover ? `${hover.name} — An ${hover.year} : ${hover.value}` : "";
-  drawHistoryChart(canvas, type, { full: canvas === els.chartOverlayCanvas, hover });
+  historyChartHover = null;
+  canvas.title = "";
+  drawHistoryChart(canvas, type, { full: canvas === els.chartOverlayCanvas });
 }
 
 function handleHistoryChartPointerLeave(event) {
@@ -2434,6 +2437,62 @@ function getPointToSegmentDistance(point, start, end) {
   const x = start.x + t * dx;
   const y = start.y + t * dy;
   return Math.hypot(point.x - x, point.y - y);
+}
+
+function drawHistoryChartLineLabel(ctx, item, index, options = {}) {
+  const points = item.points ?? [];
+  if (!points.length) return;
+  const full = Boolean(options.full);
+  const label = shorten(item.name, full ? 30 : 16);
+  const fontSize = full ? 12 : 9;
+  const paddingX = full ? 7 : 5;
+  const paddingY = full ? 4 : 3;
+  const edgePadding = full ? 12 : 6;
+  const stagger = ((index % 5) - 2) * (full ? 5 : 3);
+
+  let anchor = points[0];
+  let angle = 0;
+  if (points.length > 1) {
+    let bestSegment = null;
+    points.slice(0, -1).forEach((point, pointIndex) => {
+      const next = points[pointIndex + 1];
+      const length = Math.hypot(next.x - point.x, next.y - point.y);
+      if (!bestSegment || length > bestSegment.length) {
+        bestSegment = { point, next, length };
+      }
+    });
+    if (bestSegment) {
+      anchor = {
+        x: (bestSegment.point.x + bestSegment.next.x) / 2,
+        y: (bestSegment.point.y + bestSegment.next.y) / 2,
+      };
+      angle = Math.atan2(bestSegment.next.y - bestSegment.point.y, bestSegment.next.x - bestSegment.point.x);
+      if (angle > Math.PI / 2) angle -= Math.PI;
+      if (angle < -Math.PI / 2) angle += Math.PI;
+    }
+  }
+
+  ctx.save();
+  ctx.font = `800 ${fontSize}px Inter, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const textWidth = ctx.measureText(label).width;
+  const boxWidth = textWidth + paddingX * 2;
+  const boxHeight = fontSize + paddingY * 2;
+  const x = Math.min((options.width ?? anchor.x) - edgePadding - boxWidth / 2, Math.max(edgePadding + boxWidth / 2, anchor.x));
+  const y = Math.min((options.height ?? anchor.y) - edgePadding - boxHeight / 2, Math.max(edgePadding + boxHeight / 2, anchor.y + stagger));
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.fillStyle = "rgba(2, 6, 23, 0.78)";
+  ctx.strokeStyle = item.color;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight, 5);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#f8fafc";
+  ctx.fillText(label, 0, 0);
+  ctx.restore();
 }
 
 function drawHistoryChartTooltip(ctx, hover, width, height, full) {
