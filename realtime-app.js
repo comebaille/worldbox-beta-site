@@ -2359,6 +2359,7 @@ function drawHistoryChart(canvas, type, options = {}) {
       placedLabels: placedChartLabels,
     });
   });
+  drawHistoryChartDeathMarkers(ctx, hitSeries, { full: Boolean(options.full) });
 
   ctx.fillStyle = "#94a3b8";
   ctx.font = `${options.full ? 13 : 10}px Inter, sans-serif`;
@@ -2497,6 +2498,32 @@ function drawHistoryChartLineLabel(ctx, item, index, options = {}) {
   ctx.fillStyle = "#f8fafc";
   ctx.fillText(label, 0, 0);
   ctx.restore();
+}
+
+function drawHistoryChartDeathMarkers(ctx, hitSeries, options = {}) {
+  const full = Boolean(options.full);
+  const radius = full ? 12 : 9;
+  const fontSize = full ? 16 : 12;
+
+  hitSeries.forEach((item) => {
+    const lastPoint = item.points?.[item.points.length - 1];
+    if (!lastPoint || lastPoint.alive !== false) return;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(lastPoint.x, lastPoint.y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(127, 29, 29, 0.94)";
+    ctx.strokeStyle = "#f8fafc";
+    ctx.lineWidth = full ? 2.2 : 1.8;
+    ctx.fill();
+    ctx.stroke();
+    ctx.font = `900 ${fontSize}px Inter, "Apple Color Emoji", "Segoe UI Symbol", sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText("☠", lastPoint.x, lastPoint.y + (full ? 0.5 : 0));
+    ctx.restore();
+  });
 }
 
 function findNonOverlappingChartLabelPosition({ targetX, targetY, boxWidth, boxHeight, width, height, edgePadding, placedLabels }) {
