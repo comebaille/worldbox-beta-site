@@ -2350,11 +2350,13 @@ function drawHistoryChart(canvas, type, options = {}) {
   });
   historyChartHitMaps.set(canvas, hitSeries);
 
+  const placedChartLabels = [];
   hitSeries.forEach((item, index) => {
     drawHistoryChartLineLabel(ctx, item, index, {
       full: Boolean(options.full),
       width,
       height,
+      placedLabels: placedChartLabels,
     });
   });
 
@@ -2443,15 +2445,14 @@ function drawHistoryChartLineLabel(ctx, item, index, options = {}) {
   const points = item.points ?? [];
   if (!points.length) return;
   const full = Boolean(options.full);
-  const label = shorten(item.name, full ? 30 : 16);
-  const fontSize = full ? 12 : 9;
+  const label = shorten(item.name, full ? 28 : 12);
+  const fontSize = full ? 12 : 8;
   const paddingX = full ? 7 : 5;
   const paddingY = full ? 4 : 3;
   const edgePadding = full ? 12 : 6;
   const stagger = ((index % 5) - 2) * (full ? 5 : 3);
 
   let anchor = points[0];
-  let angle = 0;
   if (points.length > 1) {
     const point = points[points.length - 2];
     const next = points[points.length - 1];
@@ -2459,9 +2460,6 @@ function drawHistoryChartLineLabel(ctx, item, index, options = {}) {
       x: point.x + (next.x - point.x) * 0.62,
       y: point.y + (next.y - point.y) * 0.62,
     };
-    angle = Math.atan2(next.y - point.y, next.x - point.x);
-    if (angle > Math.PI / 2) angle -= Math.PI;
-    if (angle < -Math.PI / 2) angle += Math.PI;
   }
 
   ctx.save();
@@ -2471,10 +2469,24 @@ function drawHistoryChartLineLabel(ctx, item, index, options = {}) {
   const textWidth = ctx.measureText(label).width;
   const boxWidth = textWidth + paddingX * 2;
   const boxHeight = fontSize + paddingY * 2;
-  const x = Math.min((options.width ?? anchor.x) - edgePadding - boxWidth / 2, Math.max(edgePadding + boxWidth / 2, anchor.x));
-  const y = Math.min((options.height ?? anchor.y) - edgePadding - boxHeight / 2, Math.max(edgePadding + boxHeight / 2, anchor.y + stagger));
-  ctx.translate(x, y);
-  ctx.rotate(angle);
+  const placedLabels = options.placedLabels ?? [];
+  const position = findNonOverlappingChartLabelPosition({
+    targetX: anchor.x,
+    targetY: anchor.y + stagger,
+    boxWidth,
+    boxHeight,
+    width: options.width ?? anchor.x + boxWidth,
+    height: options.height ?? anchor.y + boxHeight,
+    edgePadding,
+    placedLabels,
+  });
+  if (!position) {
+    ctx.restore();
+    return;
+  }
+  placedLabels.push(position.rect);
+
+  ctx.translate(position.x, position.y);
   ctx.fillStyle = "rgba(2, 6, 23, 0.78)";
   ctx.strokeStyle = item.color;
   ctx.lineWidth = 1;
@@ -2485,6 +2497,55 @@ function drawHistoryChartLineLabel(ctx, item, index, options = {}) {
   ctx.fillStyle = "#f8fafc";
   ctx.fillText(label, 0, 0);
   ctx.restore();
+}
+
+function findNonOverlappingChartLabelPosition({ targetX, targetY, boxWidth, boxHeight, width, height, edgePadding, placedLabels }) {
+  const clampX = (value) => Math.min(width - edgePadding - boxWidth / 2, Math.max(edgePadding + boxWidth / 2, value));
+  const clampY = (value) => Math.min(height - edgePadding - boxHeight / 2, Math.max(edgePadding + boxHeight / 2, value));
+  const slotX = boxWidth + 8;
+  const slotY = boxHeight + 5;
+  let best = null;
+
+  for (let ring = 0; ring <= 10; ring += 1) {
+    for (let dx = -ring; dx <= ring; dx += 1) {
+      for (let dy = -ring; dy <= ring; dy += 1) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== ring) continue;
+        const x = clampX(targetX + dx * slotX);
+        const y = clampY(targetY + dy * slotY);
+        const rect = getChartLabelRect(x, y, boxWidth, boxHeight);
+        if (placedLabels.some((placed) => chartLabelRectsOverlap(rect, placed))) continue;
+        const score = Math.hypot(x - targetX, y - targetY);
+        if (!best || score < best.score) best = { x, y, rect, score };
+      }
+    }
+    if (best) return best;
+  }
+
+  for (let y = edgePadding + boxHeight / 2; y <= height - edgePadding - boxHeight / 2; y += slotY) {
+    for (let x = edgePadding + boxWidth / 2; x <= width - edgePadding - boxWidth / 2; x += slotX) {
+      const rect = getChartLabelRect(x, y, boxWidth, boxHeight);
+      if (!placedLabels.some((placed) => chartLabelRectsOverlap(rect, placed))) return { x, y, rect };
+    }
+  }
+
+  return null;
+}
+
+function getChartLabelRect(x, y, width, height) {
+  return {
+    left: x - width / 2,
+    right: x + width / 2,
+    top: y - height / 2,
+    bottom: y + height / 2,
+  };
+}
+
+function chartLabelRectsOverlap(a, b) {
+  const gap = 3;
+  return a.left < b.right + gap
+    && a.right > b.left - gap
+    && a.top < b.bottom + gap
+    && a.bottom > b.top - gap;
 }
 
 function drawHistoryChartTooltip(ctx, hover, width, height, full) {
