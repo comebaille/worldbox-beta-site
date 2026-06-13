@@ -2453,23 +2453,15 @@ function drawHistoryChartLineLabel(ctx, item, index, options = {}) {
   let anchor = points[0];
   let angle = 0;
   if (points.length > 1) {
-    let bestSegment = null;
-    points.slice(0, -1).forEach((point, pointIndex) => {
-      const next = points[pointIndex + 1];
-      const length = Math.hypot(next.x - point.x, next.y - point.y);
-      if (!bestSegment || length > bestSegment.length) {
-        bestSegment = { point, next, length };
-      }
-    });
-    if (bestSegment) {
-      anchor = {
-        x: (bestSegment.point.x + bestSegment.next.x) / 2,
-        y: (bestSegment.point.y + bestSegment.next.y) / 2,
-      };
-      angle = Math.atan2(bestSegment.next.y - bestSegment.point.y, bestSegment.next.x - bestSegment.point.x);
-      if (angle > Math.PI / 2) angle -= Math.PI;
-      if (angle < -Math.PI / 2) angle += Math.PI;
-    }
+    const point = points[points.length - 2];
+    const next = points[points.length - 1];
+    anchor = {
+      x: point.x + (next.x - point.x) * 0.62,
+      y: point.y + (next.y - point.y) * 0.62,
+    };
+    angle = Math.atan2(next.y - point.y, next.x - point.x);
+    if (angle > Math.PI / 2) angle -= Math.PI;
+    if (angle < -Math.PI / 2) angle += Math.PI;
   }
 
   ctx.save();
