@@ -478,11 +478,64 @@ label > strong:first-child {
   min-width: 0;
 }
 
-#cardMeta {
+.auction-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.auction-card-slot {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+}
+
+.auction-card-slot.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.12);
+}
+
+.auction-card-slot.blocked {
+  opacity: 0.48;
+  filter: grayscale(0.65);
+}
+
+.auction-card-slot-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--type-micro);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.auction-card-slot-head strong {
+  color: var(--accent-gold);
+  font-size: var(--type-title);
+}
+
+.auction-card-slot h2 {
+  margin-bottom: var(--space-1);
+}
+
+.auction-card-slot > p:not(.card-effect) {
   font-size: var(--type-small);
   font-weight: 600;
   color: var(--text-secondary);
   margin-bottom: 0;
+}
+
+.auction-card-leader {
+  margin-top: var(--space-2);
+}
+
+.auction-card-leader strong {
+  color: var(--text-primary);
 }
 
 .command-year-field,
@@ -744,6 +797,14 @@ label > strong:first-child {
   gap: var(--space-3);
 }
 
+.participant-count-actions {
+  display: flex;
+  align-items: end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .participant-count-field {
   display: grid;
   gap: var(--space-1);
@@ -814,6 +875,59 @@ label > strong:first-child {
   width: 100%;
   height: 130px;
   display: block;
+}
+
+.history-chart-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.history-chart-control-group {
+  display: grid;
+  gap: var(--space-2);
+  padding: 10px;
+  border: 1px solid var(--border-muted);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.46);
+}
+
+.history-chart-control-group h3 {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-tiny);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.history-chart-toggle-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.history-chart-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 6px 9px;
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: rgba(2, 6, 23, 0.34);
+  font-size: var(--type-tiny);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.history-chart-toggle input {
+  accent-color: var(--accent);
+}
+
+.history-chart-copy-row {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .chart-overlay {
@@ -1148,6 +1262,8 @@ label > strong:first-child {
 /* ─── AI Biome Slot ─── */
 .ai-biome-slot {
   grid-area: biome;
+  display: grid;
+  gap: var(--space-2);
 }
 
 .ai-biome-slot:empty {
@@ -1203,6 +1319,22 @@ label > strong:first-child {
 
 .biome-choice-option input:disabled + span {
   color: var(--text-primary);
+}
+
+.civilization-choice-option {
+  align-items: flex-start;
+}
+
+.civilization-choice-option span {
+  display: grid;
+  gap: 2px;
+}
+
+.civilization-choice-option small {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 .biome-choice-note {
@@ -2089,6 +2221,22 @@ label > strong:first-child {
 
   .history-chart-grid {
     grid-template-columns: 1fr;
+  }
+
+  .auction-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-chart-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .history-chart-copy-row {
+    justify-content: stretch;
+  }
+
+  .history-chart-copy-row button {
+    width: 100%;
   }
 
   .command-panel {

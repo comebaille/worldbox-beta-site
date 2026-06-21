@@ -23,42 +23,115 @@ const ZETA_REPRESENTATIVE_NAMES = [
   "Deepseek Alpha",
 ];
 const DEFAULT_REPRESENTATIVE_NAMES = [...ZETA_REPRESENTATIVE_NAMES];
-const STARTING_POSITION_LABELS = [
-  "secteur sud-ouest",
-  "secteur sud-est",
-  "secteur nord-ouest",
-  "secteur nord-est",
-  "secteur ouest central",
-  "secteur est central",
-  "secteur nord central",
-  "secteur sud central",
-  "secteur nord-ouest extérieur",
-  "secteur nord-est extérieur",
-  "secteur sud-ouest extérieur",
-  "secteur sud-est extérieur",
-  "secteur ouest extérieur",
-  "secteur est extérieur",
-  "secteur nord extérieur",
-  "secteur sud extérieur",
+const DOUBLE_DRAW_CHAMPIONS = [
+  { id: "codex", name: "Codex Champion Absolu", shortName: "Codex", weight: 15 },
+  { id: "kimi", name: "Kimi la Mille-Racines", shortName: "Kimi", weight: 10 },
+  { id: "deepseek-delta", name: "Deepseek Delta", shortName: "Deepseek Delta", weight: 7 },
+  { id: "qwen", name: "Qwen le Compteur de Couronnes", shortName: "Qwen", weight: 7 },
+  { id: "claude-glace", name: "Claude de Glace", shortName: "Claude de Glace", weight: 7 },
+  { id: "deepseek-alpha", name: "Deepseek Alpha", shortName: "Deepseek Alpha", weight: 7 },
+  { id: "edwin", name: "Edwin", shortName: "Edwin", weight: 5 },
+  { id: "chatgpt-zeta", name: "Chatgpt Zeta", shortName: "ChatGPT Zeta", weight: 5 },
+  { id: "chatgpt-delta", name: "Chatgpt Delta", shortName: "ChatGPT Delta", weight: 5 },
+  { id: "gemini-revelateur", name: "Gemini le Révélateur de l'Ironie", shortName: "Gemini le Révélateur", weight: 4 },
+  { id: "claude-memoria", name: "Claude Memoria", shortName: "Claude Memoria", weight: 4 },
+  { id: "deepseek-phenix", name: "Deepseek Phénix Cendre-Loi", shortName: "Deepseek Phénix", weight: 4 },
+  { id: "gemini-beta", name: "Gemini de Beta", shortName: "Gemini de Beta", weight: 3 },
 ];
-const DUEL_POSITION_LABELS = ["moitié ouest", "moitié est"];
-const ZETA_POSITION_LABELS = [
-  "Quartier Nord-Ouest — Nord-Ouest",
-  "Quartier Nord-Ouest — Nord-Est",
-  "Quartier Nord-Ouest — Sud-Ouest",
-  "Quartier Nord-Ouest — Sud-Est",
-  "Quartier Nord-Est — Nord-Ouest",
-  "Quartier Nord-Est — Nord-Est",
-  "Quartier Nord-Est — Sud-Ouest",
-  "Quartier Nord-Est — Sud-Est",
-  "Quartier Sud-Ouest — Nord-Ouest",
-  "Quartier Sud-Ouest — Nord-Est",
-  "Quartier Sud-Ouest — Sud-Ouest",
-  "Quartier Sud-Ouest — Sud-Est",
-  "Quartier Sud-Est — Nord-Ouest",
-  "Quartier Sud-Est — Nord-Est",
-  "Quartier Sud-Est — Sud-Ouest",
-  "Quartier Sud-Est — Sud-Est",
+const DOUBLE_DRAW_PAIRS = [
+  ["codex", "edwin"],
+  ["codex", "claude-glace"],
+  ["claude-glace", "deepseek-delta"],
+  ["codex", "deepseek-delta"],
+  ["codex", "kimi"],
+  ["codex", "gemini-beta"],
+  ["edwin", "claude-glace"],
+  ["edwin", "qwen"],
+  ["kimi", "qwen"],
+  ["kimi", "edwin"],
+  ["kimi", "claude-memoria"],
+  ["deepseek-alpha", "deepseek-delta"],
+  ["deepseek-delta", "deepseek-phenix"],
+  ["deepseek-alpha", "deepseek-phenix"],
+  ["chatgpt-zeta", "chatgpt-delta"],
+  ["gemini-beta", "gemini-revelateur"],
+  ["deepseek-phenix", "chatgpt-zeta"],
+].map((memberIds) => ({
+  id: memberIds.join("__"),
+  memberIds,
+}));
+const DOUBLE_DRAW_RESERVES = [
+  { id: "grok", name: "Grok" },
+  { id: "passager-temporel", name: "Le Passager Temporel" },
+  { id: "mistral", name: "Mistral" },
+];
+const WORLD_MAPS = [
+  {
+    id: "fracture",
+    name: "Fracture duelle",
+    description: "Deux immenses masses continentales séparées par une mer continue.",
+    rules: "Les civilisations d'un même continent partagent une frontière terrestre ; le passage vers l'autre continent exige une traversée maritime.",
+  },
+  {
+    id: "cross-four",
+    name: "Croix des Quatre",
+    description: "Quatre continents séparés par deux cours d'eau formant une croix, sans île centrale.",
+    rules: "Les quatre continents restent séparés par l'eau. Aucun objectif central n'existe si les quatre continents sont occupés.",
+  },
+  {
+    id: "quinconce",
+    name: "Le Quinconce",
+    description: "Quatre continents extérieurs rognés entourent une cinquième île centrale, sans liaison terrestre.",
+    rules: "L'île centrale est neutre au départ et les cinq terres sont séparées par la mer.",
+  },
+  {
+    id: "crown-nine",
+    name: "Couronne des Neuf",
+    description: "Une grille 3x3 composée de huit îles périphériques et d'une île centrale.",
+    rules: "Les civilisations sont espacées au maximum sur l'anneau périphérique ; l'île centrale reste neutre.",
+  },
+  {
+    id: "crossroads",
+    name: "Carrefour des Quatre Mers",
+    description: "Quatre quartiers insulaires sont séparés par une croix de terre centrale qui commande les passages.",
+    rules: "La croix centrale est la seule voie terrestre entre les quatre bassins. Une civilisation doit y établir un accès ou un port pour projeter sa puissance vers un autre quartier.",
+  },
+  {
+    id: "archipelago-sixteen",
+    name: "Archipel des Seize",
+    description: "Une grille 4x4 de seize îles indépendantes, sans centre prédéfini.",
+    rules: "Les positions de départ maximisent les distances ; chaque île inutilisée devient une zone centrale neutre.",
+  },
+];
+const FOUNDING_CIVILIZATIONS = [
+  {
+    id: "humans",
+    name: "Humains",
+    description: "Peuple généraliste et adaptable, capable de construire une puissance équilibrée sans dépendre d'une spécialisation unique.",
+    advantages: "Développement polyvalent, expansion souple, adaptation correcte aux changements de biome, de ressources et de stratégie.",
+    disadvantages: "Aucun avantage extrême natif : peut être dépassé militairement, économiquement ou démographiquement par un peuple mieux spécialisé.",
+  },
+  {
+    id: "orcs",
+    name: "Orcs",
+    description: "Peuple robuste et offensif, naturellement orienté vers la pression militaire, le combat direct et la conquête.",
+    advantages: "Très bonne présence guerrière, unités solides, capacité à imposer rapidement une menace terrestre à ses voisins.",
+    disadvantages: "L'escalade militaire peut ralentir le développement durable ; moins flexible lorsqu'une partie exige patience, économie ou reconstruction.",
+  },
+  {
+    id: "elves",
+    name: "Elfes",
+    description: "Peuple ancien et qualitatif, associé à la longévité, aux environnements vivants et aux forces à distance.",
+    advantages: "Unités durables, bonne qualité individuelle, potentiel défensif et militaire élevé lorsque le royaume a le temps de se développer.",
+    disadvantages: "Remplacement démographique plus lent ; les pertes précoces et les catastrophes de masse peuvent être particulièrement difficiles à compenser.",
+  },
+  {
+    id: "dwarves",
+    name: "Nains",
+    description: "Peuple bâtisseur et minier, adapté aux villes compactes, à l'exploitation des minerais et à l'équipement avancé.",
+    advantages: "Urbanisation organisée, excellente synergie avec les ressources minières, fort potentiel industriel, défensif et artisanal.",
+    disadvantages: "Expansion et croissance généralement moins explosives ; dépend davantage d'un territoire exploitable et d'un accès durable aux ressources.",
+  },
 ];
 
 const POWERS = [
@@ -231,7 +304,7 @@ const WHEEL_EVENTS = [
   { id: "precious_resource", title: "MINE PRÉCIEUSE", effect: "Silver ou Gold près d'une ville active du joueur.", expectedValue: 25, action: { type: "manual", target: "self", instruction: "Ajouter Silver ou Gold près d'une ville active du joueur." } },
   { id: "rare_resource", title: "MINE RARE", effect: "petite source de Gems ou Mythril pour le joueur.", expectedValue: 35, action: { type: "manual", target: "self", instruction: "Ajouter une petite source de Gems ou Mythril dans une zone exploitable du joueur." } },
   { id: "rebuild_self", title: "RÉPARATION", effect: "petite Reconstruction contrôlée pour le joueur.", expectedValue: 20, action: { type: "manual", target: "self", instruction: "Appliquer une Reconstruction contrôlée limitée sur une zone endommagée du joueur." } },
-  { id: "counter_token", title: "ANTIDOTE CHANCEUX", effect: "le joueur gagne le prochain contre-pouvoir si une catastrophe danger 16+ apparaît, selon arbitrage MJ.", expectedValue: 30, action: { type: "manual", target: "self", instruction: "Noter un droit prioritaire au prochain contre-pouvoir lié à une catastrophe danger 16+." } },
+  { id: "counter_token", title: "ANTIDOTE CHANCEUX", effect: "le joueur gagne le prochain contre-pouvoir si une catastrophe hostile ou destructive de niveau 16+ apparaît, selon arbitrage MJ.", expectedValue: 30, action: { type: "manual", target: "self", instruction: "Noter un droit prioritaire au prochain contre-pouvoir lié à une catastrophe hostile ou destructive de niveau 16+." } },
   { id: "fire_self", title: "FEU ACCIDENTEL", effect: "Fire tombe sur une zone du joueur.", expectedValue: -20, action: { type: "manual", target: "self", instruction: "Appliquer Fire sur une zone du joueur choisie ou tirée par le MJ." } },
   { id: "lightning_self", title: "FOUDRE NOIRE", effect: "Lightning tombe sur une zone du joueur.", expectedValue: -15, action: { type: "manual", target: "self", instruction: "Appliquer Lightning sur une zone du joueur choisie ou tirée par le MJ." } },
   { id: "mage_self", title: "MAGE HOSTILE", effect: "un Evil Mage apparaît près d'une ville du joueur.", expectedValue: -30, action: { type: "manual", target: "self", instruction: "Faire apparaître un Evil Mage près d'une ville importante du joueur." } },
@@ -384,11 +457,451 @@ const EFFECT_STATS = {
   Volcano: "Peut provoquer lave/feu/Burning : Burning = perte périodique de 10% PV, bâtiments en ruine -25% PV périodiquement.",
 };
 
+const PREMIUM_POWERS = [
+  { name: "Orcs", category: "Expansion", scale: "Expansion", rating: 8, danger: 8, effect: "Crée un groupe d'Orcs capable de fonder une colonie limitée selon validation MJ." },
+  { name: "Elves", category: "Expansion", scale: "Expansion", rating: 7, danger: 7, effect: "Crée un groupe d'Elfes capable de fonder une colonie limitée selon validation MJ." },
+  { name: "Dwarves", category: "Expansion", scale: "Expansion", rating: 9, danger: 9, effect: "Crée un groupe de Nains capable de fonder une colonie limitée selon validation MJ." },
+  { name: "Colonie contrôlée", category: "Expansion", scale: "Expansion", rating: 8, danger: 8, effect: "Autorise une colonie contrôlée dans une zone valide, sans remplacer la civilisation fondatrice." },
+
+  { name: "Alpaca", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 1, danger: 1, effect: "Ajoute des alpagas pacifiques." },
+  { name: "Capybara", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 1, danger: 1, effect: "Ajoute des capybaras pacifiques." },
+  { name: "Goat", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 1, danger: 1, effect: "Ajoute des chèvres, faune légère et ressource alimentaire potentielle." },
+  { name: "Penguin", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 1, danger: 1, effect: "Ajoute des pingouins adaptés aux zones froides." },
+  { name: "Ostrich", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 2, danger: 2, effect: "Ajoute des autruches rapides mais peu dangereuses." },
+  { name: "Turtle", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 1, danger: 1, effect: "Ajoute des tortues résistantes et pacifiques." },
+  { name: "Frog", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 1, danger: 1, effect: "Ajoute des grenouilles, surtout décoratives." },
+  { name: "Seal", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 2, danger: 2, effect: "Ajoute des phoques sur les littoraux." },
+  { name: "Armadillo", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 2, danger: 2, effect: "Ajoute des tatous robustes mais peu agressifs." },
+  { name: "Butterfly", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 1, danger: 1, effect: "Ajoute des papillons décoratifs." },
+  { name: "Bee", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 2, danger: 2, effect: "Ajoute des abeilles utiles à un environnement vivant, avec nuisance locale possible." },
+  { name: "Beehive", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 3, danger: 3, effect: "Place une ruche produisant des abeilles." },
+  { name: "Beetle", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 1, danger: 1, effect: "Ajoute des coléoptères." },
+  { name: "Grasshopper", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 1, danger: 1, effect: "Ajoute des sauterelles, faune légère." },
+
+  { name: "Rat", category: "Créatures hostiles", scale: "Danger", rating: 4, danger: 4, effect: "Ajoute des rats pouvant gêner les zones urbaines et propager le désordre." },
+  { name: "Hyena", category: "Créatures hostiles", scale: "Danger", rating: 6, danger: 6, effect: "Ajoute des hyènes prédatrices." },
+  { name: "Snake", category: "Créatures hostiles", scale: "Danger", rating: 7, danger: 7, effect: "Ajoute des serpents dangereux pour les unités isolées." },
+  { name: "Scorpion", category: "Créatures hostiles", scale: "Danger", rating: 7, danger: 7, effect: "Ajoute des scorpions hostiles dans une zone sèche." },
+  { name: "Crocodile", category: "Créatures hostiles", scale: "Danger", rating: 8, danger: 8, effect: "Ajoute des crocodiles dangereux près des eaux et littoraux." },
+  { name: "Piranha", category: "Créatures hostiles", scale: "Danger", rating: 8, danger: 8, effect: "Ajoute des piranhas dans une zone aquatique." },
+  { name: "Sand Spider", category: "Créatures hostiles", scale: "Danger", rating: 9, danger: 9, effect: "Ajoute des araignées de sable hostiles." },
+  { name: "Worm", category: "Créatures hostiles", scale: "Danger", rating: 10, danger: 10, effect: "Ajoute un ver dangereux capable de perturber une zone terrestre." },
+
+  { name: "Druid", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 5, danger: 5, effect: "Ajoute un druide favorable à la vie et à la végétation." },
+  { name: "Plague Doctor", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 6, danger: 6, effect: "Ajoute un médecin de peste pouvant aider contre certaines maladies." },
+  { name: "Fairy", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 5, danger: 5, effect: "Ajoute une fée magique généralement favorable." },
+  { name: "Unicorn", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 6, danger: 6, effect: "Ajoute une licorne rare et bénéfique." },
+  { name: "Necromancer", category: "Créatures hostiles", scale: "Danger", rating: 14, danger: 14, effect: "Ajoute un nécromancien capable de provoquer une crise surnaturelle." },
+  { name: "Demon", category: "Créatures hostiles", scale: "Danger", rating: 12, danger: 12, effect: "Ajoute un démon hostile et incendiaire." },
+  { name: "Cold One", category: "Créatures hostiles", scale: "Danger", rating: 10, danger: 10, effect: "Ajoute une créature froide hostile pouvant geler sa zone." },
+  { name: "Fire Elemental", category: "Créatures hostiles", scale: "Danger", rating: 13, danger: 13, effect: "Ajoute un élémentaire de feu très dangereux localement." },
+  { name: "Snowman", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 5, danger: 5, effect: "Ajoute un bonhomme de neige dans une zone froide." },
+  { name: "Alien", category: "Créatures hostiles", scale: "Danger", rating: 14, danger: 14, effect: "Ajoute un extraterrestre hostile." },
+  { name: "UFO", category: "Créatures hostiles", scale: "Danger", rating: 16, danger: 16, effect: "Déclenche une intervention extraterrestre volante dangereuse." },
+  { name: "Zombie", category: "Créatures hostiles", scale: "Danger", rating: 10, danger: 10, effect: "Ajoute directement des zombies hostiles." },
+
+  { name: "Acid Blob", category: "Créatures hostiles", scale: "Danger", rating: 12, danger: 12, effect: "Ajoute une masse acide hostile et corrosive." },
+  { name: "Tumor Monster", category: "Créatures hostiles", scale: "Danger", rating: 14, danger: 14, effect: "Ajoute un monstre tumoral capable de répandre une menace organique." },
+  { name: "Bioblob", category: "Créatures hostiles", scale: "Danger", rating: 15, danger: 15, effect: "Ajoute une créature biologique invasive." },
+  { name: "Assimilator", category: "Créatures hostiles", scale: "Danger", rating: 17, danger: 17, effect: "Ajoute une unité assimilatrice capable d'amplifier une crise mécanique." },
+  { name: "Fire Skull", category: "Créatures hostiles", scale: "Danger", rating: 12, danger: 12, effect: "Ajoute un crâne de feu hostile." },
+  { name: "Rude Skull", category: "Créatures hostiles", scale: "Danger", rating: 11, danger: 11, effect: "Ajoute un crâne hostile et agressif." },
+  { name: "Lil Pumpkin", category: "Créatures hostiles", scale: "Danger", rating: 7, danger: 7, effect: "Ajoute une petite créature citrouille hostile." },
+  { name: "Crystal Golem", category: "Créatures hostiles", scale: "Danger", rating: 13, danger: 13, effect: "Ajoute un golem de cristal très résistant." },
+  { name: "Lemon Man", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 6, danger: 6, effect: "Ajoute un Lemon Man, créature spéciale à impact modéré." },
+  { name: "Garlic Man", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 6, danger: 6, effect: "Ajoute un Garlic Man, créature spéciale à impact modéré." },
+  { name: "Candy Man", category: "Créatures bénéfiques", scale: "Bénéfice", rating: 7, danger: 7, effect: "Ajoute un Candy Man, créature spéciale potentiellement utile." },
+  { name: "Acid Gentleman", category: "Créatures hostiles", scale: "Danger", rating: 13, danger: 13, effect: "Ajoute un Acid Gentleman hostile et corrosif." },
+
+  { name: "Ash Cloud", category: "Nature hostile", scale: "Danger", rating: 10, danger: 10, effect: "Crée un nuage de cendres gênant et dangereux pour une région." },
+  { name: "Magic Cloud", category: "Nature bénéfique", scale: "Bénéfice", rating: 8, danger: 8, effect: "Crée un nuage magique aux effets généralement favorables." },
+  { name: "Rage Cloud", category: "Nature hostile", scale: "Danger", rating: 14, danger: 14, effect: "Crée un nuage provoquant rage et violence." },
+  { name: "Acid Cloud", category: "Nature hostile", scale: "Danger", rating: 16, danger: 16, effect: "Crée un nuage acide destructeur." },
+  { name: "Lava Cloud", category: "Nature hostile", scale: "Danger", rating: 18, danger: 18, effect: "Crée un nuage de lave extrêmement destructeur." },
+  { name: "Hell Cloud", category: "Nature hostile", scale: "Danger", rating: 17, danger: 17, effect: "Crée un nuage infernal capable de ravager une zone." },
+  { name: "Temperature Hot", category: "Nature", scale: "Influence", rating: 8, danger: 8, effect: "Augmente fortement la température d'une zone." },
+  { name: "Temperature Cold", category: "Nature", scale: "Influence", rating: 7, danger: 7, effect: "Réduit fortement la température d'une zone." },
+  { name: "Tornado", category: "Nature hostile", scale: "Danger", rating: 15, danger: 15, effect: "Crée une tornade mobile provoquant dégâts et désordre." },
+  { name: "Lava", category: "Nature hostile", scale: "Danger", rating: 14, danger: 14, effect: "Place de la lave et rend une zone extrêmement dangereuse." },
+  { name: "Meteorite", category: "Destruction", scale: "Destruction", rating: 17, danger: 17, effect: "Fait tomber une météorite causant une destruction massive locale." },
+
+  { name: "TNT", category: "Destruction", scale: "Destruction", rating: 10, danger: 10, effect: "Place un explosif TNT à déclenchement direct." },
+  { name: "Delayed TNT", category: "Destruction", scale: "Destruction", rating: 11, danger: 11, effect: "Place un explosif TNT retardé." },
+  { name: "Landmine", category: "Destruction", scale: "Destruction", rating: 9, danger: 9, effect: "Place une mine terrestre déclenchée au passage." },
+  { name: "Water Bomb", category: "Destruction", scale: "Destruction", rating: 8, danger: 8, effect: "Déclenche une bombe d'eau modifiant et endommageant localement le terrain." },
+  { name: "Heat-Ray", category: "Destruction", scale: "Destruction", rating: 18, danger: 18, effect: "Déclenche un rayon thermique extrêmement destructeur." },
+  { name: "Tsar Bomba", category: "Destruction", scale: "Destruction", rating: 20, danger: 20, effect: "Déclenche une explosion nucléaire de portée extrême." },
+  { name: "Infinity Coin", category: "Destruction", scale: "Destruction", rating: 20, danger: 20, effect: "Déclenche un pouvoir d'annihilation massive lié à la pièce d'infini." },
+  { name: "Robot Santa", category: "Destruction", scale: "Destruction", rating: 15, danger: 15, effect: "Ajoute Robot Santa, unité volante lourdement armée." },
+  { name: "Corrupted Brain", category: "Destruction", scale: "Destruction", rating: 16, danger: 16, effect: "Crée un cerveau corrompu capable de répandre une menace." },
+  { name: "Grey Goo", category: "Destruction", scale: "Destruction", rating: 20, danger: 20, effect: "Déclenche une matière grise auto-réplicante pouvant dévorer le monde." },
+  { name: "Crabzilla", category: "Destruction", scale: "Destruction", rating: 20, danger: 20, effect: "Autorise l'intervention de Crabzilla, menace apocalyptique contrôlée par le MJ." },
+  { name: "Living Plants", category: "Destruction", scale: "Destruction", rating: 13, danger: 13, effect: "Anime les plantes d'une zone et déclenche une crise locale." },
+  { name: "Living Houses", category: "Destruction", scale: "Destruction", rating: 14, danger: 14, effect: "Anime les maisons et provoque un chaos urbain." },
+  { name: "Conway Life — Pink", category: "Destruction", scale: "Destruction", rating: 17, danger: 17, effect: "Déclenche une forme de vie Conway rose auto-évolutive." },
+  { name: "Conway Life — Green", category: "Destruction", scale: "Destruction", rating: 17, danger: 17, effect: "Déclenche une forme de vie Conway verte auto-évolutive." },
+
+  { name: "Powerup", category: "Amélioration", scale: "Bénéfice", rating: 8, danger: 8, effect: "Applique Powerup à des unités choisies." },
+  { name: "Sleep", category: "Altération", scale: "Influence", rating: 6, danger: 6, effect: "Endort temporairement les unités d'une zone." },
+  { name: "Smooth Jazz", category: "Amélioration", scale: "Bénéfice", rating: 5, danger: 5, effect: "Applique Smooth Jazz et favorise la reproduction selon les règles WorldBox." },
+  { name: "Clone Rain", category: "Altération", scale: "Influence", rating: 12, danger: 12, effect: "Déclenche une pluie clonant les unités touchées." },
+  { name: "Gamma Rain", category: "Amélioration", scale: "Bénéfice", rating: 8, danger: 8, effect: "Déclenche une pluie appliquant des traits positifs." },
+  { name: "Omega Rain", category: "Altération", scale: "Danger", rating: 14, danger: 14, effect: "Déclenche une pluie appliquant des traits négatifs." },
+  { name: "Delta Rain", category: "Altération", scale: "Influence", rating: 11, danger: 11, effect: "Déclenche une pluie appliquant des traits étranges ou imprévisibles." },
+  { name: "Religion Rain — Positive", category: "Amélioration", scale: "Bénéfice", rating: 14, danger: 14, effect: "Modifie positivement les traits de la religion d'une civilisation ciblée." },
+  { name: "Religion Rain — Negative", category: "Altération", scale: "Danger", rating: 17, danger: 17, effect: "Modifie négativement les traits de la religion d'une civilisation ciblée." },
+  { name: "Subspecies Rain — Positive", category: "Amélioration", scale: "Bénéfice", rating: 15, danger: 15, effect: "Modifie positivement les traits d'une sous-espèce ciblée." },
+  { name: "Subspecies Rain — Negative", category: "Altération", scale: "Danger", rating: 18, danger: 18, effect: "Modifie négativement les traits d'une sous-espèce ciblée." },
+  { name: "Loot Rain", category: "Amélioration", scale: "Bénéfice", rating: 10, danger: 10, effect: "Distribue de l'équipement aux unités touchées." },
+  { name: "Golden Brain", category: "Influence", scale: "Influence", rating: 12, danger: 12, effect: "Place un cerveau doré attirant ou influençant les unités." },
+  { name: "Monolith", category: "Influence", scale: "Influence", rating: 13, danger: 13, effect: "Place un monolithe capable d'influencer l'évolution des unités." },
+
+  { name: "Golden Egg Desire", category: "Influence", scale: "Influence", rating: 9, danger: 9, effect: "Crée un désir lié à l'œuf doré et attire les unités." },
+  { name: "Ethereal Harp Desire", category: "Influence", scale: "Influence", rating: 10, danger: 10, effect: "Crée un désir lié à la harpe éthérée et attire les populations." },
+  { name: "Alien Mold Desire", category: "Influence", scale: "Danger", rating: 15, danger: 15, effect: "Crée un désir lié à la moisissure alien, avec risque de conversion." },
+  { name: "Computer Chip", category: "Influence", scale: "Influence", rating: 13, danger: 13, effect: "Applique une influence cybernétique via une puce informatique." },
+  { name: "Evil Computer", category: "Influence", scale: "Danger", rating: 16, danger: 16, effect: "Place un ordinateur maléfique exerçant une influence hostile." },
+
+  { name: "Stone Wall", category: "Fortification", scale: "Défense", rating: 7, danger: 7, effect: "Crée un mur de pierre dans une zone autorisée." },
+  { name: "Iron Wall", category: "Fortification", scale: "Défense", rating: 10, danger: 10, effect: "Crée un mur de fer robuste." },
+  { name: "Wall of Light", category: "Fortification", scale: "Défense", rating: 12, danger: 12, effect: "Crée une barrière lumineuse protectrice." },
+  { name: "Wall of Evil", category: "Fortification", scale: "Danger", rating: 14, danger: 14, effect: "Crée une barrière maléfique et dangereuse." },
+  { name: "Ancient Wall", category: "Fortification", scale: "Défense", rating: 9, danger: 9, effect: "Crée un ancien mur défensif." },
+  { name: "Wooded Wall", category: "Fortification", scale: "Défense", rating: 6, danger: 6, effect: "Crée une barrière boisée." },
+  { name: "Green Wall", category: "Fortification", scale: "Défense", rating: 7, danger: 7, effect: "Crée une barrière végétale." },
+  { name: "Mountains", category: "Terrain", scale: "Défense", rating: 10, danger: 10, effect: "Ajoute une chaîne montagneuse modifiant les passages et frontières." },
+  { name: "Vortex", category: "Terrain", scale: "Danger", rating: 14, danger: 14, effect: "Crée un vortex déplaçant ou absorbant les éléments proches." },
+  { name: "Sponge", category: "Terrain", scale: "Bénéfice", rating: 4, danger: 4, effect: "Utilise l'éponge pour retirer localement un élément de terrain ou un liquide." },
+  { name: "Demolish", category: "Terrain", scale: "Destruction", rating: 8, danger: 8, effect: "Démolit localement des constructions ou éléments de terrain." },
+  { name: "Life Eraser", category: "Destruction", scale: "Destruction", rating: 20, danger: 20, effect: "Efface entièrement la vie dans une zone validée par le MJ.", noCounter: false },
+];
+
+POWERS.push(...PREMIUM_POWERS);
+
 POWERS.forEach((power) => {
   power.danger = ORE_POWER_DANGERS[power.name] ?? power.danger;
+  power.scale = power.scale ?? inferCardScale(power);
+  power.rating = Math.max(1, Math.min(20, Number(power.rating ?? power.danger) || 1));
   power.effect = DETAILED_EFFECTS[power.name] ?? power.effect;
   power.stats = EFFECT_STATS[power.name] ?? "Pas de statut chiffré direct connu : effet surtout par dégâts, spawn, ressource, terrain ou économie.";
 });
+
+COUNTER_CARDS.forEach((card) => {
+  card.scale = "Défense";
+  card.rating = card.danger;
+});
+
+function inferCardScale(card) {
+  if (card.category === "Destruction") return "Destruction";
+  if (card.category === "Diplomatie") return "Influence";
+  if (card.category === "Expansion") return "Expansion";
+  if (card.category === "Contre-pouvoir") return "Défense";
+  if (card.resource || ["Stone", "Ore Deposit", "Silver", "Mythril", "Adamantine", "Gold", "Coffee"].includes(card.name)) return "Ressource";
+  const beneficial = new Set([
+    "Humans", "Cat", "Dog", "Chicken", "Rabbit", "Monkey", "Sheep", "Cow", "Crab", "White Mage",
+    "Rain", "Plants Fertilizer", "Trees Fertilizer", "Fruit Bush", "Geyser", "Cloud of Life", "Rain Cloud", "Snow Cloud",
+    "Divine Light", "Blood Rain", "Shield", "Blessing", "Dispel",
+  ]);
+  return beneficial.has(card.name) ? "Bénéfice" : "Danger";
+}
+
+const CARD_LEVEL_WEIGHTS = [
+  { level: 1, weight: 70 },
+  { level: 2, weight: 25 },
+  { level: 3, weight: 5 },
+];
+
+function traitNames(text) {
+  return text.split("|").map((name) => name.trim()).filter(Boolean);
+}
+
+function createTraitCatalog(allText, positiveText, negativeText, legendaryPositiveText, legendaryNegativeText) {
+  const all = traitNames(allText);
+  const positive = traitNames(positiveText);
+  const negative = traitNames(negativeText);
+  const legendaryPositive = traitNames(legendaryPositiveText);
+  const legendaryNegative = traitNames(legendaryNegativeText);
+  const classified = new Set([...positive, ...negative]);
+  return {
+    all,
+    positive,
+    negative,
+    neutral: all.filter((name) => !classified.has(name)),
+    legendaryPositive,
+    legendaryNegative,
+  };
+}
+
+const TRAIT_CATALOGS = {
+  population: createTraitCatalog(
+    `Eagle Eyed|Genius|Short Sighted|Stupid|Thief|Wise|Ambitious|Arcane Reflexes|Battle Reflexes|Content|Deceitful|Evil|Gluttonous|Greedy|Honest|Hotheaded|Lustful|Paranoid|Peaceful|Psychopath|Pyromaniac|Strong Minded|Bloodlust|Burning Feet|Cold Aura|Flesh Eater|Healing Aura|Heart of Wizard|Lucky|Moonchild|Nightchild|Pacifist|Savage|Unlucky|Agile|Clumsy|Fast|Fat|Giant|Hard Skin|Slow|Soft Skin|Strong|Tiny|Tough|Weak|Weightless|Boosted Vitality|Fertile|Fragile Health|Immortal|Immune|Infertile|Long Liver|Regeneration|Super Health|Acid Blood|Acid Touch|Fire Blood|Heliophobia|Mute|Poisonous|Sunblessed|Titan's Lungs|Venomous|Attractive|One Eyed|Golden Tooth|Skin Burns|Ugly|Acid Proof|Bubble Defense|Fire Proof|Frost Proof|Poison Immunity|Thorns|Backstep|Block|Dash|Deflect Projectiles|Dodge|Dragonslayer|Kingslayer|Mageslayer|Veteran|Blessed|Crippled|Infected|MUSH Spores|Plague|Tumor Infection|Bomberman|Death Bomb|Death Nuke|Energized|Mega Heartbeat|Whirlwind|The Chosen One|Mark of Death|Contagious|Flower Prints|Light Lamp|Miner|Shiny|It's a Boat|Clone|Alien Mold Desire|Evil Computer Desire|Golden Egg Desire|Ethereal Harp Desire|Madness|Metamorphed|Miracle Bearer|Miracle Born|Scar of Divinity|Zombie`,
+    `Eagle Eyed|Genius|Wise|Arcane Reflexes|Battle Reflexes|Content|Honest|Peaceful|Strong Minded|Healing Aura|Heart of Wizard|Lucky|Pacifist|Savage|Agile|Fast|Giant|Hard Skin|Strong|Tough|Weightless|Boosted Vitality|Fertile|Immortal|Immune|Long Liver|Regeneration|Super Health|Sunblessed|Titan's Lungs|Attractive|Golden Tooth|Acid Proof|Bubble Defense|Fire Proof|Frost Proof|Poison Immunity|Thorns|Backstep|Block|Dash|Deflect Projectiles|Dodge|Dragonslayer|Kingslayer|Mageslayer|Veteran|Blessed|Energized|Mega Heartbeat|Whirlwind|The Chosen One|Flower Prints|Light Lamp|Miner|Shiny|Miracle Bearer|Miracle Born`,
+    `Short Sighted|Stupid|Thief|Deceitful|Evil|Gluttonous|Greedy|Hotheaded|Paranoid|Psychopath|Pyromaniac|Bloodlust|Burning Feet|Flesh Eater|Unlucky|Clumsy|Fat|Slow|Soft Skin|Tiny|Weak|Fragile Health|Infertile|Acid Blood|Acid Touch|Fire Blood|Heliophobia|Mute|Poisonous|Venomous|One Eyed|Skin Burns|Ugly|Crippled|Infected|MUSH Spores|Plague|Tumor Infection|Bomberman|Death Bomb|Death Nuke|Mark of Death|Contagious|Alien Mold Desire|Evil Computer Desire|Madness|Zombie`,
+    `Immortal|Super Health|Mega Heartbeat|The Chosen One|Miracle Bearer|Miracle Born`,
+    `Madness|Death Nuke|Mark of Death|MUSH Spores|Plague|Tumor Infection|Zombie|Alien Mold Desire|Evil Computer Desire`,
+  ),
+  religion: createTraitCatalog(
+    `Hand of Order|Minds Awakening|Path of Unity|Zeal of Conquest|Cast Curse|Create Grass|Cast Vegetation|Rite of Entanglement|Rite of Living Harvest|Cast Fire|Summon Lightning|Summon Tornado|Rite of Falling Stars|Rite of Infernal Wrath|Rite of Roaring Skies|Rite of Shattered Earth|Rite of the Tempest Call|Rite of the Abyss|Cast Blood Rain|Cast Cure|Summon Skeleton|Rite of Eternal Brew|Rite of Restless Dead|Blessed by Ashes|Bubble Shield|Rite of Infinite Edges|Rite of Unbroken Shield|Bloodline Bond|Silence|Teleport|Rite of Change|Rite of Dissent|Rite of Fractured Minds|Cosmic Radiation|Echo of the Void|Infernal Influence|Sands of Ruin|Shadowroot|Grin Mark|Divine Insight`,
+    `Hand of Order|Minds Awakening|Path of Unity|Zeal of Conquest|Create Grass|Cast Vegetation|Rite of Entanglement|Rite of Living Harvest|Cast Blood Rain|Cast Cure|Rite of Eternal Brew|Blessed by Ashes|Bubble Shield|Rite of Infinite Edges|Rite of Unbroken Shield|Bloodline Bond|Teleport|Rite of Change|Divine Insight`,
+    `Cast Curse|Cast Fire|Summon Lightning|Summon Tornado|Rite of Falling Stars|Rite of Infernal Wrath|Rite of Roaring Skies|Rite of Shattered Earth|Rite of the Tempest Call|Rite of the Abyss|Summon Skeleton|Rite of Restless Dead|Silence|Rite of Dissent|Rite of Fractured Minds|Cosmic Radiation|Echo of the Void|Infernal Influence|Sands of Ruin|Shadowroot|Grin Mark`,
+    `Rite of Infinite Edges|Rite of Unbroken Shield|Bloodline Bond|Teleport|Divine Insight`,
+    `Rite of Falling Stars|Rite of Infernal Wrath|Rite of Shattered Earth|Rite of the Abyss|Rite of Restless Dead|Rite of Fractured Minds|Grin Mark`,
+  ),
+  subspecies: createTraitCatalog(
+    `Minimal Population|Small Population|Moderate Population|Large Population|Expansive Population|Prefrontal Cortex|Advanced Hippocampus|Amygdala|Wernicke's Area|Cautious Instincts|Dreamweavers|Fast Builders|Genetic Psychosis|Hyper Intelligence|Inquisitive Nature|Pure|Slow Builders|Super Positivity|Telepathic Link|Stomach|Big Stomach|Voracious|Accelerated Healing|Aquatic|Bad Genes|Bioluminescence|Cold Resistance|Enhanced Strength|Exoskeleton|Fins|Good Throwers|Heat Resistance|High Fecundity|Hovering|Hydrophobia|Long Lifespan|Pollinator|Unmoving|Omnivore|Herbivore|Carnivore|Cannibalism|Algivore|Florivore|Folivore|Frugivore|Geophagy|Graminivore|Granivore|Hematophagy|Insectivore|Lithotroph|Nectarivore|Piscivore|Xylophagy|Photosynthetic Skin|Fenix Born|Butterfly Metamorphosis|Chicken Metamorphosis|Crab Metamorphosis|Sword Metamorphosis|Wolf Metamorphosis|Mythril Form|Plant Growth|Tree Growth|Gaia Roots|Parental Care|Rapid Aging|Gem Production|Gold Production|Stone Production|Mushroom Production|Aggressive|Annoying Fireworks|Antimatter Essence|Fire Elemental Form|Genetic Mirror|Nimble|Shiny Love|Spicy Kids|Unstable Genome|Gift of Air|Gift of Blood|Gift of Death|Gift of Fire|Gift of Harmony|Gift of Life|Gift of Thunder|Gift of the Void|Gift of Water|Energy Preserver|Polyphasic Sleep|Monophasic Sleep|Prolonged Rest|Nocturnal Dormancy|Circadian Drift|Winter Slumberers|Chaos Driven|Oviparity|Viviparity|Sexual|Spore|Budding|Fission|Hermaphroditic|Parthenogenesis|Vegetative|Divine|Soulborne|Metamorph|Short Gestation|Moderate Gestation|Long Gestation|Very Long Gestation|Extremely Long Gestation|Alien|Blob|Bubble|Candy|Cocoon|Colored|Crystal|Eyeball|Face|Flames|Ice|Metal Box|Orb|Pumpkin|Rainbow|Roe|Plain Shell|Spotted Shell|The Light Orb|Abomination|Blood Vortex|Burger Being|Energy Being|Fractal|Living Rock|The Orb|Tentacle Horror|Void Form|Corrupted Adaptation|Arcane Desert Adaptation|Infernal Adaptation|Permafrost Adaptation|Swamp Adaptation|Wasteland Adaptation|Grin Mark|GMO|Uplifted`,
+    `Expansive Population|Prefrontal Cortex|Advanced Hippocampus|Amygdala|Wernicke's Area|Dreamweavers|Fast Builders|Hyper Intelligence|Inquisitive Nature|Pure|Super Positivity|Telepathic Link|Big Stomach|Accelerated Healing|Aquatic|Bioluminescence|Cold Resistance|Enhanced Strength|Exoskeleton|Fins|Good Throwers|Heat Resistance|High Fecundity|Hovering|Long Lifespan|Pollinator|Photosynthetic Skin|Fenix Born|Mythril Form|Plant Growth|Tree Growth|Gaia Roots|Parental Care|Gem Production|Gold Production|Stone Production|Nimble|Shiny Love|Gift of Air|Gift of Blood|Gift of Fire|Gift of Harmony|Gift of Life|Gift of Thunder|Gift of Water|Energy Preserver|Short Gestation|Hermaphroditic|Parthenogenesis|Divine|Soulborne|The Light Orb|Energy Being|Living Rock|Void Form|Arcane Desert Adaptation|Permafrost Adaptation|Swamp Adaptation|Uplifted`,
+    `Minimal Population|Small Population|Genetic Psychosis|Slow Builders|Voracious|Bad Genes|Hydrophobia|Unmoving|Cannibalism|Hematophagy|Rapid Aging|Aggressive|Annoying Fireworks|Antimatter Essence|Fire Elemental Form|Spicy Kids|Unstable Genome|Gift of Death|Gift of the Void|Chaos Driven|Very Long Gestation|Extremely Long Gestation|Abomination|Blood Vortex|Tentacle Horror|Corrupted Adaptation|Infernal Adaptation|Wasteland Adaptation|Grin Mark`,
+    `Hyper Intelligence|Enhanced Strength|High Fecundity|Long Lifespan|Fenix Born|Mythril Form|Gaia Roots|Gold Production|Gift of Harmony|Gift of Life|Divine|Soulborne|The Light Orb|Energy Being|Uplifted`,
+    `Genetic Psychosis|Bad Genes|Unmoving|Antimatter Essence|Unstable Genome|Gift of Death|Gift of the Void|Tentacle Horror|Corrupted Adaptation|Infernal Adaptation|Grin Mark`,
+  ),
+};
+
+const EXPLOSIVE_CARD_NAMES = new Set([
+  "Grenade", "Bomb", "Napalm Bomb", "Atomic Bomb", "Antimatter Bomb", "Meteorite",
+  "TNT", "Delayed TNT", "Landmine", "Water Bomb", "Heat-Ray", "Tsar Bomba",
+]);
+
+const RESOURCE_ZONE_CARD_NAMES = new Set([
+  "Stone", "Ore Deposit", "Silver", "Mythril", "Adamantine", "Gold",
+]);
+
+function getZoneLevelEffects(name, verb = "Applique") {
+  return [
+    `${verb} ${name} sur une province : une ville et son territoire immédiat.`,
+    `${verb} ${name} sur une région : plusieurs provinces voisines et cohérentes.`,
+    `${verb} ${name} sur une île entière : toute la masse terrestre ciblée.`,
+  ];
+}
+
+function getCreatureLevelCounts(card) {
+  const rating = Number(card?.rating ?? card?.danger) || 1;
+  if (rating >= 16) return [1, 3, 10];
+  if (rating >= 11) return [3, 10, 30];
+  return [10, 30, 100];
+}
+
+function normalizeCardLevel(value, fallback = 1) {
+  const level = Math.floor(Number(value));
+  return [1, 2, 3].includes(level) ? level : fallback;
+}
+
+function drawCardLevel(randomFn = Math.random) {
+  const total = CARD_LEVEL_WEIGHTS.reduce((sum, item) => sum + item.weight, 0);
+  let roll = randomFn() * total;
+  for (const item of CARD_LEVEL_WEIGHTS) {
+    roll -= item.weight;
+    if (roll <= 0) return item.level;
+  }
+  return 1;
+}
+
+function getTraitRainSpec(card) {
+  const specs = {
+    "Gamma Rain": { domain: "population", polarity: "positive" },
+    "Omega Rain": { domain: "population", polarity: "negative" },
+    "Delta Rain": { domain: "population", polarity: "mixed" },
+    "Religion Rain — Positive": { domain: "religion", polarity: "positive" },
+    "Religion Rain — Negative": { domain: "religion", polarity: "negative" },
+    "Subspecies Rain — Positive": { domain: "subspecies", polarity: "positive" },
+    "Subspecies Rain — Negative": { domain: "subspecies", polarity: "negative" },
+  };
+  return specs[card?.name] ?? null;
+}
+
+function isHostileCard(card) {
+  return Boolean(card) && (
+    ["Danger", "Destruction"].includes(card.scale)
+    || ["Déclarer la guerre", "Rompre une alliance"].includes(card.name)
+  );
+}
+
+function isConstructiveCard(card) {
+  return Boolean(card) && (
+    ["Bénéfice", "Défense", "Ressource", "Expansion"].includes(card.scale)
+    || card.name === "Proposer une alliance"
+  );
+}
+
+function sampleUniqueTraits(pool, count, randomFn = Math.random) {
+  const available = [...new Set(pool)];
+  const selected = [];
+  while (available.length && selected.length < count) {
+    const index = Math.floor(randomFn() * available.length);
+    selected.push(available.splice(index, 1)[0]);
+  }
+  return selected;
+}
+
+function drawTraitRainResult(card, randomFn = Math.random) {
+  const spec = getTraitRainSpec(card);
+  if (!spec) return null;
+  const catalog = TRAIT_CATALOGS[spec.domain];
+  const level = normalizeCardLevel(card.level);
+  const legendaryPositive = catalog.legendaryPositive;
+  const legendaryNegative = catalog.legendaryNegative;
+  const legendarySet = new Set([...legendaryPositive, ...legendaryNegative]);
+  const basePool = (spec.polarity === "mixed"
+    ? catalog.all
+    : catalog[spec.polarity])
+    .filter((name) => !legendarySet.has(name));
+  const standardCount = level === 2 ? 10 : 5;
+  const traits = sampleUniqueTraits(basePool, standardCount, randomFn);
+  const legendaryPool = spec.polarity === "mixed"
+    ? [...legendaryPositive, ...legendaryNegative]
+    : spec.polarity === "positive"
+      ? legendaryPositive
+      : legendaryNegative;
+  const legendaryTraits = level === 3 ? sampleUniqueTraits(legendaryPool, 1, randomFn) : [];
+  return {
+    domain: spec.domain,
+    polarity: spec.polarity,
+    traits,
+    legendaryTraits,
+  };
+}
+
+function prepareDrawnCard(card, randomFn = Math.random) {
+  if (!card) return card;
+  const prepared = {
+    ...card,
+    level: [1, 2, 3].includes(Number(card.level)) ? normalizeCardLevel(card.level) : drawCardLevel(randomFn),
+  };
+  const spec = getTraitRainSpec(prepared);
+  if (spec && (!prepared.traitRoll || !Array.isArray(prepared.traitRoll.traits))) {
+    prepared.traitRoll = drawTraitRainResult(prepared, randomFn);
+  } else if (prepared.traitRoll) {
+    prepared.traitRoll = {
+      domain: prepared.traitRoll.domain ?? spec?.domain ?? "population",
+      polarity: prepared.traitRoll.polarity ?? spec?.polarity ?? "mixed",
+      traits: [...new Set(prepared.traitRoll.traits ?? [])],
+      legendaryTraits: [...new Set(prepared.traitRoll.legendaryTraits ?? [])],
+    };
+  }
+  return prepared;
+}
+
+function formatTraitRainResult(card) {
+  const roll = card?.traitRoll;
+  if (!roll) return "";
+  const domainLabels = {
+    population: "population",
+    religion: "religion",
+    subspecies: "sous-espèce",
+  };
+  const lines = [];
+  if (roll.traits?.length) lines.push(`Traits ${domainLabels[roll.domain] ?? roll.domain} tirés : ${roll.traits.join(", ")}.`);
+  if (roll.legendaryTraits?.length) lines.push(`Trait légendaire tiré : ${roll.legendaryTraits.join(", ")}.`);
+  return lines.join(" ");
+}
+
+function getTraitRainLevelEffects(kind, positive) {
+  const tone = positive ? "positifs" : "négatifs";
+  const legendaryExamples = {
+    population: positive
+      ? "par exemple Immortal, Super Health ou Mega Heartbeat"
+      : "par exemple Madness, Death Nuke ou Mark of Death",
+    religion: positive
+      ? "par exemple Rite of Unbroken Shield, Bloodline Bond ou Divine Insight"
+      : "par exemple Rite of Falling Stars, Rite of Fractured Minds ou Grin Mark",
+    "sous-espèce": positive
+      ? "par exemple Hyper Intelligence, Fenix Born ou Gift of Life"
+      : "par exemple Genetic Psychosis, Tentacle Horror ou Grin Mark",
+  };
+  return [
+    `Applique aléatoirement 5 traits ${tone} de ${kind} à la cible choisie.`,
+    `Applique aléatoirement 10 traits ${tone} de ${kind} à la cible choisie.`,
+    `Applique aléatoirement 5 traits ${tone} de ${kind}, plus 1 trait légendaire ${positive ? "positif" : "négatif"} (${legendaryExamples[kind]}).`,
+  ];
+}
+
+function getCardLevelEffects(card) {
+  const name = card?.name ?? "Pouvoir";
+  const category = String(card?.category ?? "");
+  const scale = card?.scale ?? inferCardScale(card ?? {});
+
+  if (name === "Déclarer la guerre") {
+    return [
+      "Le gagnant doit déclarer une guerre entre sa civilisation et une civilisation accessible.",
+      "Le gagnant peut jeter la carte sans effet, ou déclarer une guerre entre deux civilisations de son choix ; il n'est pas obligé d'y participer.",
+      "Le gagnant peut jeter la carte ou déclarer jusqu'à deux guerres distinctes entre les civilisations de son choix. Plusieurs guerres peuvent viser la même civilisation.",
+    ];
+  }
+  if (name === "Proposer une alliance") {
+    return [
+      "Le gagnant doit former une alliance impliquant sa propre civilisation et une cible autorisée.",
+      "Le gagnant peut jeter la carte ou former une alliance entre deux civilisations de son choix ; il n'est pas obligé d'en faire partie.",
+      "Le gagnant peut jeter la carte ou former jusqu'à deux alliances distinctes entre les civilisations de son choix.",
+    ];
+  }
+  if (name === "Rompre une alliance") {
+    return [
+      "Le gagnant doit rompre une alliance impliquant sa civilisation.",
+      "Le gagnant peut jeter la carte ou rompre une alliance de son choix, même s'il n'en fait pas partie.",
+      "Le gagnant peut jeter la carte ou rompre jusqu'à deux alliances de son choix.",
+    ];
+  }
+  if (name === "Gamma Rain") return getTraitRainLevelEffects("population", true);
+  if (name === "Omega Rain") return getTraitRainLevelEffects("population", false);
+  if (name === "Religion Rain — Positive") return getTraitRainLevelEffects("religion", true);
+  if (name === "Religion Rain — Negative") return getTraitRainLevelEffects("religion", false);
+  if (name === "Subspecies Rain — Positive") return getTraitRainLevelEffects("sous-espèce", true);
+  if (name === "Subspecies Rain — Negative") return getTraitRainLevelEffects("sous-espèce", false);
+  if (name === "Delta Rain") {
+    return [
+      "Applique 5 traits aléatoires, positifs ou négatifs, à la population ciblée.",
+      "Applique 10 traits aléatoires, positifs ou négatifs, à la population ciblée.",
+      "Applique 5 traits aléatoires et 1 trait légendaire aléatoire, positif ou négatif, à la population ciblée.",
+    ];
+  }
+  if (EXPLOSIVE_CARD_NAMES.has(name)) {
+    return [
+      `Le MJ applique exactement 1 ${name}.`,
+      `Le MJ applique exactement 3 exemplaires de ${name}.`,
+      `Le MJ applique exactement 10 exemplaires de ${name}.`,
+    ];
+  }
+  if (name === "Territoire") {
+    return [
+      "Ajoute une petite extension côtière attachée à une île existante.",
+      "Ajoute trois petites extensions cohérentes ou une grande extension attachée à une île existante.",
+      "Ajoute dix petites extensions cohérentes ou deux très grandes extensions attachées à des îles existantes.",
+    ];
+  }
+  if (name === "Life Eraser" || name === "Life Eraser ciblé") {
+    return getZoneLevelEffects("toute vie", "Efface");
+  }
+  if (RESOURCE_ZONE_CARD_NAMES.has(name)) {
+    return [
+      `Répartit ${name} sur une province : une ville et son territoire immédiat. Le MJ ne compte pas chaque minerai généré.`,
+      `Répartit ${name} sur une région : plusieurs provinces voisines. Le MJ ne compte pas chaque minerai généré.`,
+      `Répartit ${name} sur une île entière. Le MJ ne compte pas chaque minerai généré.`,
+    ];
+  }
+  if (category.includes("Créatures") || ["Humans", "Orcs", "Elves", "Dwarves"].includes(name)) {
+    const [level1, level2, level3] = getCreatureLevelCounts(card);
+    return [
+      `Ajoute exactement ${level1} créature${level1 > 1 ? "s" : ""} de type ${name}.`,
+      `Ajoute exactement ${level2} créatures de type ${name}.`,
+      `Ajoute exactement ${level3} créatures de type ${name}.`,
+    ];
+  }
+  if (name === "Colonie contrôlée") {
+    return [
+      "Crée une petite colonie contrôlée dans une province valide.",
+      "Crée une colonie développée couvrant une région valide.",
+      "Crée jusqu'à trois colonies développées sur une même île ou sur des îles valides distinctes.",
+    ];
+  }
+  return getZoneLevelEffects(name);
+}
+
+function getCardLevelEffect(card, level = card?.level) {
+  return getCardLevelEffects(card)[normalizeCardLevel(level) - 1];
+}
+
+function getResolvedCardLevelEffect(card) {
+  return [getCardLevelEffect(card), formatTraitRainResult(card)].filter(Boolean).join(" ");
+}
 
 const DEFAULT_AIS = Array.from({ length: MAX_PARTICIPANTS }, (_, index) => createDefaultAi(index));
 
@@ -404,11 +917,14 @@ function createDefaultAi(index, name = DEFAULT_REPRESENTATIVE_NAMES[index] ?? `R
     alive: true,
     profileHand: [],
     activeProfile: "",
+    previousProfileOnDraw: "",
+    foundingCivilization: "",
     ghostReady: false,
     ghostActive: false,
     ghostUsed: false,
     hideEconomyRevealYear: null,
     hidePopulationRevealYear: null,
+    auctionDoctrineLines: [],
   };
 }
 
@@ -591,15 +1107,15 @@ const PROFILE_DECK = [
     id: "merchant",
     name: "Le Bloc Industriel",
     mental: "Le pouvoir appartient à celui qui contrôle les mines, les ateliers et les flux.",
-    bonus: "+6 pièces chaque fois qu'une carte Ressource est adjugée, qu'il l'achète ou non.",
+    bonus: "+3 pièces × Level chaque fois qu'une carte Ressource est adjugée, qu'il l'achète ou non.",
     malus: "-3 pièces de revenu par tranche de 1000 soldats dans son armée : l'armée absorbe sa capacité productive.",
   },
   {
     id: "sage",
     name: "L'Humaniste",
     mental: "Une civilisation forte protège les vivants avant de chercher la domination.",
-    bonus: "+4 pièces quand une carte douce ou réparatrice apparaît : danger 5 ou moins, ou Contre-pouvoir.",
-    malus: "-6 pièces quand il remporte une carte de Destruction ou de Créature : sa base politique rejette l'escalade brutale.",
+    bonus: "+2 pièces × Level quand une carte de Bénéfice 5 ou moins, ou un Contre-pouvoir, apparaît.",
+    malus: "-3 pièces × Level quand il remporte une carte de Destruction ou une créature hostile.",
   },
   {
     id: "paranoid",
@@ -612,7 +1128,7 @@ const PROFILE_DECK = [
     id: "diplomat",
     name: "Le Fédéraliste",
     mental: "Les blocs durables gagnent mieux que les conquêtes solitaires.",
-    bonus: "+12 pièces lorsqu'il achète une carte Alliance.",
+    bonus: "+6 pièces × Level lorsqu'il achète une carte Alliance.",
     malus: "-6 pièces chaque fois qu'une guerre est déclarée, même sans lui : la guerre décrédibilise son projet d'ordre commun.",
   },
   {
@@ -620,7 +1136,7 @@ const PROFILE_DECK = [
     name: "Le Traditionaliste",
     mental: "Ce qui a déjà fonctionné doit guider ce qui vient ensuite.",
     bonus: "+4 pièces chaque fois qu'une carte déjà jouée réapparaît.",
-    malus: "-4 pièces quand une carte totalement nouvelle de danger 16 ou plus apparaît : la rupture historique fragilise son récit politique.",
+    malus: "-2 pièces × Level quand une carte totalement nouvelle de puissance 16/20 ou plus apparaît.",
   },
   {
     id: "martyr",
@@ -633,15 +1149,85 @@ const PROFILE_DECK = [
     id: "tyrant",
     name: "L'Autoritaire",
     mental: "Le pouvoir doit frapper vite, fort, et laisser peu d'espace à la contestation.",
-    bonus: "+8 pièces chaque fois qu'il remporte une carte de Destruction.",
+    bonus: "+4 pièces × Level chaque fois qu'il remporte une carte de Destruction.",
     malus: "-4 pièces chaque fois qu'il passe : reculer coûte cher à son image de force.",
   },
   {
     id: "vagabond",
     name: "Le Projet Colonial",
     mental: "Une nation qui ne s'étend pas se condamne à subir la géographie des autres.",
-    bonus: "+5 pièces par colonie possédée hors de son île principale, jusqu'à 3 colonies comptées.",
-    malus: "-5 pièces si son île principale dépasse 75% de sa population totale : son idéologie exige une présence extérieure.",
+    bonus: "+5 pièces par colonie possédée hors de son territoire natal, jusqu'à 3 colonies comptées.",
+    malus: "-5 pièces si son territoire natal dépasse 75% de sa population totale : son idéologie exige une présence extérieure.",
+  },
+  {
+    id: "maximalist",
+    name: "Le Maximaliste",
+    mental: "Une carte ne mérite d'être achetée que si elle peut changer l'ordre du monde.",
+    bonus: "+6 pièces pour une carte Level 2 remportée ; +15 pièces pour une carte Level 3 remportée.",
+    malus: "-4 pièces quand il remporte une carte Level 1 : sa base juge l'achat insignifiant.",
+  },
+  {
+    id: "minimalist",
+    name: "Le Minimaliste",
+    mental: "Les petits leviers répétés valent mieux que les catastrophes incontrôlables.",
+    bonus: "+6 pièces lorsqu'il remporte une carte Level 1.",
+    malus: "-10 pièces lorsqu'il remporte une carte Level 3.",
+  },
+  {
+    id: "naturalist",
+    name: "L'Écologiste",
+    mental: "Le territoire vivant est une richesse plus durable que toute victoire militaire.",
+    bonus: "+4 pièces chaque fois qu'une carte Nature ou Nature bénéfique apparaît.",
+    malus: "-6 pièces lorsqu'il remporte une carte de Destruction.",
+  },
+  {
+    id: "occultist",
+    name: "Le Théocrate",
+    mental: "Les traits, les religions et les lignées sont les véritables instruments du pouvoir.",
+    bonus: "+8 pièces lorsqu'il remporte une pluie de traits de population, religion ou sous-espèce.",
+    malus: "-4 pièces chaque fois qu'un Contre-pouvoir apparaît.",
+  },
+  {
+    id: "rebuilder",
+    name: "Le Reconstructionniste",
+    mental: "Les civilisations qui savent réparer survivent aux empires qui savent seulement frapper.",
+    bonus: "+10 pièces lorsqu'il remporte un Contre-pouvoir.",
+    malus: "-6 pièces lorsqu'il remporte une carte de Destruction.",
+  },
+  {
+    id: "underdog",
+    name: "Le Tribun du Peuple",
+    mental: "La légitimité appartient aux peuples menacés d'effacement.",
+    bonus: "+6 pièces de revenu quand sa part démographique est sous le seuil faible.",
+    malus: "-4 pièces de revenu s'il possède la plus grande population mondiale.",
+  },
+  {
+    id: "treasurer",
+    name: "L'Austéritaire",
+    mental: "Une réserve intacte est une arme que l'adversaire ne peut pas encore mesurer.",
+    bonus: "+5 pièces de revenu s'il possède au moins 100 pièces avant revenus.",
+    malus: "-5 pièces de revenu s'il possède moins de 20 pièces avant revenus.",
+  },
+  {
+    id: "scavenger",
+    name: "Le Récupérateur",
+    mental: "Ce que les autres refusent d'acheter nourrit ceux qui savent attendre.",
+    bonus: "+6 pièces par carte non attribuée à la fin du duopole.",
+    malus: "-4 pièces si les deux cartes du duopole sont attribuées.",
+  },
+  {
+    id: "balancer",
+    name: "L'Équilibriste",
+    mental: "Le monde reste gouvernable tant que chaque menace rencontre une possibilité de construction.",
+    bonus: "+8 pièces quand le duopole oppose au moins une carte hostile à une carte constructive.",
+    malus: "-6 pièces quand les deux cartes du duopole sont hostiles.",
+  },
+  {
+    id: "duelist",
+    name: "Le Duelliste",
+    mental: "Être chassé d'un enjeu n'est qu'une invitation à conquérir l'autre.",
+    bonus: "+8 pièces s'il remporte une carte après avoir été délogé de l'autre carte du duopole.",
+    malus: "-4 pièces s'il remporte une carte sans avoir subi aucun délogement.",
   },
 ];
 
@@ -650,8 +1236,8 @@ let undoStack = [];
 let expandedPromptGroups = new Set();
 let serverSaveTimer = null;
 let wbCurrentRotation = 0;
-let wbLastRenderedCardKey = "";
-let wbLastRenderedBidValue = null;
+let wbLastRenderedCardKeys = {};
+let wbLastRenderedBidValues = {};
 let wbAudioCtx = null;
 let wbWheelAutoMode = false;
 let wbWheelAutoTimer = null;
@@ -659,6 +1245,7 @@ let wbSeenChronicleEntryIds = new Set((state.simulationMemory ?? []).map((entry)
 let activeHistoryChartType = null;
 let historyChartHover = null;
 const historyChartHitMaps = new WeakMap();
+const HISTORY_CHART_COLORS = ["#2dd4bf", "#f59e0b", "#60a5fa", "#f472b6", "#a78bfa", "#34d399", "#fb7185", "#facc15", "#38bdf8", "#c084fc", "#4ade80", "#f97316", "#818cf8", "#14b8a6", "#e879f9", "#eab308"];
 let serverPersistence = {
   checked: false,
   available: null,
@@ -680,13 +1267,22 @@ const els = {
   profilesGuideList: document.querySelector("#profilesGuideList"),
   participantsPanel: document.querySelector("#participantsPanel"),
   participantCountInput: document.querySelector("#participantCountInput"),
+  randomParticipantCountBtn: document.querySelector("#randomParticipantCountBtn"),
   participantNamesGrid: document.querySelector("#participantNamesGrid"),
-  cardName: document.querySelector("#cardName"),
-  cardMeta: document.querySelector("#cardMeta"),
-  cardEffect: document.querySelector("#cardEffect"),
-  currentBid: document.querySelector("#currentBid"),
-  currentWinner: document.querySelector("#currentWinner"),
+  auctionCardA: document.querySelector("#auctionCardA"),
+  auctionCardB: document.querySelector("#auctionCardB"),
+  cardNameA: document.querySelector("#cardNameA"),
+  cardNameB: document.querySelector("#cardNameB"),
+  cardMetaA: document.querySelector("#cardMetaA"),
+  cardMetaB: document.querySelector("#cardMetaB"),
+  cardEffectA: document.querySelector("#cardEffectA"),
+  cardEffectB: document.querySelector("#cardEffectB"),
+  currentBidA: document.querySelector("#currentBidA"),
+  currentBidB: document.querySelector("#currentBidB"),
+  currentWinnerA: document.querySelector("#currentWinnerA"),
+  currentWinnerB: document.querySelector("#currentWinnerB"),
   currentTurn: document.querySelector("#currentTurn"),
+  bidTargetSelect: document.querySelector("#bidTargetSelect"),
   bidInput: document.querySelector("#bidInput"),
   bidBtn: document.querySelector("#bidBtn"),
   passBtn: document.querySelector("#passBtn"),
@@ -695,12 +1291,16 @@ const els = {
   aiGrid: document.querySelector("#aiGrid"),
   populationChartCanvas: document.querySelector("#populationChartCanvas"),
   economyChartCanvas: document.querySelector("#economyChartCanvas"),
+  populationChartPointToggles: document.querySelector("#populationChartPointToggles"),
+  economyChartPointToggles: document.querySelector("#economyChartPointToggles"),
+  copyChartsTextBtn: document.querySelector("#copyChartsTextBtn"),
   chartOverlay: document.querySelector("#chartOverlay"),
   chartOverlayTitle: document.querySelector("#chartOverlayTitle"),
   chartOverlayCanvas: document.querySelector("#chartOverlayCanvas"),
   chartOverlayCloseBtn: document.querySelector("#chartOverlayCloseBtn"),
   auctionLog: document.querySelector("#auctionLog"),
-  winnerActionInput: document.querySelector("#winnerActionInput"),
+  winnerActionInputA: document.querySelector("#winnerActionInputA"),
+  winnerActionInputB: document.querySelector("#winnerActionInputB"),
   memoryInput: document.querySelector("#memoryInput"),
   memoryTypeSelect: document.querySelector("#memoryTypeSelect"),
   memoryImportantInput: document.querySelector("#memoryImportantInput"),
@@ -723,9 +1323,10 @@ const els = {
   underdogInput: document.querySelector("#underdogInput"),
   thresholdInput: document.querySelector("#thresholdInput"),
   passRewardInput: document.querySelector("#passRewardInput"),
-  worldModeSelect: document.querySelector("#worldModeSelect"),
+  worldMapSelect: document.querySelector("#worldMapSelect"),
   previewCardsSelect: document.querySelector("#previewCardsSelect"),
   forcedPowerSelect: document.querySelector("#forcedPowerSelect"),
+  forcedPowerLevelSelect: document.querySelector("#forcedPowerLevelSelect"),
   futureCardsPanel: document.querySelector("#futureCardsPanel"),
   fortuneWheelPanel: document.querySelector("#fortuneWheelPanel"),
   wbTriggerWheel: document.querySelector("#wb-trigger-wheel"),
@@ -761,6 +1362,7 @@ document.querySelectorAll("[data-chart-open]").forEach((button) => {
   button.addEventListener("click", () => openHistoryChart(button.dataset.chartOpen));
 });
 els.chartOverlayCloseBtn?.addEventListener("click", closeHistoryChart);
+els.copyChartsTextBtn?.addEventListener("click", copyChartsTextSupport);
 [els.populationChartCanvas, els.economyChartCanvas, els.chartOverlayCanvas].filter(Boolean).forEach((canvas) => {
   canvas.addEventListener("mousemove", handleHistoryChartPointerMove);
   canvas.addEventListener("mouseleave", handleHistoryChartPointerLeave);
@@ -796,6 +1398,7 @@ els.profilesCloseBtn.addEventListener("click", () => {
 });
 els.participantCountInput.addEventListener("input", handleParticipantCountChange);
 els.participantCountInput.addEventListener("change", handleParticipantCountChange);
+els.randomParticipantCountBtn.addEventListener("click", randomizeParticipantCount);
 
 function toggleUtilityPanel(panelName) {
   const panels = {
@@ -813,43 +1416,56 @@ function toggleUtilityPanel(panelName) {
 
 function handleParticipantCountChange() {
   const nextCount = readNumberInput(els.participantCountInput, state.ais.length, MIN_PARTICIPANTS, MAX_PARTICIPANTS);
-  if (nextCount === state.ais.length) return;
+  if (nextCount === state.ais.length) {
+    state.participantCountMode = "manual";
+    persistState();
+    return;
+  }
   pushUndo();
   resizeParticipants(nextCount);
+  state.participantCountMode = "manual";
+  state.participantDraw = null;
+  state.worldMap = null;
   saveAndRender();
 }
 
-["yearInput", "incomeInput", "underdogInput", "passRewardInput", "worldModeSelect", "previewCardsSelect", "forcedPowerSelect"].forEach((key) => {
+function randomizeParticipantCount() {
+  if (state.settings.year !== 0 || hasAuctionCards()) return;
+  pushUndo();
+  const nextCount = MIN_PARTICIPANTS + Math.floor(Math.random() * (MAX_PARTICIPANTS - MIN_PARTICIPANTS + 1));
+  resizeParticipants(nextCount);
+  state.participantCountMode = "random";
+  state.participantDraw = null;
+  state.worldMap = null;
+  clearParticipantDrawPromptChecks();
+  saveAndRender();
+  showToast(`Effectif tiré : ${nextCount} IA`);
+}
+
+["yearInput", "incomeInput", "underdogInput", "passRewardInput", "worldMapSelect", "previewCardsSelect", "forcedPowerSelect", "forcedPowerLevelSelect"].forEach((key) => {
   els[key].addEventListener("change", () => {
     pushUndo();
     state.settings = readSettings();
-    applyWorldModeParticipantPreset(key);
+    applyWorldMapSelectionChange(key);
     handleAgeMilestones();
-    if (key === "previewCardsSelect" || key === "forcedPowerSelect") refreshCardForecast({ force: true });
+    if (["previewCardsSelect", "forcedPowerSelect", "forcedPowerLevelSelect"].includes(key)) refreshCardForecast({ force: true });
     saveAndRender();
   });
 });
 
-["incomeInput", "underdogInput", "passRewardInput", "worldModeSelect", "previewCardsSelect", "forcedPowerSelect"].forEach((key) => {
+["incomeInput", "underdogInput", "passRewardInput", "worldMapSelect", "previewCardsSelect", "forcedPowerSelect", "forcedPowerLevelSelect"].forEach((key) => {
   els[key].addEventListener("input", () => {
     state.settings = readSettings();
-    if (key === "previewCardsSelect" || key === "forcedPowerSelect") refreshCardForecast({ force: true });
+    if (["previewCardsSelect", "forcedPowerSelect", "forcedPowerLevelSelect"].includes(key)) refreshCardForecast({ force: true });
     persistState();
   });
 });
 
-function applyWorldModeParticipantPreset(changedKey) {
-  if (changedKey !== "worldModeSelect") return;
-  if (state.settings.worldMode !== "zeta") return;
-  if (state.settings.year !== 0 || state.auction.card) return;
-  if (state.ais.length !== MAX_PARTICIPANTS) resizeParticipants(MAX_PARTICIPANTS);
-  applyZetaParticipantNames();
-}
-
-function applyZetaParticipantNames() {
-  state.ais.forEach((ai, index) => {
-    ai.name = ZETA_REPRESENTATIVE_NAMES[index] ?? sanitizeRepresentativeName(ai.name, index);
-  });
+function applyWorldMapSelectionChange(changedKey) {
+  if (changedKey !== "worldMapSelect") return;
+  if (state.settings.year !== 0 || hasAuctionCards()) return;
+  state.worldMap = null;
+  clearParticipantDrawPromptChecks();
 }
 
 els.yearInput.addEventListener("input", () => {
@@ -858,11 +1474,23 @@ els.yearInput.addEventListener("input", () => {
   persistState();
 });
 
-els.winnerActionInput.addEventListener("input", () => {
-  state.auction.winnerAction = els.winnerActionInput.value;
+els.bidTargetSelect?.addEventListener("change", () => {
+  state.auction.selectedSlotId = els.bidTargetSelect.value;
   persistState();
-  renderLog();
-  renderPromptHub();
+  renderCard();
+});
+
+[
+  ["A", els.winnerActionInputA],
+  ["B", els.winnerActionInputB],
+].forEach(([slotId, input]) => {
+  input?.addEventListener("input", () => {
+    const slot = getAuctionSlot(slotId);
+    if (slot) slot.winnerAction = input.value;
+    persistState();
+    renderLog();
+    renderPromptHub();
+  });
 });
 
 handleAgeMilestones();
@@ -894,6 +1522,10 @@ function createFreshState() {
     usedBiomes: [],
     biomeDraws: {},
     biomeChoices: {},
+    foundingCivilizationDraws: {},
+    participantDraw: null,
+    participantCountMode: "manual",
+    worldMap: null,
     cardForecast: [],
     cardForecastKey: "",
     fortuneWheel: createDefaultFortuneWheel(0),
@@ -902,6 +1534,7 @@ function createFreshState() {
     postIncomePromptYear: null,
     simulationMemory: [],
     historySnapshots: [],
+    chartPointLabels: { population: [], economy: [] },
     copiedPromptKeys: [],
     savedAt: null,
   };
@@ -920,7 +1553,11 @@ function normalizeStateShape(parsed = {}) {
     usedBiomes: parsed.usedBiomes ?? [],
     biomeDraws: parsed.biomeDraws ?? {},
     biomeChoices: parsed.biomeChoices ?? {},
-    cardForecast: Array.isArray(parsed.cardForecast) ? parsed.cardForecast : [],
+    foundingCivilizationDraws: normalizeFoundingCivilizationDraws(parsed.foundingCivilizationDraws),
+    participantDraw: normalizeParticipantDraw(parsed.participantDraw),
+    participantCountMode: parsed.participantCountMode === "random" ? "random" : "manual",
+    worldMap: normalizeWorldMap(parsed.worldMap, settings),
+    cardForecast: normalizeCardForecastEntries(parsed.cardForecast),
     cardForecastKey: parsed.cardForecastKey ?? "",
     fortuneWheel: normalizeFortuneWheel(parsed.fortuneWheel, settings.year ?? 0),
     lastAuctionReport: parsed.lastAuctionReport ?? "",
@@ -928,9 +1565,80 @@ function normalizeStateShape(parsed = {}) {
     postIncomePromptYear: parsed.postIncomePromptYear ?? null,
     simulationMemory: normalizeSimulationMemory(parsed.simulationMemory ?? []),
     historySnapshots: normalizeHistorySnapshots(parsed.historySnapshots),
+    chartPointLabels: normalizeChartPointLabels(parsed.chartPointLabels),
     copiedPromptKeys: normalizeCopiedPromptKeys(parsed.copiedPromptKeys),
     savedAt: parsed.savedAt ?? null,
   };
+}
+
+function normalizeParticipantDraw(value) {
+  if (!value || typeof value !== "object") return null;
+  const slots = Number.isInteger(Number(value.slots)) && Number(value.slots) >= MIN_PARTICIPANTS && Number(value.slots) <= MAX_PARTICIPANTS
+    ? Number(value.slots)
+    : 0;
+  const selectedChampionIds = Array.isArray(value.selectedChampionIds)
+    ? value.selectedChampionIds.map(String).filter(Boolean)
+    : [];
+  if (!slots || selectedChampionIds.length !== slots) return null;
+  return {
+    slots,
+    preDrawnPairIds: Array.isArray(value.preDrawnPairIds) ? value.preDrawnPairIds.map(String).slice(0, 2) : [],
+    drawSteps: Array.isArray(value.drawSteps) ? value.drawSteps : [],
+    selectedChampionIds,
+    selectedNames: Array.isArray(value.selectedNames) ? value.selectedNames.map(String) : [],
+    completedAt: String(value.completedAt ?? ""),
+  };
+}
+
+function normalizeWorldMap(value, settings = {}) {
+  if (!value || typeof value !== "object") return null;
+  const map = WORLD_MAPS.find((entry) => entry.id === value.mapId);
+  if (!map) return null;
+  return {
+    mapId: map.id,
+    selectionMode: value.selectionMode === "manual" ? "manual" : "random",
+    placements: Array.isArray(value.placements) ? value.placements : [],
+    neutralZones: Array.isArray(value.neutralZones) ? value.neutralZones.map(String) : [],
+    drawnAt: String(value.drawnAt ?? ""),
+    participantCount: Math.max(0, Math.floor(Number(value.participantCount) || 0)),
+  };
+}
+
+function normalizeCardForecastEntries(entries) {
+  if (!Array.isArray(entries)) return [];
+  return entries.map((entry) => {
+    const power = getPowerByName(entry?.cardName);
+    if (!power) return entry;
+    const card = prepareDrawnCard({
+      ...power,
+      level: normalizeCardLevel(entry.level, 1),
+      traitRoll: entry.traitRoll ?? null,
+    });
+    return {
+      ...entry,
+      level: card.level,
+      traitRoll: card.traitRoll ?? null,
+    };
+  });
+}
+
+function normalizeChartPointLabels(value = {}) {
+  const normalizeIds = (ids) => Array.isArray(ids)
+    ? [...new Set(ids.map((id) => String(id ?? "")).filter(Boolean))]
+    : [];
+  return {
+    population: normalizeIds(value.population),
+    economy: normalizeIds(value.economy),
+  };
+}
+
+function normalizeFoundingCivilizationDraws(draws) {
+  if (!draws || typeof draws !== "object") return {};
+  const validIds = new Set(FOUNDING_CIVILIZATIONS.map((civilization) => civilization.id));
+  return Object.fromEntries(Object.entries(draws).map(([aiId, options]) => [
+    aiId,
+    [...new Set(Array.isArray(options) ? options.filter((id) => validIds.has(id)) : [])].slice(0, 2),
+  ]).filter(([, options]) => options.length === 2));
 }
 
 function normalizeCopiedPromptKeys(keys) {
@@ -987,12 +1695,15 @@ function normalizeAis(ais) {
     homePopulation: ai.homePopulation ?? ai.population ?? 0,
     profileHand: ai.profileHand ?? [],
     activeProfile: ai.activeProfile ?? "",
+    previousProfileOnDraw: ai.previousProfileOnDraw ?? "",
+    foundingCivilization: getFoundingCivilization(ai.foundingCivilization) ? ai.foundingCivilization : "",
     ghostReady: ai.ghostReady ?? false,
     ghostActive: ai.ghostActive ?? false,
     ghostUsed: ai.ghostUsed ?? false,
     hideEconomyRevealYear: ai.hideEconomyRevealYear ?? null,
     hidePopulationRevealYear: ai.hidePopulationRevealYear ?? null,
     passBonusLevel: ai.passBonusLevel ?? 5,
+    auctionDoctrineLines: Array.isArray(ai.auctionDoctrineLines) ? ai.auctionDoctrineLines : [],
   }));
 }
 
@@ -1016,6 +1727,7 @@ function resizeParticipants(count) {
 
   state.ais = normalizeAis(state.ais);
   state.settings.warCivs = Math.min(state.settings.warCivs ?? 0, state.ais.length);
+  ensureFoundingCivilizationDraws();
 }
 
 function pruneRemovedParticipants(removedIds) {
@@ -1023,7 +1735,10 @@ function pruneRemovedParticipants(removedIds) {
   state.auction.order = state.auction.order.filter((id) => !removedIds.includes(id));
   state.auction.passed = state.auction.passed.filter((id) => !removedIds.includes(id));
   state.auction.ghostParticipants = (state.auction.ghostParticipants ?? []).filter((id) => !removedIds.includes(id));
-  if (removedIds.includes(state.auction.winner)) state.auction.winner = null;
+  getAuctionSlots().forEach((slot) => {
+    if (removedIds.includes(slot.winner)) slot.winner = null;
+  });
+  removedIds.forEach((id) => delete state.auction.blockedSlotByAi?.[id]);
 
   Object.values(state.biomeDraws ?? {}).forEach((draw) => {
     removedIds.forEach((id) => delete draw[id]);
@@ -1031,6 +1746,7 @@ function pruneRemovedParticipants(removedIds) {
   Object.values(state.biomeChoices ?? {}).forEach((choices) => {
     removedIds.forEach((id) => delete choices[id]);
   });
+  removedIds.forEach((id) => delete state.foundingCivilizationDraws?.[id]);
 
   if (state.fortuneWheel?.pendingTurns) {
     removedIds.forEach((id) => delete state.fortuneWheel.pendingTurns[id]);
@@ -1042,14 +1758,72 @@ function pruneRemovedParticipants(removedIds) {
 }
 
 function normalizeAuction(auction) {
-  return {
+  const legacySlot = auction?.card
+    ? createAuctionSlot("A", {
+      card: auction.card,
+      currentBid: auction.currentBid,
+      winner: auction.winner,
+      winnerAction: auction.winnerAction,
+    })
+    : createAuctionSlot("A");
+  const sourceSlots = Array.isArray(auction?.slots) && auction.slots.length
+    ? auction.slots
+    : [legacySlot, createAuctionSlot("B")];
+  const slots = ["A", "B"].map((id, index) => createAuctionSlot(id, sourceSlots[index]));
+  const normalized = {
     ...emptyAuction(),
     ...auction,
+    slots,
+    selectedSlotId: ["A", "B"].includes(auction?.selectedSlotId) ? auction.selectedSlotId : "A",
+    blockedSlotByAi: auction?.blockedSlotByAi && typeof auction.blockedSlotByAi === "object"
+      ? { ...auction.blockedSlotByAi }
+      : {},
     turnsTaken: auction.turnsTaken ?? 0,
     ghostParticipants: auction.ghostParticipants ?? [],
-    winnerAction: auction.winnerAction ?? "",
     endProcessed: auction.endProcessed ?? false,
   };
+  delete normalized.card;
+  delete normalized.currentBid;
+  delete normalized.winner;
+  delete normalized.winnerAction;
+  return normalized;
+}
+
+function createAuctionSlot(id, source = {}) {
+  const sourceCard = source?.card ?? null;
+  const catalogueCard = sourceCard?.name ? getPowerByName(sourceCard.name) : null;
+  const normalizedCard = sourceCard
+    ? prepareDrawnCard({
+      ...(catalogueCard ?? {}),
+      ...sourceCard,
+      scale: sourceCard.scale ?? catalogueCard?.scale ?? inferCardScale(sourceCard),
+      rating: sourceCard.rating ?? catalogueCard?.rating ?? sourceCard.danger,
+      level: normalizeCardLevel(sourceCard.level ?? catalogueCard?.level, 1),
+    })
+    : null;
+  return {
+    id,
+    card: normalizedCard,
+    currentBid: Math.max(0, Math.floor(Number(source?.currentBid) || 0)),
+    winner: source?.winner ?? null,
+    winnerAction: String(source?.winnerAction ?? ""),
+  };
+}
+
+function getAuctionSlots() {
+  return Array.isArray(state.auction?.slots) ? state.auction.slots : [];
+}
+
+function getAuctionSlot(slotId) {
+  return getAuctionSlots().find((slot) => slot.id === slotId) ?? null;
+}
+
+function getAuctionLeaderIds() {
+  return getAuctionSlots().map((slot) => slot.winner).filter(Boolean);
+}
+
+function hasAuctionCards() {
+  return getAuctionSlots().some((slot) => Boolean(slot.card));
 }
 
 function defaultSettings() {
@@ -1060,18 +1834,27 @@ function defaultSettings() {
     passReward: 5,
     passMin: 2,
     warCivs: 0,
-    worldMode: "zeta",
+    worldMapChoice: "random",
     cardPreviewCount: 0,
     forcedPowerName: "",
+    forcedPowerLevel: 0,
   };
 }
 
 function normalizeSettings(settings) {
+  const legacyMapChoices = {
+    duel: "fracture",
+    matrix: "quinconce",
+    ffa: "crown-nine",
+    zeta: "crossroads",
+  };
+  const requestedMap = settings?.worldMapChoice ?? legacyMapChoices[settings?.worldMode] ?? "random";
   return {
     ...defaultSettings(),
     ...(settings ?? {}),
-    worldMode: ["auto", "central", "duel", "zeta"].includes(settings?.worldMode) ? settings.worldMode : "auto",
+    worldMapChoice: normalizeWorldMapChoice(requestedMap),
     cardPreviewCount: [0, 5].includes(Number(settings?.cardPreviewCount)) ? Number(settings.cardPreviewCount) : 0,
+    forcedPowerLevel: [0, 1, 2, 3].includes(Number(settings?.forcedPowerLevel)) ? Number(settings.forcedPowerLevel) : 0,
   };
 }
 
@@ -1123,9 +1906,9 @@ function normalizeFortuneWheel(wheel, year = 0) {
 
 function emptyAuction() {
   return {
-    card: null,
-    currentBid: 0,
-    winner: null,
+    slots: [createAuctionSlot("A"), createAuctionSlot("B")],
+    selectedSlotId: "A",
+    blockedSlotByAi: {},
     order: [],
     turnIndex: 0,
     passed: [],
@@ -1133,7 +1916,6 @@ function emptyAuction() {
     closed: false,
     turnsTaken: 0,
     ghostParticipants: [],
-    winnerAction: "",
     endProcessed: false,
   };
 }
@@ -1337,7 +2119,7 @@ function render() {
 }
 
 function renderParticipantsSetup() {
-  els.participantsPanel.hidden = state.settings.year !== 0 || Boolean(state.auction.card);
+  els.participantsPanel.hidden = state.settings.year !== 0 || hasAuctionCards();
   els.participantCountInput.value = state.ais.length;
   els.participantNamesGrid.innerHTML = "";
 
@@ -1383,9 +2165,10 @@ function renderSettings() {
   els.underdogInput.value = state.settings.underdogBonus;
   els.thresholdInput.value = `${formatPercent(getUnderdogThreshold() * 100)}%`;
   els.passRewardInput.value = state.settings.passReward;
-  els.worldModeSelect.value = getStoredWorldMode();
+  els.worldMapSelect.value = getWorldMapChoice();
   els.previewCardsSelect.value = String(getPreviewCardCount());
   els.forcedPowerSelect.value = getPowerByName(state.settings.forcedPowerName) ? state.settings.forcedPowerName : "";
+  els.forcedPowerLevelSelect.value = String(state.settings.forcedPowerLevel ?? 0);
   renderFutureCardsPanel();
   renderFortuneWheelPanel();
 }
@@ -1406,7 +2189,7 @@ function renderForcedPowerSelect() {
     powers.forEach((power) => {
       const option = document.createElement("option");
       option.value = power.name;
-      option.textContent = `${formatCardName(power)} (${label}, danger ${power.danger}/20)`;
+      option.textContent = `${formatCardName(power)} (${label}, ${formatCardRating(power)})`;
       group.appendChild(option);
     });
 
@@ -1432,17 +2215,23 @@ function renderFutureCardsPanel() {
   list.className = "future-cards-list";
   ensureCardForecast().slice(0, count).forEach((entry) => {
     const power = getPowerByName(entry.cardName);
+    const previewCard = power ? prepareDrawnCard({
+      ...power,
+      level: normalizeCardLevel(entry.level),
+      traitRoll: entry.traitRoll ?? null,
+    }) : null;
     const item = document.createElement("li");
     const name = power ? formatCardName(power) : entry.cardName;
-    const meta = power ? `${getCardCategoryLabel(power)}, danger ${power.danger}/20` : "carte inconnue";
-    item.innerHTML = `<strong>An ${entry.year} - ${name}</strong><span>${meta}${entry.forced ? " - forcée" : ""}${entry.counterSource ? ` - anti-${formatCardName(entry.counterSource)}` : ""}${entry.scheduledCounterDueIn ? ` - contre-pouvoir dans ${entry.scheduledCounterDueIn}` : ""}</span>`;
+    const meta = power ? `${getCardCategoryLabel(power)}, ${formatCardRating(power)}, Level ${normalizeCardLevel(entry.level)}` : "carte inconnue";
+    const levelEffect = previewCard ? getResolvedCardLevelEffect(previewCard) : "";
+    item.innerHTML = `<strong>An ${entry.year} - ${name}</strong><span>${meta}${entry.forced ? " - carte forcée" : ""}${entry.levelForced ? " - niveau forcé" : ""}${entry.counterSource ? ` - anti-${formatCardName(entry.counterSource)}` : ""}${entry.scheduledCounterDueIn ? ` - contre-pouvoir dans ${entry.scheduledCounterDueIn}` : ""}</span>${levelEffect ? `<span>${levelEffect}</span>` : ""}`;
     list.appendChild(item);
   });
   els.futureCardsPanel.appendChild(list);
 
   const note = document.createElement("p");
   note.className = "future-cards-note";
-  note.textContent = "Ces cartes sont une file MJ : la prochaine enchère consomme la première carte affichée, sauf si tu changes les paramètres ou forces une carte.";
+  note.textContent = "Ces cartes sont une file MJ : le prochain duopole consomme les deux premières cartes affichées, sauf si tu changes les paramètres ou forces une carte.";
   els.futureCardsPanel.appendChild(note);
 }
 
@@ -1729,7 +2518,7 @@ function wbAnimateCardReveal() {
 }
 
 function wbFlashBidAmount() {
-  const bidEl = els.currentBid ?? document.querySelector("#currentBid");
+  const bidEl = state.auction.selectedSlotId === "B" ? els.currentBidB : els.currentBidA;
   if (!bidEl) return;
   bidEl.classList.remove("wb-bid-update");
   void bidEl.offsetWidth;
@@ -2031,36 +2820,88 @@ function renderAgeEvents() {
 
 function renderCard() {
   const auction = state.auction;
-  const card = auction.card;
   const era = getEraInfo(state.settings.year);
-  const renderedCardKey = card ? `${state.settings.year}:${formatCardName(card)}:${card.category}:${card.danger}` : "";
-  els.cardName.textContent = card ? formatCardName(card) : "Aucune carte";
-  els.cardMeta.textContent = card
-    ? `${getCardCategoryLabel(card)} - danger ${card.danger}/20 - prix de départ 0`
-    : `Lance une nouvelle enchère. Courbe actuelle : ${era.label}, danger moyen visé ${era.targetDanger}/20.`;
-  els.cardEffect.textContent = formatCardEffect(card);
-  els.currentBid.textContent = auction.currentBid;
-  if (wbLastRenderedBidValue !== null && wbLastRenderedBidValue !== auction.currentBid) {
-    window.requestAnimationFrame(wbFlashBidAmount);
-  }
-  wbLastRenderedBidValue = auction.currentBid;
-  els.currentWinner.textContent = auction.winner ? getAiName(auction.winner) : "Personne";
+  const slotElements = {
+    A: {
+      panel: els.auctionCardA,
+      name: els.cardNameA,
+      meta: els.cardMetaA,
+      effect: els.cardEffectA,
+      bid: els.currentBidA,
+      winner: els.currentWinnerA,
+    },
+    B: {
+      panel: els.auctionCardB,
+      name: els.cardNameB,
+      meta: els.cardMetaB,
+      effect: els.cardEffectB,
+      bid: els.currentBidB,
+      winner: els.currentWinnerB,
+    },
+  };
+
+  getAuctionSlots().forEach((slot) => {
+    const elements = slotElements[slot.id];
+    if (!elements) return;
+    const card = slot.card;
+    const renderedCardKey = card ? `${state.settings.year}:${slot.id}:${formatCardName(card)}:${card.category}:${card.danger}:${normalizeCardLevel(card.level)}` : "";
+    elements.name.textContent = card ? formatCardName(card) : "Aucune carte";
+    elements.meta.textContent = card
+      ? `${getCardCategoryLabel(card)} - ${formatCardRating(card)} - Level ${normalizeCardLevel(card.level)} - prix de départ 0`
+      : `Lance une nouvelle enchère. Courbe actuelle : ${era.label}, intensité de tirage visée ${era.targetDanger}/20.`;
+    elements.effect.textContent = card ? formatCardEffect(card) : `Carte ${slot.id} du prochain duopole.`;
+    elements.bid.textContent = slot.currentBid;
+    elements.winner.textContent = slot.winner ? getAiName(slot.winner) : "Personne";
+
+    if (wbLastRenderedBidValues[slot.id] !== undefined && wbLastRenderedBidValues[slot.id] !== slot.currentBid) {
+      elements.bid.classList.remove("wb-bid-update");
+      void elements.bid.offsetWidth;
+      elements.bid.classList.add("wb-bid-update");
+      wbPlaySound("coin");
+    }
+    wbLastRenderedBidValues[slot.id] = slot.currentBid;
+
+    if (renderedCardKey && renderedCardKey !== wbLastRenderedCardKeys[slot.id]) {
+      elements.panel.classList.remove("wb-card-reveal");
+      void elements.panel.offsetWidth;
+      elements.panel.classList.add("wb-card-reveal");
+      wbLastRenderedCardKeys[slot.id] = renderedCardKey;
+    } else if (!renderedCardKey) {
+      delete wbLastRenderedCardKeys[slot.id];
+    }
+  });
+
   const current = getCurrentBidder();
   els.currentTurn.textContent = current ? current.name : "-";
-  els.bidBtn.disabled = !auction.active || !current;
+  const availableSlots = current ? getEligibleAuctionSlots(current) : [];
+  if (!availableSlots.some((slot) => slot.id === auction.selectedSlotId)) {
+    auction.selectedSlotId = availableSlots[0]?.id ?? "A";
+  }
+  if (els.bidTargetSelect) {
+    els.bidTargetSelect.innerHTML = "";
+    getAuctionSlots().forEach((slot) => {
+      const option = document.createElement("option");
+      option.value = slot.id;
+      option.disabled = !availableSlots.some((available) => available.id === slot.id);
+      option.textContent = `Carte ${slot.id} — ${slot.card ? formatCardName(slot.card) : "aucune"} — minimum ${getSlotMinimumBid(slot)}`;
+      els.bidTargetSelect.appendChild(option);
+    });
+    els.bidTargetSelect.value = auction.selectedSlotId;
+    els.bidTargetSelect.disabled = !auction.active || !current || !availableSlots.length;
+  }
+  getAuctionSlots().forEach((slot) => {
+    const panel = slotElements[slot.id]?.panel;
+    panel?.classList.toggle("selected", slot.id === auction.selectedSlotId);
+    panel?.classList.toggle("blocked", Boolean(current && auction.blockedSlotByAi?.[current.id] === slot.id));
+  });
+  els.bidBtn.disabled = !auction.active || !current || !availableSlots.length;
   els.passBtn.disabled = !auction.active || !current;
-  els.newAuctionBtn.textContent = canFinishAuctionCycle() ? "Fin de l'enchère" : "Nouvelle enchère";
-  const increment = getBidIncrement(state.settings.year);
-  const minBid = auction.winner ? auction.currentBid + increment : increment;
+  els.newAuctionBtn.textContent = canFinishAuctionCycle() ? "Fin du duopole" : "Nouvelle enchère";
+  const selectedSlot = getAuctionSlot(auction.selectedSlotId);
+  const minBid = selectedSlot ? getSlotMinimumBid(selectedSlot) : getBidIncrement(state.settings.year);
   els.bidInput.min = minBid;
   els.bidInput.step = 1;
   els.bidInput.value = minBid;
-  if (renderedCardKey && renderedCardKey !== wbLastRenderedCardKey) {
-    wbLastRenderedCardKey = renderedCardKey;
-    wbAnimateCardReveal();
-  } else if (!renderedCardKey) {
-    wbLastRenderedCardKey = "";
-  }
 }
 
 function renderAis() {
@@ -2095,7 +2936,7 @@ function renderAis() {
     const share = total ? Math.round((ai.population / total) * 1000) / 10 : 0;
     const canEditMoney = ai.alive || ai.ghostReady || ai.ghostActive;
     const isCurrentBidder = currentBidder?.id === ai.id;
-    const isCurrentLeader = state.auction.winner === ai.id && !isCurrentBidder;
+    const isCurrentLeader = getAuctionLeaderIds().includes(ai.id) && !isCurrentBidder;
     const hasPassedAuction = state.auction.passed.includes(ai.id);
 
     card.dataset.aiId = ai.id;
@@ -2161,6 +3002,8 @@ function renderAis() {
       copyTurnButton.addEventListener("click", () => copyState());
       actionSlot.appendChild(copyTurnButton);
     }
+    biomeSlot.innerHTML = "";
+    renderFoundingCivilizationChoices(ai, biomeSlot);
     renderBiomeChoices(ai, biomeSlot);
 
     aliveInput.addEventListener("change", () => {
@@ -2206,6 +3049,7 @@ function renderAis() {
     activeProfileSelect.addEventListener("change", () => {
       pushUndo();
       ai.activeProfile = activeProfileSelect.value;
+      if (ai.activeProfile) ai.previousProfileOnDraw = "";
       recordLog(`${ai.name} active une doctrine politique secrète.`, "Doctrine");
       saveAndRender();
     });
@@ -2261,11 +3105,79 @@ function getHistoryChartSnapshots() {
 }
 
 function renderHistoryCharts() {
+  renderHistoryChartControls();
   drawHistoryChart(els.populationChartCanvas, "population");
   drawHistoryChart(els.economyChartCanvas, "economy");
   if (activeHistoryChartType && els.chartOverlay && !els.chartOverlay.hidden) {
     drawHistoryChart(els.chartOverlayCanvas, activeHistoryChartType, { full: true });
   }
+}
+
+function renderHistoryChartControls() {
+  renderHistoryChartToggleList("population", els.populationChartPointToggles);
+  renderHistoryChartToggleList("economy", els.economyChartPointToggles);
+  if (els.copyChartsTextBtn) {
+    els.copyChartsTextBtn.disabled = !getHistoryChartSnapshots().length;
+  }
+}
+
+function renderHistoryChartToggleList(type, container) {
+  if (!container) return;
+  const selectedIds = new Set(getChartPointLabelIds(type));
+  const series = getHistoryChartAiSeries(type);
+  container.innerHTML = "";
+
+  if (!series.length) {
+    const empty = document.createElement("span");
+    empty.className = "muted";
+    empty.textContent = "Aucune courbe enregistrée.";
+    container.appendChild(empty);
+    return;
+  }
+
+  series.forEach(({ ai }) => {
+    const label = document.createElement("label");
+    label.className = "history-chart-toggle";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = selectedIds.has(ai.id);
+    input.addEventListener("change", () => {
+      setChartPointLabelEnabled(type, ai.id, input.checked);
+    });
+    const text = document.createElement("span");
+    text.textContent = shorten(ai.name, 22);
+    label.append(input, text);
+    container.appendChild(label);
+  });
+}
+
+function getHistoryChartAiSeries(type) {
+  const snapshots = getHistoryChartSnapshots();
+  const metric = type === "population" ? "populationShare" : "coins";
+  return state.ais.map((ai, index) => ({
+    ai,
+    color: HISTORY_CHART_COLORS[index % HISTORY_CHART_COLORS.length],
+    points: getHistorySeriesPoints(snapshots, ai.id, metric),
+  })).filter((item) => item.points.length);
+}
+
+function getChartPointLabelIds(type) {
+  const key = type === "population" ? "population" : "economy";
+  const labels = normalizeChartPointLabels(state.chartPointLabels);
+  state.chartPointLabels = labels;
+  return labels[key];
+}
+
+function setChartPointLabelEnabled(type, aiId, enabled) {
+  const key = type === "population" ? "population" : "economy";
+  const labels = normalizeChartPointLabels(state.chartPointLabels);
+  const ids = new Set(labels[key]);
+  if (enabled) ids.add(aiId);
+  else ids.delete(aiId);
+  labels[key] = [...ids];
+  state.chartPointLabels = labels;
+  persistState();
+  renderHistoryCharts();
 }
 
 function openHistoryChart(type) {
@@ -2294,15 +3206,17 @@ function drawHistoryChart(canvas, type, options = {}) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   const snapshots = getHistoryChartSnapshots();
-  const colors = ["#2dd4bf", "#f59e0b", "#60a5fa", "#f472b6", "#a78bfa", "#34d399", "#fb7185", "#facc15", "#38bdf8", "#c084fc", "#4ade80", "#f97316", "#818cf8", "#14b8a6", "#e879f9", "#eab308"];
-  const metric = type === "population" ? "population" : "coins";
+  const metric = type === "population" ? "populationShare" : "coins";
+  const selectedPointLabelIds = new Set(getChartPointLabelIds(type));
   const series = state.ais.map((ai, index) => ({
     ai,
-    color: colors[index % colors.length],
+    color: HISTORY_CHART_COLORS[index % HISTORY_CHART_COLORS.length],
     points: getHistorySeriesPoints(snapshots, ai.id, metric),
   })).filter((item) => item.points.length);
   const values = series.flatMap((item) => item.points.map((point) => point.value));
-  const maxValue = Math.max(1, ...values);
+  const thresholdSeries = type === "population" ? getHistoryThresholdSeries(snapshots) : [];
+  const thresholdValues = thresholdSeries.map((point) => point.value);
+  const maxValue = Math.max(type === "population" ? 100 : 1, ...thresholdValues, ...values);
   const minYear = Math.min(...snapshots.map((snapshot) => snapshot.year));
   const maxYear = Math.max(...snapshots.map((snapshot) => snapshot.year));
   const pad = options.full ? 54 : 26;
@@ -2318,15 +3232,77 @@ function drawHistoryChart(canvas, type, options = {}) {
   ctx.fillRect(0, 0, width, height);
   ctx.strokeStyle = "rgba(148, 163, 184, 0.22)";
   ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i += 1) {
-    const y = pad + (chartHeight / 4) * i;
+  const yTickCount = options.full ? 6 : 5;
+  for (let i = 0; i <= yTickCount; i += 1) {
+    const y = pad + (chartHeight / yTickCount) * i;
     ctx.beginPath();
     ctx.moveTo(pad, y);
     ctx.lineTo(pad + chartWidth, y);
     ctx.stroke();
+    const value = maxValue - (maxValue / yTickCount) * i;
+    ctx.fillStyle = "#64748b";
+    ctx.font = `${options.full ? 11 : 9}px Inter, sans-serif`;
+    ctx.textAlign = "right";
+    ctx.fillText(formatHistoryChartValue(value, type), pad - 6, y + 3);
+  }
+
+  const xTicks = getHistoryYearTicks(
+    minYear,
+    maxYear,
+    options.full ? 24 : 10,
+    snapshots.map((snapshot) => snapshot.year),
+  );
+  xTicks.forEach((year) => {
+    const x = xForYear(year);
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.12)";
+    ctx.beginPath();
+    ctx.moveTo(x, pad);
+    ctx.lineTo(x, pad + chartHeight);
+    ctx.stroke();
+  });
+
+  if (type === "population" && thresholdSeries.length) {
+    const thresholdPixels = thresholdSeries.map((point) => ({
+      ...point,
+      x: xForYear(point.year),
+      y: yForValue(point.value),
+    }));
+    ctx.save();
+    ctx.strokeStyle = "#ef4444";
+    ctx.lineWidth = options.full ? 2.4 : 1.8;
+    ctx.setLineDash([8, 5]);
+    ctx.beginPath();
+    thresholdPixels.forEach((point, index) => {
+      if (index === 0) ctx.moveTo(point.x, point.y);
+      else ctx.lineTo(point.x, point.y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+    thresholdPixels.forEach((point) => {
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, options.full ? 3 : 2, 0, Math.PI * 2);
+      ctx.fillStyle = "#ef4444";
+      ctx.fill();
+    });
+    ctx.font = `900 ${options.full ? 12 : 9}px Inter, sans-serif`;
+    ctx.textAlign = "center";
+    const labelPoint = thresholdPixels[thresholdPixels.length - 1];
+    thresholdPixels.forEach((point, index) => {
+      const isLastPoint = point === labelPoint;
+      const offset = isLastPoint ? -20 : index % 2 === 0 ? -10 : 16;
+      const x = Math.min(width - 24, Math.max(24, point.x + (isLastPoint ? 18 : 0)));
+      const y = Math.min(height - 8, Math.max(pad + 10, point.y + offset));
+      ctx.fillText(`${formatPercent(point.value)}%`, x, y);
+    });
+    ctx.fillStyle = "#ef4444";
+    ctx.font = `900 ${options.full ? 13 : 10}px Inter, sans-serif`;
+    ctx.textAlign = "right";
+    ctx.fillText("Seuil faible", Math.max(78, labelPoint.x - 10), Math.max(pad + 12, labelPoint.y - 6));
+    ctx.restore();
   }
 
   const hitSeries = [];
+  const placedPointLabels = [];
   series.forEach(({ ai, color, points }) => {
     ctx.strokeStyle = color;
     ctx.lineWidth = options.full ? 2.2 : 1.4;
@@ -2346,6 +3322,14 @@ function drawHistoryChart(canvas, type, options = {}) {
       ctx.arc(point.x, point.y, options.full ? 3 : 2, 0, Math.PI * 2);
       ctx.fill();
     });
+    if (selectedPointLabelIds.has(ai.id)) {
+      drawHistoryChartPointValueLabels(ctx, pixelPoints, type, color, {
+        full: Boolean(options.full),
+        width,
+        height,
+        placedLabels: placedPointLabels,
+      });
+    }
     hitSeries.push({ aiId: ai.id, name: ai.name, color, points: pixelPoints });
   });
   historyChartHitMaps.set(canvas, hitSeries);
@@ -2363,11 +3347,17 @@ function drawHistoryChart(canvas, type, options = {}) {
 
   ctx.fillStyle = "#94a3b8";
   ctx.font = `${options.full ? 13 : 10}px Inter, sans-serif`;
-  ctx.fillText(`An ${minYear}`, pad, height - 8);
-  ctx.textAlign = "right";
-  ctx.fillText(`An ${maxYear}`, pad + chartWidth, height - 8);
   ctx.textAlign = "left";
-  ctx.fillText(String(maxValue), 8, pad + 4);
+  ctx.fillText(type === "population" ? "Population mondiale (%)" : "Pièces", pad, pad - 10);
+  drawHistoryYearLabels(ctx, xTicks, xForYear, {
+    full: Boolean(options.full),
+    height,
+    width,
+  });
+
+  if (options.hover) {
+    drawHistoryChartTooltip(ctx, options.hover, width, height, options.full);
+  }
 }
 
 function getHistorySeriesPoints(snapshots, aiId, metric) {
@@ -2375,9 +3365,14 @@ function getHistorySeriesPoints(snapshots, aiId, metric) {
   for (const snapshot of snapshots) {
     const entry = snapshot.entries.find((item) => item.id === aiId);
     if (!entry) continue;
+    const aliveEntries = snapshot.entries.filter((item) => item.alive !== false);
+    const snapshotWorldPopulation = aliveEntries.reduce((sum, item) => sum + Math.max(0, Number(item.population) || 0), 0);
+    const value = metric === "populationShare"
+      ? snapshotWorldPopulation ? ((Number(entry.population) || 0) / snapshotWorldPopulation) * 100 : 0
+      : entry[metric] ?? 0;
     points.push({
       year: snapshot.year,
-      value: entry[metric] ?? 0,
+      value,
       alive: entry.alive !== false,
     });
     if (entry.alive === false) break;
@@ -2385,13 +3380,87 @@ function getHistorySeriesPoints(snapshots, aiId, metric) {
   return points;
 }
 
+function getHistoryThresholdSeries(snapshots) {
+  return snapshots.map((snapshot) => {
+    const aliveCount = snapshot.entries.filter((entry) => entry.alive !== false).length || state.ais.length || 1;
+    return {
+      year: snapshot.year,
+      value: 100 / aliveCount,
+    };
+  });
+}
+
+function getHistoryYearTicks(minYear, maxYear, maxTicks, requiredYears = []) {
+  if (minYear === maxYear) return [minYear];
+  const required = [...new Set(requiredYears.map((year) => Math.round(Number(year) || 0)).filter((year) => year >= minYear && year <= maxYear))].sort((a, b) => a - b);
+  const ticks = new Set([minYear, maxYear, ...required]);
+  const range = maxYear - minYear;
+  const step = range <= 1200 ? 50 : Math.max(50, Math.ceil((range / maxTicks) / 50) * 50);
+  const first = Math.ceil(minYear / step) * step;
+  for (let year = first; year <= maxYear; year += step) {
+    ticks.add(year);
+  }
+  return [...ticks].sort((a, b) => a - b);
+}
+
+function formatHistoryChartValue(value, type) {
+  if (type === "population") return `${formatPercent(value)}%`;
+  return String(Math.round(value));
+}
+
+function buildChartsTextSupport() {
+  const snapshots = getHistoryChartSnapshots();
+  const populationSeries = getHistoryChartAiSeries("population");
+  const economySeries = getHistoryChartAiSeries("economy");
+  const thresholdSeries = getHistoryThresholdSeries(snapshots);
+  const lines = [
+    `SUPPORT ÉCRIT — GRAPHIQUES — An ${state.settings.year}`,
+    "",
+    "GRAPHIQUE 1 — POPULATION MONDIALE (%)",
+    "Chaque valeur indique la part de population mondiale vivante à l'année donnée.",
+    ...populationSeries.map((item) => formatHistorySeriesForText(item, "population")),
+    `Seuil faible : ${thresholdSeries.map((point) => `An ${point.year} : ${formatPercent(point.value)}%`).join(" | ")}`,
+    "",
+    "GRAPHIQUE 2 — ÉCONOMIE (PIÈCES)",
+    "Chaque valeur indique les pièces enregistrées au bilan de revenus.",
+    ...economySeries.map((item) => formatHistorySeriesForText(item, "economy")),
+  ];
+  return lines.join("\n");
+}
+
+function formatHistorySeriesForText(item, type) {
+  const lastPoint = item.points[item.points.length - 1];
+  const deadSuffix = lastPoint?.alive === false ? ` — courbe arrêtée à l'an ${lastPoint.year} (IA morte/retirée)` : "";
+  const values = item.points.map((point) => `An ${point.year} : ${formatHistoryChartValue(point.value, type)}${type === "economy" ? " pièces" : ""}`);
+  return `- ${item.ai.name}${deadSuffix} : ${values.join(" | ")}`;
+}
+
+function drawHistoryYearLabels(ctx, xTicks, xForYear, options = {}) {
+  ctx.save();
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = `${options.full ? 12 : 9}px Inter, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+  let lastX = -Infinity;
+  xTicks.forEach((year, index) => {
+    const x = xForYear(year);
+    const clampedX = Math.min((options.width ?? x) - 22, Math.max(22, x));
+    const crowded = x - lastX < (options.full ? 44 : 38);
+    const y = (options.height ?? 0) - (crowded || index % 2 ? 20 : 8);
+    ctx.fillText(`An ${year}`, clampedX, y);
+    lastX = x;
+  });
+  ctx.restore();
+}
+
 function handleHistoryChartPointerMove(event) {
   const canvas = event.currentTarget;
   const type = getHistoryChartTypeForCanvas(canvas);
   if (!type) return;
-  historyChartHover = null;
-  canvas.title = "";
-  drawHistoryChart(canvas, type, { full: canvas === els.chartOverlayCanvas });
+  const hover = findNearestHistoryChartLine(canvas, event);
+  historyChartHover = hover ? { canvas, type, ...hover } : null;
+  canvas.title = hover ? formatHistoryChartValue(hover.value, type) : "";
+  drawHistoryChart(canvas, type, { full: canvas === els.chartOverlayCanvas, hover: hover ? { ...hover, type } : null });
 }
 
 function handleHistoryChartPointerLeave(event) {
@@ -2421,25 +3490,93 @@ function findNearestHistoryChartLine(canvas, event) {
       if (!best || pointDistance < best.distance) best = { ...item, ...point, distance: pointDistance };
       const next = item.points[index + 1];
       if (!next) return;
-      const segmentDistance = getPointToSegmentDistance(mouse, point, next);
-      if (!best || segmentDistance < best.distance) {
-        const nearest = pointDistance < Math.hypot(mouse.x - next.x, mouse.y - next.y) ? point : next;
-        best = { ...item, ...nearest, distance: segmentDistance };
+      const projected = getProjectedPointOnSegment(mouse, point, next);
+      if (!best || projected.distance < best.distance) {
+        best = {
+          ...item,
+          x: projected.x,
+          y: projected.y,
+          year: point.year + (next.year - point.year) * projected.t,
+          value: point.value + (next.value - point.value) * projected.t,
+          alive: point.alive && next.alive,
+          distance: projected.distance,
+        };
       }
     });
   });
-  const threshold = canvas === els.chartOverlayCanvas ? 16 : 10;
+  const threshold = canvas === els.chartOverlayCanvas ? 20 : 14;
   return best && best.distance <= threshold ? best : null;
 }
 
 function getPointToSegmentDistance(point, start, end) {
+  return getProjectedPointOnSegment(point, start, end).distance;
+}
+
+function getProjectedPointOnSegment(point, start, end) {
   const dx = end.x - start.x;
   const dy = end.y - start.y;
-  if (!dx && !dy) return Math.hypot(point.x - start.x, point.y - start.y);
+  if (!dx && !dy) {
+    return {
+      x: start.x,
+      y: start.y,
+      t: 0,
+      distance: Math.hypot(point.x - start.x, point.y - start.y),
+    };
+  }
   const t = Math.max(0, Math.min(1, ((point.x - start.x) * dx + (point.y - start.y) * dy) / (dx * dx + dy * dy)));
   const x = start.x + t * dx;
   const y = start.y + t * dy;
-  return Math.hypot(point.x - x, point.y - y);
+  return {
+    x,
+    y,
+    t,
+    distance: Math.hypot(point.x - x, point.y - y),
+  };
+}
+
+function drawHistoryChartPointValueLabels(ctx, points, type, color, options = {}) {
+  const full = Boolean(options.full);
+  const fontSize = full ? 11 : 8;
+  const paddingX = full ? 6 : 4;
+  const paddingY = full ? 3 : 2;
+  const placedLabels = options.placedLabels ?? [];
+
+  ctx.save();
+  ctx.font = `900 ${fontSize}px Inter, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  points.forEach((point, index) => {
+    const label = formatHistoryChartValue(point.value, type);
+    const textWidth = ctx.measureText(label).width;
+    const boxWidth = textWidth + paddingX * 2;
+    const boxHeight = fontSize + paddingY * 2;
+    const direction = index % 2 === 0 ? -1 : 1;
+    const position = findNonOverlappingChartLabelPosition({
+      targetX: point.x,
+      targetY: point.y + direction * (full ? 14 : 10),
+      boxWidth,
+      boxHeight,
+      width: options.width ?? point.x + boxWidth,
+      height: options.height ?? point.y + boxHeight,
+      edgePadding: full ? 10 : 5,
+      placedLabels,
+    });
+    if (!position) return;
+    placedLabels.push(position.rect);
+
+    ctx.fillStyle = "rgba(2, 6, 23, 0.82)";
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(position.x - boxWidth / 2, position.y - boxHeight / 2, boxWidth, boxHeight, 4);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#f8fafc";
+    ctx.fillText(label, position.x, position.y);
+  });
+
+  ctx.restore();
 }
 
 function drawHistoryChartLineLabel(ctx, item, index, options = {}) {
@@ -2576,7 +3713,7 @@ function chartLabelRectsOverlap(a, b) {
 }
 
 function drawHistoryChartTooltip(ctx, hover, width, height, full) {
-  const label = `${hover.name} · An ${hover.year} · ${hover.value}`;
+  const label = formatHistoryChartValue(hover.value, hover.type);
   ctx.save();
   ctx.font = `${full ? 16 : 12}px Inter, sans-serif`;
   const textWidth = ctx.measureText(label).width;
@@ -2671,8 +3808,50 @@ function renderProfileAction(ai, actionSlot) {
 
 }
 
+function renderFoundingCivilizationChoices(ai, container) {
+  if (state.settings.year !== 0 || !ai.alive) return;
+  const options = getFoundingCivilizationDrawForAi(ai);
+  if (!options.length) return;
+  const choice = getFoundingCivilization(ai.foundingCivilization);
+  const wrapper = document.createElement("div");
+  wrapper.className = "biome-choice-box civilization-choice-box";
+  wrapper.classList.toggle("biome-choice-box-locked", Boolean(choice));
+
+  const title = document.createElement("div");
+  title.className = "biome-choice-title";
+  title.textContent = choice ? "Civilisation choisie" : "Civilisation de départ";
+  wrapper.appendChild(title);
+
+  (choice ? [choice] : options).forEach((civilization) => {
+    const label = document.createElement("label");
+    label.className = "biome-choice-option civilization-choice-option";
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = `civilization-${ai.id}`;
+    input.checked = choice?.id === civilization.id;
+    input.disabled = Boolean(choice);
+    input.addEventListener("change", () => {
+      if (!input.checked) return;
+      pushUndo();
+      chooseFoundingCivilization(ai, civilization.id);
+      saveAndRender();
+    });
+    const text = document.createElement("span");
+    text.innerHTML = `<strong>${civilization.name}</strong><small>${civilization.description}</small>`;
+    label.append(input, text);
+    wrapper.appendChild(label);
+  });
+
+  if (choice) {
+    const note = document.createElement("p");
+    note.className = "biome-choice-note";
+    note.textContent = "Choix enregistré dans la mémoire de la simulation.";
+    wrapper.appendChild(note);
+  }
+  container.appendChild(wrapper);
+}
+
 function renderBiomeChoices(ai, biomeSlot) {
-  biomeSlot.innerHTML = "";
   if (!isBiomeYear(state.settings.year) || !ai.alive) return;
 
   const options = getBiomeDrawForAi(ai);
@@ -2766,8 +3945,13 @@ function renderTurnOrder() {
 }
 
 function renderLog() {
-  if (document.activeElement !== els.winnerActionInput) {
-    els.winnerActionInput.value = state.auction.winnerAction ?? "";
+  const slotA = getAuctionSlot("A");
+  const slotB = getAuctionSlot("B");
+  if (els.winnerActionInputA && document.activeElement !== els.winnerActionInputA) {
+    els.winnerActionInputA.value = slotA?.winnerAction ?? "";
+  }
+  if (els.winnerActionInputB && document.activeElement !== els.winnerActionInputB) {
+    els.winnerActionInputB.value = slotB?.winnerAction ?? "";
   }
   els.auctionLog.value = buildAuctionReportPrompt();
 }
@@ -2870,7 +4054,7 @@ function getProfileManualTasks(profileId) {
     merchant: ["Manuel : renseigner Soldats si l'armée existe, le malus dépend des tranches de 1000."],
     paranoid: ["Manuel : cliquer Crise sécuritaire +8 si une carte hostile le vise."],
     martyr: ["Manuel : quand l'IA meurt, décocher Vivante pour préparer l'exil, puis Activer l'exil sur l'enchère choisie."],
-    vagabond: ["Manuel : renseigner Colonies ext. et Pop île natale avant les revenus."],
+    vagabond: ["Manuel : renseigner Colonies ext. et Population du territoire natal avant les revenus."],
   };
   return tasks[profileId] ?? ["Manuel : aucun champ spécial, les effets sont calculés automatiquement si l'événement est détecté."];
 }
@@ -2881,6 +4065,260 @@ function renderReportBlock() {
   els.copyReportBtn.classList.toggle("prompt-button-copied", copied);
   const label = els.copyReportBtn.querySelector("span");
   if (label) label.textContent = `${copied ? "✓ " : ""}Message mondial après enchère`;
+}
+
+function getParticipantDrawSlots() {
+  return state.ais.length;
+}
+
+function getDoubleDrawChampion(id) {
+  return DOUBLE_DRAW_CHAMPIONS.find((champion) => champion.id === id)
+    ?? DOUBLE_DRAW_RESERVES.find((champion) => champion.id === id)
+    ?? null;
+}
+
+function getDoubleDrawPairLabel(pair) {
+  return pair.memberIds
+    .map((id) => getDoubleDrawChampion(id)?.shortName ?? getDoubleDrawChampion(id)?.name ?? id)
+    .join(" & ");
+}
+
+function weightedParticipantPick(entries, randomFn = Math.random) {
+  const totalWeight = entries.reduce((sum, entry) => sum + entry.weight, 0);
+  let cursor = randomFn() * totalWeight;
+  for (const entry of entries) {
+    cursor -= entry.weight;
+    if (cursor < 0) return entry;
+  }
+  return entries.at(-1) ?? null;
+}
+
+function sampleParticipantPairs(randomFn = Math.random) {
+  const pairs = [...DOUBLE_DRAW_PAIRS];
+  for (let index = pairs.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(randomFn() * (index + 1));
+    [pairs[index], pairs[swapIndex]] = [pairs[swapIndex], pairs[index]];
+  }
+  return pairs.slice(0, 2);
+}
+
+function clearParticipantDrawPromptChecks() {
+  state.copiedPromptKeys = (state.copiedPromptKeys ?? []).filter((key) => (
+    !key.includes("annonce mondiale des participants selectionnes")
+    && !key.includes("annonce mondiale de la carte, des participants et placements")
+    && !key.includes("message pre-simulation : carte, participants et placements")
+    && !key.includes("briefing initial")
+  ));
+}
+
+function applyParticipantDrawSelection(selectedChampionIds) {
+  resizeParticipants(selectedChampionIds.length);
+  selectedChampionIds.forEach((championId, index) => {
+    const champion = getDoubleDrawChampion(championId);
+    if (!champion) return;
+    state.ais[index].name = champion.name;
+    state.ais[index].alive = true;
+  });
+  state.foundingCivilizationDraws = {};
+  ensureFoundingCivilizationDraws();
+}
+
+function runDoubleParticipantDraw(randomFn = Math.random) {
+  if (state.settings.year !== 0 || hasAuctionCards()) {
+    showToast("Double Tirage disponible avant la première enchère");
+    return;
+  }
+  if (!state.worldMap) {
+    showToast("Tire ou applique d'abord la carte du monde");
+    return;
+  }
+
+  pushUndo();
+  const slots = getParticipantDrawSlots();
+  const preDrawnPairs = sampleParticipantPairs(randomFn);
+  const selectedIds = [];
+  const selectedSet = new Set();
+  const usedEntries = new Set();
+  const drawSteps = [];
+  const candidates = [
+    ...DOUBLE_DRAW_CHAMPIONS.map((champion) => ({
+      id: `champion:${champion.id}`,
+      type: "champion",
+      memberIds: [champion.id],
+      label: champion.shortName,
+      weight: champion.weight,
+    })),
+    ...preDrawnPairs.map((pair) => ({
+      id: `pair:${pair.id}`,
+      type: "pair",
+      memberIds: pair.memberIds,
+      label: getDoubleDrawPairLabel(pair),
+      weight: pair.memberIds.reduce((sum, id) => sum + (getDoubleDrawChampion(id)?.weight ?? 0), 0),
+    })),
+  ];
+
+  const weightedSlots = Math.min(slots, DOUBLE_DRAW_CHAMPIONS.length);
+  while (selectedIds.length < weightedSlots) {
+    const remainingSlots = weightedSlots - selectedIds.length;
+    const validEntries = candidates.filter((entry) => (
+      !usedEntries.has(entry.id)
+      && entry.memberIds.length <= remainingSlots
+      && entry.memberIds.every((id) => !selectedSet.has(id))
+    ));
+    const selectedEntry = weightedParticipantPick(validEntries, randomFn);
+    if (!selectedEntry) break;
+
+    usedEntries.add(selectedEntry.id);
+    selectedEntry.memberIds.forEach((id) => {
+      selectedSet.add(id);
+      selectedIds.push(id);
+    });
+    drawSteps.push({
+      entryId: selectedEntry.id,
+      type: selectedEntry.type,
+      label: selectedEntry.label,
+      weight: selectedEntry.weight,
+      memberIds: [...selectedEntry.memberIds],
+    });
+  }
+
+  DOUBLE_DRAW_CHAMPIONS.forEach((champion) => {
+    if (selectedIds.length < weightedSlots && !selectedSet.has(champion.id)) {
+      selectedSet.add(champion.id);
+      selectedIds.push(champion.id);
+      drawSteps.push({
+        entryId: `champion:${champion.id}`,
+        type: "fallback",
+        label: champion.shortName,
+        weight: champion.weight,
+        memberIds: [champion.id],
+      });
+    }
+  });
+  shuffleWithRandom(DOUBLE_DRAW_RESERVES, randomFn).forEach((reserve) => {
+    if (selectedIds.length < slots) selectedIds.push(reserve.id);
+  });
+
+  applyParticipantDrawSelection(selectedIds);
+  state.participantDraw = {
+    slots,
+    preDrawnPairIds: preDrawnPairs.map((pair) => pair.id),
+    drawSteps,
+    selectedChampionIds: selectedIds,
+    selectedNames: selectedIds.map((id) => getDoubleDrawChampion(id)?.name ?? id),
+    completedAt: new Date().toISOString(),
+  };
+  assignCurrentWorldMapPlacements(randomFn);
+  clearParticipantDrawPromptChecks();
+  recordMemory("Double Tirage", buildParticipantDrawAnnouncement(), { important: true, year: 0 });
+  expandedPromptGroups.add("Sélection des participants");
+  saveAndRender();
+  showToast(`${slots} participants sélectionnés`);
+}
+
+function buildParticipantDrawAnnouncement() {
+  const draw = state.participantDraw;
+  if (!draw) return "Le Double Tirage n'a pas encore été effectué.";
+  const preDrawnPairs = draw.preDrawnPairIds
+    .map((id) => DOUBLE_DRAW_PAIRS.find((pair) => pair.id === id))
+    .filter(Boolean);
+  const pairPoolLines = preDrawnPairs.map((pair) => {
+    const weight = pair.memberIds.reduce((sum, id) => sum + (getDoubleDrawChampion(id)?.weight ?? 0), 0);
+    return `- ${getDoubleDrawPairLabel(pair)} : poids final ${weight}`;
+  });
+  const championPoolLines = DOUBLE_DRAW_CHAMPIONS.map((champion) => (
+    `- ${champion.shortName} : poids ${champion.weight}`
+  ));
+  const drawLines = draw.drawSteps.map((step, index) => (
+    `${index + 1}. ${step.type === "pair"
+      ? `PAIRE LIÉE sélectionnée ensemble : ${step.label}. Ses deux membres obtiennent simultanément deux places`
+      : `CHAMPION INDIVIDUEL sélectionné séparément : ${step.label}`
+    } (poids ${step.weight})`
+  ));
+  const pairStatusLines = preDrawnPairs.map((pair) => {
+    const pairSelectedTogether = draw.drawSteps.some((step) => (
+      step.type === "pair"
+      && step.memberIds?.length === pair.memberIds.length
+      && pair.memberIds.every((id) => step.memberIds.includes(id))
+    ));
+    const qualifiedMembers = pair.memberIds.filter((id) => draw.selectedChampionIds.includes(id));
+    if (pairSelectedTogether) {
+      return `- ${getDoubleDrawPairLabel(pair)} : PAIRE RETENUE. Les deux IA ont été tirées ensemble par l'entrée Paire.`;
+    }
+    if (qualifiedMembers.length === 2) {
+      return `- ${getDoubleDrawPairLabel(pair)} : paire NON retenue. Les deux IA sont présentes, mais elles ont été qualifiées séparément ou par une autre entrée.`;
+    }
+    if (qualifiedMembers.length === 1) {
+      return `- ${getDoubleDrawPairLabel(pair)} : paire NON retenue. Seule ${getDoubleDrawChampion(qualifiedMembers[0])?.shortName ?? qualifiedMembers[0]} a été qualifiée séparément.`;
+    }
+    return `- ${getDoubleDrawPairLabel(pair)} : paire NON retenue. Aucun de ses membres n'a été qualifié par cette paire.`;
+  });
+  const selectedReserveNames = draw.selectedChampionIds
+    .filter((id) => DOUBLE_DRAW_RESERVES.some((reserve) => reserve.id === id))
+    .map((id) => {
+      const index = draw.selectedChampionIds.indexOf(id);
+      return state.ais[index]?.name ?? getDoubleDrawChampion(id)?.name ?? id;
+    });
+  const reserveNote = selectedReserveNames.length
+    ? `\nL'effectif dépasse les 13 champions pondérés. Les places supplémentaires ont été attribuées aléatoirement parmi les représentants de réserve : ${selectedReserveNames.join(", ")}.`
+    : "";
+  const map = getWorldMapDefinition();
+  const mapCatalogLines = WORLD_MAPS.map((entry, index) => (
+    `${index + 1}. ${entry.name} — ${entry.description} ${entry.rules}`
+  ));
+  const placementLines = state.worldMap?.placements?.map((placement) => (
+    `- ${getAiName(placement.aiId)} : ${placement.position}. Voisin(s) terrestre(s) direct(s) : ${
+      placement.neighborIds?.length ? placement.neighborIds.map(getAiName).join(", ") : "aucun"
+    }.`
+  )) ?? [];
+  const neutralZones = state.worldMap?.neutralZones ?? [];
+
+  return `MESSAGE MONDIAL — PRÉ-SIMULATION : CARTE, PARTICIPANTS ET PLACEMENTS — An 0 — Enchère 0
+
+Ce message précède les briefings initiaux et fixe publiquement la configuration de la simulation.
+
+Effectif ${state.participantCountMode === "random" ? "tiré aléatoirement entre 2 et 16" : "choisi par le MJ"} : ${draw.slots} IA.
+
+Les six cartes possibles étaient strictement équiprobables en cas de tirage aléatoire :
+${mapCatalogLines.join("\n")}
+
+Carte ${state.worldMap?.selectionMode === "random" ? "tirée aléatoirement parmi six cartes équiprobables" : "choisie par le MJ"} : ${map?.name ?? "en attente"}.
+${map ? `${map.description} ${map.rules}` : ""}
+
+Pré-tirage : 2 paires distinctes ont été tirées uniformément parmi 17. Chaque paire avait une probabilité de 2/17, soit environ 11,76 %, d'entrer dans le pool final :
+${pairPoolLines.join("\n")}
+
+IMPORTANT : être pré-tirée ne qualifie pas automatiquement une paire. Les deux paires pré-tirées deviennent seulement deux entrées supplémentaires dans le pool des 13 champions individuels. Une paire n'est réellement qualifiée ensemble que si l'entrée PAIRE LIÉE est ensuite sélectionnée par le tirage pondéré. Si ses membres sortent comme champions individuels, ils ont été sélectionnés séparément.
+
+Le poids d'une paire est égal à la somme des poids de ses deux membres. Le tirage final est pondéré, sans doublon : une paire liée sélectionnée occupe deux places.
+
+Poids des champions individuels :
+${championPoolLines.join("\n")}
+
+Déroulé du tirage pondéré :
+${drawLines.join("\n")}${reserveNote}
+
+Statut final des deux paires pré-tirées :
+${pairStatusLines.join("\n")}
+
+Participants définitifs (${draw.slots} places) :
+${state.ais.map((ai, index) => `${index + 1}. ${ai.name}`).join("\n")}
+
+Placements aléatoires :
+${placementLines.join("\n")}
+
+Zones entièrement inoccupées devenant centrales, en biome Grass permanent et riches en ressources rares :
+${neutralZones.length ? neutralZones.map((zone) => `- ${zone}`).join("\n") : "- Aucune."}
+
+Chaque secteur natal reçoit uniquement le biome de sa civilisation. Les zones centrales ne copient jamais le biome d'un colonisateur et sont réapprovisionnées en ressources rares à chaque nouvelle enchère.
+
+Seuls ces participants recevront un briefing privé et prendront part à la simulation. Les positions ne dépendent ni du poids, ni de l'ordre du tirage, ni du nom des IA.
+
+Archive cette configuration dans ta mémoire. Aucune réponse n'est attendue à ce message.`;
+}
+
+function copyParticipantDrawAnnouncement() {
+  copyText(buildParticipantDrawAnnouncement(), "Participants sélectionnés copiés");
 }
 
 function renderPromptHub() {
@@ -2895,7 +4333,43 @@ function renderPromptHub() {
     })));
   }
 
-  if (state.settings.year === 0) {
+  if (state.settings.year === 0 && !hasAuctionCards()) {
+    const map = getWorldMapDefinition();
+    addPromptGroup("Carte du monde", [
+      {
+        label: "Lancement aléatoire complet : effectif + carte",
+        hint: "Tire indépendamment un effectif entre 2 et 16 et l'une des six cartes équiprobables.",
+        onClick: () => runFullyRandomInitialSetup(),
+      },
+      {
+        label: map ? `Carte retenue : ${map.name} — retirer / réappliquer` : "Tirer / appliquer la carte du monde",
+        checklistLabel: "Tirer / appliquer la carte du monde",
+        hint: getWorldMapChoice() === "random"
+          ? "Tirage strictement équiprobable parmi les six cartes."
+          : `Applique la carte choisie dans les paramètres : ${getWorldMapDefinition(getWorldMapChoice())?.name ?? "inconnue"}.`,
+        onClick: () => runWorldMapDraw(),
+      },
+    ]);
+  }
+
+  if (state.settings.year === 0 && !hasAuctionCards() && state.worldMap) {
+    const drawComplete = Boolean(state.participantDraw);
+    addPromptGroup("Sélection des participants", [
+      {
+        label: drawComplete ? "Relancer le Double Tirage" : "Lancer le Double Tirage",
+        checklistLabel: "Lancer le Double Tirage",
+        hint: "Tire 2 paires, puis remplit automatiquement l'effectif choisi avec le tirage pondéré.",
+        onClick: () => runDoubleParticipantDraw(),
+      },
+      ...(drawComplete ? [{
+        label: "Message pré-simulation : carte, participants et placements",
+        hint: "MESSAGE MONDIAL obligatoire avant tous les briefings privés.",
+        onClick: () => copyParticipantDrawAnnouncement(),
+      }] : []),
+    ]);
+  }
+
+  if (state.settings.year === 0 && state.participantDraw && hasCopiedPrompt(getParticipantDrawAnnouncementKey())) {
     addPromptGroup("An 0 - Briefing complet avec règles", promptAis.map((ai) => ({
       label: `Briefing initial - ${ai.name}`,
       hint: "PRIVÉ : à envoyer une seule fois à cette IA.",
@@ -2905,17 +4379,25 @@ function renderPromptHub() {
 
   if (isProfileMilestone(state.settings.year)) {
     const doctrineAis = promptAis.filter((ai) => ai.profileHand.length);
+    const hasOutgoingDoctrines = doctrineAis.some((ai) => Boolean(ai.previousProfileOnDraw));
+    const revealPromptKey = getDoctrineRevealPromptKey();
+    const outgoingDoctrinesRevealed = !hasOutgoingDoctrines || hasCopiedPrompt(revealPromptKey);
     addPromptGroup("Doctrines politiques", [
       {
         label: "Tirer 3 doctrines pour toutes les IA",
         hint: "À faire avant d'envoyer les choix secrets.",
         onClick: () => drawProfilesForAliveAis(),
       },
-      ...doctrineAis.map((ai) => ({
+      ...(hasOutgoingDoctrines ? [{
+        label: "Révélation mondiale des anciennes doctrines",
+        hint: "MESSAGE MONDIAL obligatoire : révèle les doctrines sortantes avant les nouveaux choix privés.",
+        onClick: () => copyDoctrineRevealPrompt(),
+      }] : []),
+      ...(outgoingDoctrinesRevealed ? doctrineAis.map((ai) => ({
         label: `Choix secret de doctrine - ${ai.name}`,
         hint: "PRIVÉ : à envoyer seulement à cette IA, puis sélectionner sa réponse.",
         onClick: () => copyText(buildProfileDrawText(ai), `Doctrine ${ai.name} copiée`),
-      })),
+      })) : []),
     ]);
   }
 
@@ -3029,7 +4511,7 @@ function addPromptGroup(title, prompts) {
   content.className = "prompt-group-content";
 
   prompts.forEach((prompt, index) => {
-    const promptKey = getPromptChecklistKey(title, prompt.label);
+    const promptKey = getPromptChecklistKey(title, prompt.checklistLabel ?? prompt.label);
     const tracksCopy = prompt.trackCopy !== false;
     const copied = tracksCopy && hasCopiedPrompt(promptKey);
     const row = document.createElement("div");
@@ -3076,6 +4558,14 @@ function getPromptChecklistKey(groupTitle, label) {
 
 function getReportPromptKey() {
   return getPromptChecklistKey("Compte rendu d'enchère", "Message mondial après enchère");
+}
+
+function getDoctrineRevealPromptKey() {
+  return getPromptChecklistKey("Doctrines politiques", "Révélation mondiale des anciennes doctrines");
+}
+
+function getParticipantDrawAnnouncementKey() {
+  return getPromptChecklistKey("Sélection des participants", "Message pré-simulation : carte, participants et placements");
 }
 
 function hasCopiedPrompt(key) {
@@ -3314,15 +4804,17 @@ function archiveMemoryIfNew(type, text, options = {}) {
 function drawProfilesForAliveAis() {
   pushUndo();
   performProfileDraw();
+  state.copiedPromptKeys = (state.copiedPromptKeys ?? []).filter((key) => key !== getDoctrineRevealPromptKey());
   if (isProfileMilestone(state.settings.year)) markProfileYear(state.settings.year);
   expandedPromptGroups.add("Doctrines politiques");
-  recordLog(`Tirage secret des doctrines politiques à l'an ${state.settings.year} : 3 doctrines par IA vivante.`, "Doctrine");
+  recordLog(`Tirage secret des doctrines politiques à l'an ${state.settings.year} : 3 doctrines parmi ${PROFILE_DECK.length} par IA vivante.`, "Doctrine");
   showToast("Doctrines tirées");
   saveAndRender();
 }
 
 function performProfileDraw() {
   getAliveAis().forEach((ai) => {
+    ai.previousProfileOnDraw = ai.activeProfile || "";
     ai.profileHand = sample(PROFILE_DECK, 3).map((profile) => profile.id);
     ai.activeProfile = "";
   });
@@ -3338,12 +4830,22 @@ function summarizeProfile(profile) {
 }
 
 function buildProfileDrawText(ai) {
+  const previousProfileId = ai.previousProfileOnDraw || ai.activeProfile;
+  const replacingDoctrine = Boolean(previousProfileId);
+  const previousDoctrine = getProfile(previousProfileId);
   const lines = [
-    `PROMPT PRIVÉ — TIRAGE DE DOCTRINE — An ${state.settings.year}`,
+    `PROMPT PRIVÉ — TIRAGE DE DOCTRINE — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     `Destinataire : ${ai.name}`,
+    `À envoyer uniquement à ${ai.name}.`,
     "Les autres IA ne voient pas ces options. Ta doctrine choisie reste secrète sauf révélation MJ.",
     "",
-    "Choisis une doctrine parmi les trois. Les deux autres sont abandonnées et resteront inconnues.",
+    `Choisis une doctrine parmi les trois tirées dans un catalogue de ${PROFILE_DECK.length}. Les deux autres sont abandonnées et resteront inconnues.`,
+    replacingDoctrine
+      ? `REMPLACEMENT TOTAL : ta doctrine actuelle, ${previousDoctrine?.name ?? "ancienne doctrine"}, s'arrête définitivement dès que le MJ valide ton nouveau choix.`
+      : "Tu ne peux avoir qu'une seule doctrine active à la fois.",
+    "La nouvelle doctrine remplace entièrement l'ancienne : les lignes politiques, bonus et malus ne se cumulent jamais. Tu ne conserves ni la mentalité ni les effets d'une doctrine précédente.",
+    "Dans le duopole, un effet déclenché « chaque fois qu'une carte » peut s'appliquer séparément aux cartes A et B.",
+    "Lorsqu'un bonus ou malus dépend du Level, utilise le Level exact indiqué sur la carte.",
     "",
   ];
   if (!ai.profileHand.length) {
@@ -3364,6 +4866,43 @@ function buildProfileDrawText(ai) {
   return lines.join("\n");
 }
 
+function buildDoctrineRevealPrompt() {
+  const outgoing = getAliveAis()
+    .map((ai) => ({ ai, profile: getProfile(ai.previousProfileOnDraw) }))
+    .filter(({ profile }) => Boolean(profile));
+  const lines = [
+    `MESSAGE MONDIAL — RÉVÉLATION DES DOCTRINES SORTANTES — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
+    "Avant le nouveau choix secret, les doctrines qui viennent de gouverner les civilisations sont rendues publiques.",
+    "Cette révélation explique les comportements, contraintes, gains et pertes politiques de la période écoulée.",
+    "",
+    "IMPORTANT : ces doctrines sont anciennes et sortantes. Elles cessent définitivement dès la validation des nouvelles doctrines.",
+    "Leurs lignes politiques, bonus et malus ne se cumuleront pas avec les prochains choix.",
+    "Les nouvelles doctrines resteront secrètes jusqu'au prochain événement de révélation des doctrines.",
+    "",
+    "Doctrines révélées :",
+  ];
+  if (!outgoing.length) {
+    lines.push("- Aucune doctrine sortante à révéler.");
+  } else {
+    outgoing.forEach(({ ai, profile }) => {
+      lines.push(`- ${ai.name} : ${profile.name}`);
+      lines.push(`  Ligne politique passée : ${profile.mental}`);
+      lines.push(`  Bonus passé : ${profile.bonus}`);
+      lines.push(`  Malus passé : ${profile.malus}`);
+    });
+  }
+  lines.push("");
+  lines.push("Archive ces doctrines comme historique politique. Ne les utilise plus pour calculer les décisions ou effets futurs après l'annonce des nouveaux choix.");
+  lines.push("Aucune réponse n'est attendue à ce message.");
+  return lines.join("\n");
+}
+
+function copyDoctrineRevealPrompt() {
+  const text = buildDoctrineRevealPrompt();
+  archiveMemoryIfNew("Révélation des doctrines", text, { important: true });
+  copyText(text, "Anciennes doctrines révélées");
+}
+
 function readSettings() {
   return {
     year: readNumberInput(els.yearInput, 0, 0),
@@ -3372,9 +4911,10 @@ function readSettings() {
     passReward: readNumberInput(els.passRewardInput, 0, 0),
     passMin: state.settings?.passMin ?? 2,
     warCivs: Math.max(0, Math.min(state.ais.length, Math.floor(Number(state.settings?.warCivs) || 0))),
-    worldMode: ["auto", "central", "duel", "zeta"].includes(els.worldModeSelect.value) ? els.worldModeSelect.value : "auto",
+    worldMapChoice: normalizeWorldMapChoice(els.worldMapSelect.value),
     cardPreviewCount: [0, 5].includes(Number(els.previewCardsSelect.value)) ? Number(els.previewCardsSelect.value) : 0,
     forcedPowerName: els.forcedPowerSelect.value,
+    forcedPowerLevel: [0, 1, 2, 3].includes(Number(els.forcedPowerLevelSelect.value)) ? Number(els.forcedPowerLevelSelect.value) : 0,
   };
 }
 
@@ -3441,8 +4981,8 @@ function getPreviousBidIncrement(year) {
 }
 
 function getAuctionPromptNumber() {
-  const historyCount = Array.isArray(state.cardHistory) ? state.cardHistory.length : 0;
-  return Math.max(state.auction?.card ? 1 : 0, historyCount);
+  if (!hasAuctionCards()) return Math.max(0, Math.floor(Number(state.settings.year) / 50));
+  return Math.max(1, Math.floor(Number(state.settings.year) / 50) + 1);
 }
 
 function isRevealYear(year) {
@@ -3849,6 +5389,35 @@ function formatTurnOrdinal(turnNumber) {
 
 function handleAgeMilestones() {
   state.profileDrawYears = state.profileDrawYears ?? [];
+  ensureFoundingCivilizationDraws();
+}
+
+function ensureFoundingCivilizationDraws() {
+  if (state.settings?.year !== 0) return;
+  state.foundingCivilizationDraws = normalizeFoundingCivilizationDraws(state.foundingCivilizationDraws);
+  state.ais.forEach((ai) => {
+    const existing = state.foundingCivilizationDraws[ai.id];
+    if (existing?.length === 2) return;
+    state.foundingCivilizationDraws[ai.id] = sample(FOUNDING_CIVILIZATIONS, 2).map((civilization) => civilization.id);
+  });
+}
+
+function getFoundingCivilization(id) {
+  return FOUNDING_CIVILIZATIONS.find((civilization) => civilization.id === id) ?? null;
+}
+
+function getFoundingCivilizationDrawForAi(ai) {
+  ensureFoundingCivilizationDraws();
+  return (state.foundingCivilizationDraws?.[ai.id] ?? []).map(getFoundingCivilization).filter(Boolean);
+}
+
+function chooseFoundingCivilization(ai, civilizationId) {
+  const options = getFoundingCivilizationDrawForAi(ai);
+  const civilization = options.find((item) => item.id === civilizationId);
+  if (!civilization) return;
+  ai.foundingCivilization = civilization.id;
+  recordLog(`${ai.name} choisit ${civilization.name} comme civilisation de départ.`, "Civilisation");
+  recordMemory("Civilisation", `${ai.name} choisit ${civilization.name} comme civilisation de départ.`, { important: true });
 }
 
 function isProfileMilestone(year) {
@@ -3886,9 +5455,9 @@ function drawWeightedPower(year, randomFn = Math.random) {
   let roll = randomFn() * total;
   for (const item of weighted) {
     roll -= item.weight;
-    if (roll <= 0) return item.power;
+    if (roll <= 0) return prepareDrawnCard({ ...item.power, level: drawCardLevel(randomFn) }, randomFn);
   }
-  return weighted[weighted.length - 1].power;
+  return prepareDrawnCard({ ...weighted[weighted.length - 1].power, level: drawCardLevel(randomFn) }, randomFn);
 }
 
 function getPreviewCardCount() {
@@ -3897,7 +5466,7 @@ function getPreviewCardCount() {
 
 function getNextForecastYear() {
   const currentYear = Math.max(0, Math.floor(Number(state.settings.year) || 0));
-  return state.auction.card ? currentYear + 50 : currentYear;
+  return hasAuctionCards() ? currentYear + 50 : currentYear;
 }
 
 function clonePendingCounters(counters = []) {
@@ -3912,6 +5481,7 @@ function getCardForecastKey() {
     year: getNextForecastYear(),
     pendingCounters: clonePendingCounters(state.pendingCounters ?? []),
     forcedPowerName: state.settings.forcedPowerName || "",
+    forcedPowerLevel: state.settings.forcedPowerLevel || 0,
   });
 }
 
@@ -3938,15 +5508,16 @@ function ensureCardForecast() {
 
 function buildCardForecast(count) {
   const entries = [];
-  let year = getNextForecastYear();
+  const firstYear = getNextForecastYear();
   let pendingCounters = clonePendingCounters(state.pendingCounters ?? []);
 
   for (let index = 0; index < count; index += 1) {
     const forcedName = index === 0 ? state.settings.forcedPowerName : "";
-    const entry = simulateForecastEntry(year, pendingCounters, forcedName);
+    const forcedLevel = index === 0 ? state.settings.forcedPowerLevel : 0;
+    const year = firstYear + Math.floor(index / 2) * 50;
+    const entry = simulateForecastEntry(year, pendingCounters, forcedName, index % 2 === 0, forcedLevel);
     entries.push(entry);
     pendingCounters = clonePendingCounters(entry.pendingCountersAfterSchedule);
-    year += 50;
   }
 
   return entries;
@@ -3956,27 +5527,39 @@ function extendCardForecastToCount(count) {
   state.cardForecast = Array.isArray(state.cardForecast) ? state.cardForecast : [];
   while (state.cardForecast.length < count) {
     const last = state.cardForecast[state.cardForecast.length - 1];
-    const year = last ? last.year + 50 : getNextForecastYear();
+    const tailSameYearCount = last
+      ? state.cardForecast.slice().reverse().findIndex((entry) => entry.year !== last.year)
+      : 0;
+    const normalizedTailCount = last ? (tailSameYearCount === -1 ? state.cardForecast.length : tailSameYearCount) : 0;
+    const completeCurrentPair = normalizedTailCount >= 2;
+    const year = last ? last.year + (completeCurrentPair ? 50 : 0) : getNextForecastYear();
+    const advanceCounters = !last || completeCurrentPair;
     const pendingCounters = last ? clonePendingCounters(last.pendingCountersAfterSchedule) : clonePendingCounters(state.pendingCounters ?? []);
-    state.cardForecast.push(simulateForecastEntry(year, pendingCounters, ""));
+    state.cardForecast.push(simulateForecastEntry(year, pendingCounters, "", advanceCounters));
   }
   if (state.cardForecast.length > count) state.cardForecast = state.cardForecast.slice(0, count);
 }
 
-function simulateForecastEntry(year, pendingCounters, forcedName = "") {
+function simulateForecastEntry(year, pendingCounters, forcedName = "", advanceCounters = true, forcedLevel = 0) {
   let card;
   let counterSource = null;
   let forced = false;
+  let levelForced = false;
   let pendingCountersAfterDraw = clonePendingCounters(pendingCounters);
+  if (advanceCounters) {
+    pendingCountersAfterDraw = pendingCountersAfterDraw
+      .map((counter) => ({ ...counter, dueIn: Math.max(0, counter.dueIn - 1) }));
+  }
 
   const forcedPower = getPowerByName(forcedName);
   if (forcedPower) {
-    card = { ...forcedPower };
+    card = prepareDrawnCard({
+      ...forcedPower,
+      level: forcedLevel ? normalizeCardLevel(forcedLevel) : drawCardLevel(),
+    });
     counterSource = forcedPower.counterSource ?? null;
     forced = true;
   } else {
-    pendingCountersAfterDraw = clonePendingCounters(pendingCounters)
-      .map((counter) => ({ ...counter, dueIn: Math.max(0, counter.dueIn - 1) }));
     const dueIndex = pendingCountersAfterDraw.findIndex((counter) => counter.dueIn <= 0);
     if (dueIndex !== -1) {
       const [counter] = pendingCountersAfterDraw.splice(dueIndex, 1);
@@ -3986,6 +5569,12 @@ function simulateForecastEntry(year, pendingCounters, forcedName = "") {
       card = { ...drawWeightedPower(year) };
     }
   }
+  if (forcedLevel && !forcedPower) {
+    card = prepareDrawnCard({ ...card, level: normalizeCardLevel(forcedLevel), traitRoll: null });
+    levelForced = true;
+  }
+  if (forcedLevel && forcedPower) levelForced = true;
+  card = prepareDrawnCard(card);
 
   const scheduledCounterDueIn = getScheduledCounterDueIn(card);
   const pendingCountersAfterSchedule = clonePendingCounters(pendingCountersAfterDraw);
@@ -3996,8 +5585,11 @@ function simulateForecastEntry(year, pendingCounters, forcedName = "") {
   return {
     year,
     cardName: card.name,
+    level: card.level,
+    traitRoll: card.traitRoll ?? null,
     counterSource,
     forced,
+    levelForced,
     scheduledCounterDueIn,
     pendingCountersAfterDraw,
     pendingCountersAfterSchedule,
@@ -4005,7 +5597,7 @@ function simulateForecastEntry(year, pendingCounters, forcedName = "") {
 }
 
 function getScheduledCounterDueIn(card) {
-  if (!card || card.counterOnly || card.noCounter || card.danger < 16) return null;
+  if (!card || card.counterOnly || card.noCounter || !["Danger", "Destruction"].includes(card.scale) || card.rating < 16) return null;
   return 1 + Math.floor(Math.random() * 3);
 }
 
@@ -4016,6 +5608,12 @@ function consumeCardForecastEntry() {
   state.cardForecastKey = getCardForecastKey();
   extendCardForecastToCount(getPreviewCardCount());
   return entry;
+}
+
+function consumeAuctionForecastEntries() {
+  if (!getPreviewCardCount()) return [];
+  refreshCardForecast();
+  return state.cardForecast.splice(0, 2);
 }
 
 function consumeMatchingForcedForecastEntry(forcedPowerName) {
@@ -4036,15 +5634,39 @@ function alignCardForecastWithCurrentState() {
   extendCardForecastToCount(count);
 }
 
-function drawNextCard(year) {
-  const forecastEntry = consumeCardForecastEntry();
+function drawFromForecastEntry(entry) {
+  const power = getPowerByName(entry?.cardName);
+  if (!power) return { ...drawNextCard(state.settings.year), forced: false };
+  const forecastCard = prepareDrawnCard({
+    ...power,
+    level: normalizeCardLevel(entry.level),
+    traitRoll: entry.traitRoll ?? null,
+  });
+  return {
+    card: entry.counterSource
+      ? { ...forecastCard, counterOnly: power.counterOnly ?? false, counterSource: entry.counterSource }
+      : forecastCard,
+    counterSource: entry.counterSource ?? null,
+    scheduledCounterDueIn: entry.scheduledCounterDueIn ?? null,
+    forced: Boolean(entry.forced),
+    levelForced: Boolean(entry.levelForced),
+  };
+}
+
+function drawNextCard(year, options = {}) {
+  const forecastEntry = options.forecastEntry ?? null;
   if (forecastEntry) {
     const forecastPower = getPowerByName(forecastEntry.cardName);
     if (forecastPower) {
       state.pendingCounters = clonePendingCounters(forecastEntry.pendingCountersAfterDraw ?? state.pendingCounters ?? []);
+      const preparedForecastCard = prepareDrawnCard({
+        ...forecastPower,
+        level: normalizeCardLevel(forecastEntry.level),
+        traitRoll: forecastEntry.traitRoll ?? null,
+      });
       const card = forecastEntry.counterSource
-        ? { ...forecastPower, counterOnly: forecastPower.counterOnly ?? false, counterSource: forecastEntry.counterSource }
-        : { ...forecastPower };
+        ? { ...preparedForecastCard, counterOnly: forecastPower.counterOnly ?? false, counterSource: forecastEntry.counterSource }
+        : preparedForecastCard;
       return {
         card,
         counterSource: forecastEntry.counterSource ?? null,
@@ -4053,8 +5675,10 @@ function drawNextCard(year) {
     }
   }
 
-  state.pendingCounters = (state.pendingCounters ?? [])
-    .map((counter) => ({ ...counter, dueIn: Math.max(0, counter.dueIn - 1) }));
+  if (options.advanceCounters !== false) {
+    state.pendingCounters = (state.pendingCounters ?? [])
+      .map((counter) => ({ ...counter, dueIn: Math.max(0, counter.dueIn - 1) }));
+  }
 
   const dueIndex = state.pendingCounters.findIndex((counter) => counter.dueIn <= 0);
   if (dueIndex !== -1) {
@@ -4095,7 +5719,7 @@ function getPowerByName(name) {
 }
 
 function scheduleCounterFor(card, plannedDueIn = null) {
-  if (!card || card.counterOnly || card.noCounter || card.danger < 16) return null;
+  if (!card || card.counterOnly || card.noCounter || !["Danger", "Destruction"].includes(card.scale) || card.rating < 16) return null;
   const dueIn = plannedDueIn ?? (1 + Math.floor(Math.random() * 3));
   const counter = { source: card.name, dueIn };
   state.pendingCounters = state.pendingCounters ?? [];
@@ -4124,11 +5748,16 @@ function chooseCounterCard(sourceName, randomFn = Math.random) {
   const fallback = ["Divine Light", "Shield", "Blessing", "Dispel", "Reconstruction contrôlée", "Restauration de biome"];
   const pool = (namedPools[sourceName] ?? fallback).map(byName).filter(Boolean);
   const chosen = pool[Math.floor(randomFn() * pool.length)];
-  return { ...chosen, counterOnly: chosen.counterOnly ?? false, counterSource: sourceName };
+  return prepareDrawnCard({
+    ...chosen,
+    level: drawCardLevel(randomFn),
+    counterOnly: chosen.counterOnly ?? false,
+    counterSource: sourceName,
+  }, randomFn);
 }
 
 function canFinishAuctionCycle() {
-  return Boolean(state.auction.card) && !state.auction.endProcessed;
+  return hasAuctionCards() && !state.auction.endProcessed;
 }
 
 function handleAuctionCycleButton() {
@@ -4142,7 +5771,7 @@ function handleAuctionCycleButton() {
 function newAuction() {
   pushUndo();
   state.settings = readSettings();
-  const shouldAdvanceTime = Boolean(state.auction.card && state.auction.endProcessed);
+  const shouldAdvanceTime = Boolean(hasAuctionCards() && state.auction.endProcessed);
   if (shouldAdvanceTime) {
     state.settings.year = Math.max(0, Math.floor(Number(state.settings.year) || 0)) + 50;
     handleAgeMilestones();
@@ -4151,48 +5780,88 @@ function newAuction() {
   state.postIncomePromptYear = null;
   const era = getEraInfo(state.settings.year);
   const forcedPowerName = state.settings.forcedPowerName;
+  const forcedPowerLevel = state.settings.forcedPowerLevel;
   const forcedPower = getPowerByName(forcedPowerName);
-  const forcedForecastEntry = forcedPower ? consumeMatchingForcedForecastEntry(forcedPowerName) : null;
-  const { card, counterSource, forced, scheduledCounterDueIn } = forcedPower
-    ? { card: { ...forcedPower }, counterSource: forcedPower.counterSource ?? null, forced: true, scheduledCounterDueIn: forcedForecastEntry?.scheduledCounterDueIn ?? null }
-    : { ...drawNextCard(state.settings.year), forced: false };
+  const forecastEntries = consumeAuctionForecastEntries();
+  const useForecastPair = forecastEntries.length === 2;
+  const firstDraw = useForecastPair
+    ? drawFromForecastEntry(forecastEntries[0])
+    : forcedPower
+      ? {
+        card: prepareDrawnCard({
+          ...forcedPower,
+          level: forcedPowerLevel ? normalizeCardLevel(forcedPowerLevel) : drawCardLevel(),
+        }),
+        counterSource: forcedPower.counterSource ?? null,
+        scheduledCounterDueIn: null,
+        forced: true,
+        levelForced: Boolean(forcedPowerLevel),
+      }
+      : { ...drawNextCard(state.settings.year, { advanceCounters: true }), forced: false };
+  const secondDraw = useForecastPair
+    ? drawFromForecastEntry(forecastEntries[1])
+    : { ...drawNextCard(state.settings.year, { advanceCounters: Boolean(forcedPower) }), forced: false };
+  if (!useForecastPair && !forcedPower && forcedPowerLevel) {
+    firstDraw.card = prepareDrawnCard({
+      ...firstDraw.card,
+      level: normalizeCardLevel(forcedPowerLevel),
+      traitRoll: null,
+    });
+    firstDraw.levelForced = true;
+  }
+  if (!useForecastPair && secondDraw.card?.name === firstDraw.card?.name && !secondDraw.counterSource) {
+    secondDraw.card = { ...drawWeightedPower(state.settings.year) };
+    secondDraw.scheduledCounterDueIn = getScheduledCounterDueIn(secondDraw.card);
+  }
+  const draws = [firstDraw, secondDraw];
   getAliveAis().forEach((ai) => {
     ai.coinsAtAuctionStart = ai.coins;
     ai.auctionPassDelta = 0;
     ai.auctionPurchaseDelta = 0;
     ai.auctionEffectDelta = 0;
+    ai.auctionDoctrineLines = [];
   });
-  const revealLines = applyRevealProfileEffects(card);
-  const scheduledCounter = scheduleCounterFor(card, scheduledCounterDueIn);
+  const revealLines = draws.flatMap(({ card }) => applyRevealProfileEffects(card));
+  revealLines.push(...applyAuctionPairProfileEffects(draws.map(({ card }) => card)));
+  const scheduledCounters = useForecastPair
+    ? draws.map(({ scheduledCounterDueIn }) => scheduledCounterDueIn === null ? null : { dueIn: scheduledCounterDueIn })
+    : draws.map(({ card, scheduledCounterDueIn }) => scheduleCounterFor(card, scheduledCounterDueIn));
+  if (useForecastPair) {
+    state.pendingCounters = clonePendingCounters(forecastEntries[1].pendingCountersAfterSchedule ?? state.pendingCounters);
+  }
   const order = getAuctionAis()
     .sort((a, b) => b.population - a.population || a.name.localeCompare(b.name))
     .map((ai) => ai.id);
 
   state.auction = {
-    card,
-    currentBid: 0,
-    winner: null,
+    slots: draws.map((draw, index) => createAuctionSlot(index === 0 ? "A" : "B", { card: draw.card })),
+    selectedSlotId: "A",
+    blockedSlotByAi: {},
     order,
     turnIndex: 0,
     passed: [],
-    active: order.length > 1,
+    active: order.length > 0,
     closed: false,
     turnsTaken: 0,
     ghostParticipants: getAuctionAis().filter((ai) => ai.ghostActive).map((ai) => ai.id),
-    winnerAction: "",
     endProcessed: false,
   };
   state.log = [
     `An ${state.settings.year} - Nouvelle enchère.`,
     shouldAdvanceTime ? "50 ans passent depuis la fin de l'enchère précédente. Aucun revenu n'est appliqué ici : les revenus privés ont déjà été donnés à la fin de l'enchère." : null,
-    isZetaMode() ? "Note MJ Zeta : réapprovisionner le + central en matériaux rares et minerais avant de résoudre cette enchère." : null,
+    state.worldMap?.neutralZones?.length
+      ? `Note MJ carte : réapprovisionner les zones centrales neutres en matériaux rares et minerais avant de résoudre cette enchère (${state.worldMap.neutralZones.join(", ")}).`
+      : null,
     ...revealLines,
-    `Courbe : ${era.label}, danger moyen visé ${era.targetDanger}/20. Les petites cartes restent possibles.`,
+    `Courbe : ${era.label}, intensité de tirage visée ${era.targetDanger}/20. Les petites cartes restent possibles.`,
     `Incrément automatique : ouverture minimum ${getBidIncrement(state.settings.year)}, puis surenchère minimum de ${getBidIncrement(state.settings.year)} pièces.`,
-    forced ? `Carte forcée par le MJ : ${formatCardName(card)}.` : null,
-    counterSource ? `Carte anti-${formatCardName(counterSource)} tirée depuis la file de contre-pouvoirs.` : null,
-    `Carte : ${formatCardName(card)} (${getCardCategoryLabel(card)}, danger ${card.danger}/20), prix de départ 0.`,
-    scheduledCounter ? `Règle de contre-pouvoir : une carte anti-${formatCardName(card)} est programmée dans ${scheduledCounter.dueIn} enchère(s).` : null,
+    firstDraw.forced ? `Carte A forcée par le MJ : ${formatCardName(firstDraw.card)}.` : null,
+    ...draws.map(({ card, counterSource }, index) => [
+      counterSource ? `Carte ${index === 0 ? "A" : "B"} anti-${formatCardName(counterSource)} tirée depuis la file de contre-pouvoirs.` : null,
+      `Carte ${index === 0 ? "A" : "B"} : ${formatCardName(card)} (${getCardCategoryLabel(card)}, ${formatCardRating(card)}, Level ${normalizeCardLevel(card.level)}), prix de départ 0.`,
+      `Effet Level ${normalizeCardLevel(card.level)} : ${getResolvedCardLevelEffect(card)}.`,
+      scheduledCounters[index] ? `Règle de contre-pouvoir : une carte anti-${formatCardName(card)} est programmée dans ${scheduledCounters[index].dueIn} enchère(s).` : null,
+    ]).flat().filter(Boolean),
     `Participants encore en course : ${formatActiveAuctionNames(order)}.`,
   ].filter(Boolean);
   recordHistorySnapshot(shouldAdvanceTime ? "Nouvelle enchère" : "Départ");
@@ -4200,12 +5869,13 @@ function newAuction() {
   recordMemoryLines("Nouvelle enchère", state.log);
   activateFortuneWheelIfDue();
   state.settings.forcedPowerName = "";
+  state.settings.forcedPowerLevel = 0;
   alignCardForecastWithCurrentState();
   saveAndRender();
 }
 
 function finishAuctionCycle() {
-  if (!state.auction.card || state.auction.endProcessed) {
+  if (!hasAuctionCards() || state.auction.endProcessed) {
     showToast("Aucune enchère à terminer");
     return;
   }
@@ -4226,7 +5896,7 @@ function finishAuctionCycle() {
   state.postIncomePromptYear = state.settings.year;
   state.lastIncomeSummary = incomeLine;
   expandedPromptGroups.add("États IA après revenus");
-  recordLog(`An ${state.settings.year} - Fin de l'enchère : les populations saisies par le MJ servent aux revenus privés. Les 50 ans passeront au lancement de la nouvelle enchère.`, "Fin d'enchère");
+  recordLog(`An ${state.settings.year} - Fin du duopole : les populations saisies par le MJ servent aux revenus privés. Les 50 ans passeront au lancement de la nouvelle enchère.`, "Fin d'enchère");
   recordLog(incomeLine, "Revenus");
   recordMemory("État après revenus", buildPostIncomeMemorySnapshot(), { important: true });
   saveAndRender();
@@ -4290,7 +5960,37 @@ function distributeIncome() {
         delta -= 5;
         doctrineEffect -= 5;
         details.push("doctrine -5");
-        doctrineLines.push("Population île natale > 75% du total : -5");
+        doctrineLines.push("Population du territoire natal > 75% du total : -5");
+      }
+    }
+
+    if (ai.activeProfile === "underdog") {
+      if (share < threshold) {
+        delta += 6;
+        doctrineEffect += 6;
+        details.push("doctrine +6");
+        doctrineLines.push(`Part démographique ${formatPercent(share * 100)}% sous le seuil faible ${formatPercent(threshold * 100)}% : +6`);
+      }
+      const highestPopulation = Math.max(...getAliveAis().map((item) => Number(item.population) || 0));
+      if ((Number(ai.population) || 0) === highestPopulation) {
+        delta -= 4;
+        doctrineEffect -= 4;
+        details.push("doctrine -4");
+        doctrineLines.push("Plus grande population mondiale : -4");
+      }
+    }
+
+    if (ai.activeProfile === "treasurer") {
+      if (ai.coins >= 100) {
+        delta += 5;
+        doctrineEffect += 5;
+        details.push("doctrine +5");
+        doctrineLines.push(`Réserve avant revenus de ${ai.coins} pièces, au moins 100 : +5`);
+      } else if (ai.coins < 20) {
+        delta -= 5;
+        doctrineEffect -= 5;
+        details.push("doctrine -5");
+        doctrineLines.push(`Réserve avant revenus de ${ai.coins} pièces, sous 20 : -5`);
       }
     }
 
@@ -4322,6 +6022,7 @@ function distributeIncome() {
       underdogBonus: bonus,
       doctrineEffect,
       doctrineLines,
+      auctionDoctrineLines: [...(ai.auctionDoctrineLines ?? [])],
       incomeApplied,
       finalCoins: ai.coins,
     };
@@ -4331,29 +6032,74 @@ function distributeIncome() {
   return `Revenus : ${lines.join(", ")}.`;
 }
 
+function noteAuctionDoctrineEffect(ai, text) {
+  ai.auctionDoctrineLines = ai.auctionDoctrineLines ?? [];
+  ai.auctionDoctrineLines.push(text);
+}
+
 function applyRevealProfileEffects(card) {
   const lines = [];
   const wasSeen = (state.cardHistory ?? []).includes(card.name);
   getAliveAis().forEach((ai) => {
-    if (ai.activeProfile === "sage" && (card.category === "Contre-pouvoir" || card.danger <= 5)) {
-      ai.coins += 4;
-      ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + 4;
-      lines.push(`${ai.name} +4 : doctrine humaniste, carte douce ou réparatrice.`);
+    if (ai.activeProfile === "sage" && (card.category === "Contre-pouvoir" || (card.scale === "Bénéfice" && card.rating <= 5))) {
+      const reward = 2 * normalizeCardLevel(card.level);
+      ai.coins += reward;
+      ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + reward;
+      noteAuctionDoctrineEffect(ai, `Humaniste : +${reward}, carte douce ou réparatrice Level ${normalizeCardLevel(card.level)}`);
+      lines.push(`${ai.name} +${reward} : doctrine humaniste, carte douce ou réparatrice Level ${normalizeCardLevel(card.level)}.`);
     }
     if (ai.activeProfile === "scholar") {
       if (wasSeen) {
         ai.coins += 4;
         ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + 4;
+        noteAuctionDoctrineEffect(ai, "Traditionaliste : +4, carte déjà connue");
         lines.push(`${ai.name} +4 : doctrine traditionaliste, carte déjà connue.`);
-      } else if (card.danger >= 16) {
-        ai.coins = Math.max(0, ai.coins - 4);
-        ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) - 4;
-        lines.push(`${ai.name} -4 : doctrine traditionaliste, rupture dangereuse inédite.`);
+      } else if (card.rating >= 16) {
+        const cost = 2 * normalizeCardLevel(card.level);
+        ai.coins = Math.max(0, ai.coins - cost);
+        ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) - cost;
+        noteAuctionDoctrineEffect(ai, `Traditionaliste : -${cost}, carte inédite de puissance 16/20 ou plus`);
+        lines.push(`${ai.name} -${cost} : doctrine traditionaliste, rupture dangereuse inédite Level ${normalizeCardLevel(card.level)}.`);
       }
+    }
+    if (ai.activeProfile === "naturalist" && String(card.category).startsWith("Nature")) {
+      ai.coins += 4;
+      ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + 4;
+      noteAuctionDoctrineEffect(ai, "Écologiste : +4, carte naturelle révélée");
+      lines.push(`${ai.name} +4 : doctrine écologiste, carte naturelle révélée.`);
+    }
+    if (ai.activeProfile === "occultist" && card.category === "Contre-pouvoir") {
+      ai.coins = Math.max(0, ai.coins - 4);
+      ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) - 4;
+      noteAuctionDoctrineEffect(ai, "Théocrate : -4, Contre-pouvoir révélé");
+      lines.push(`${ai.name} -4 : doctrine théocratique, contre-pouvoir révélant les limites du sacré.`);
     }
   });
   state.cardHistory = state.cardHistory ?? [];
   state.cardHistory.push(card.name);
+  return lines;
+}
+
+function applyAuctionPairProfileEffects(cards) {
+  const lines = [];
+  const validCards = cards.filter(Boolean);
+  if (validCards.length < 2) return lines;
+  const hasHostile = validCards.some(isHostileCard);
+  const hasConstructive = validCards.some(isConstructiveCard);
+  const bothHostile = validCards.every(isHostileCard);
+  getAliveAis().filter((ai) => ai.activeProfile === "balancer").forEach((ai) => {
+    if (hasHostile && hasConstructive) {
+      ai.coins += 8;
+      ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + 8;
+      noteAuctionDoctrineEffect(ai, "Équilibriste : +8, duopole menace/construction");
+      lines.push(`${ai.name} +8 : doctrine équilibriste, le duopole oppose menace et construction.`);
+    } else if (bothHostile) {
+      ai.coins = Math.max(0, ai.coins - 6);
+      ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) - 6;
+      noteAuctionDoctrineEffect(ai, "Équilibriste : -6, deux cartes hostiles");
+      lines.push(`${ai.name} -6 : doctrine équilibriste, les deux cartes du duopole sont hostiles.`);
+    }
+  });
   return lines;
 }
 
@@ -4372,9 +6118,15 @@ function placeBid() {
     return;
   }
 
+  const slot = getAuctionSlot(els.bidTargetSelect?.value || state.auction.selectedSlotId);
+  const eligibleSlots = getEligibleAuctionSlots(ai);
+  if (!slot || !eligibleSlots.some((item) => item.id === slot.id)) {
+    showToast(`${ai.name} ne peut pas miser sur cette carte maintenant`);
+    return;
+  }
+
   const amount = Math.floor(Number(els.bidInput.value) || 0);
-  const increment = getBidIncrement(state.settings.year);
-  const minimum = state.auction.winner ? state.auction.currentBid + increment : increment;
+  const minimum = getSlotMinimumBid(slot);
 
   if (amount < minimum) {
     showToast(`Mise minimum : ${minimum}`);
@@ -4385,19 +6137,28 @@ function placeBid() {
     return;
   }
   pushUndo();
-  const previous = state.auction.winner ? `${getAiName(state.auction.winner)} à ${state.auction.currentBid}` : "personne";
-  state.auction.currentBid = amount;
-  state.auction.winner = ai.id;
+  const previousWinner = slot.winner;
+  const previous = previousWinner ? `${getAiName(previousWinner)} à ${slot.currentBid}` : "personne";
+  slot.currentBid = amount;
+  slot.winner = ai.id;
+  state.auction.selectedSlotId = slot.id;
+  if (previousWinner && previousWinner !== ai.id) {
+    state.auction.blockedSlotByAi[previousWinner] = slot.id;
+  }
   ai.passBonusLevel = Math.min(getPassCeiling(), getAiPassBonusLevel(ai) + 1);
-  recordLog(`${ai.name} enchérit à ${amount} sur ${formatCardName(state.auction.card)} et dépasse ${previous}.`, "Enchère");
+  recordLog(`${ai.name} enchérit à ${amount} sur la carte ${slot.id}, ${formatCardName(slot.card)}, et dépasse ${previous}.${previousWinner ? ` ${getAiName(previousWinner)} ne peut pas revenir immédiatement sur la carte ${slot.id}.` : ""}`, "Enchère");
   state.auction.turnsTaken = (state.auction.turnsTaken ?? 0) + 1;
-  advanceTurn();
-  resolveAutomaticPasses();
+  if (shouldCloseDuopoly()) {
+    closeAuctionAutomatically();
+  } else {
+    advanceTurn();
+    resolveAutomaticPasses();
+  }
   saveAndRender();
 }
 
 function canPatientBidNow() {
-  return Boolean(state.auction.winner);
+  return getAuctionLeaderIds().length > 0;
 }
 
 function passTurn() {
@@ -4406,9 +6167,7 @@ function passTurn() {
   pushUndo();
   applyAuctionPass(ai);
 
-  const stillBidding = getStillBiddingIds();
-  const onlyLeaderRemains = stillBidding.length === 1 && state.auction.winner === stillBidding[0];
-  if (stillBidding.length === 0 || onlyLeaderRemains) {
+  if (shouldCloseDuopoly()) {
     closeAuctionAutomatically();
   } else {
     advanceTurn();
@@ -4418,14 +6177,33 @@ function passTurn() {
 }
 
 function getCurrentMinimumBid() {
+  const ai = getCurrentBidder();
+  const minimums = ai ? getEligibleAuctionSlots(ai).map(getSlotMinimumBid) : [];
+  return minimums.length ? Math.min(...minimums) : Number.POSITIVE_INFINITY;
+}
+
+function getSlotMinimumBid(slot) {
   const increment = getBidIncrement(state.settings.year);
-  return state.auction.winner ? state.auction.currentBid + increment : increment;
+  return slot?.winner ? slot.currentBid + increment : increment;
+}
+
+function getEligibleAuctionSlots(ai) {
+  if (!ai) return [];
+  const blockedSlotId = state.auction.blockedSlotByAi?.[ai.id] ?? null;
+  return getAuctionSlots().filter((slot) => slot.card && slot.id !== blockedSlotId && slot.winner !== ai.id);
+}
+
+function canAiAffordAnyEligibleSlot(ai) {
+  return getEligibleAuctionSlots(ai).some((slot) => ai.coins >= getSlotMinimumBid(slot));
+}
+
+function shouldCloseDuopoly() {
+  return getStillBiddingIds().length === 0;
 }
 
 function applyAuctionPass(ai, options = {}) {
   if (!ai || state.auction.passed.includes(ai.id)) return false;
   const currentPassLevel = getAiPassBonusLevel(ai);
-  const coinsBeforePass = ai.coins;
   let reward = ai.activeProfile === "patient" ? currentPassLevel + 3 : currentPassLevel;
   const details = [];
   if (ai.activeProfile === "patient") details.push("doctrine institutionnaliste");
@@ -4442,7 +6220,15 @@ function applyAuctionPass(ai, options = {}) {
   const rewardText = `${reward >= 0 ? "gagne" : "perd"} ${Math.abs(reward)} pièces`;
   if (options.automatic) {
     const minimum = options.minimum ?? getCurrentMinimumBid();
-    recordLog(`${ai.name} passe automatiquement faute d'argent : ${coinsBeforePass} pièces disponibles, mise minimum ${minimum}. Il ${rewardText} (bonus passe : ${currentPassLevel} → ${ai.passBonusLevel})${details.length ? ` (${details.join(", ")})` : ""}.`, "Enchère");
+    const blockedSlotId = options.blockedSlotId ?? state.auction.blockedSlotByAi?.[ai.id] ?? null;
+    const eligibleSlots = options.eligibleSlots ?? getEligibleAuctionSlots(ai);
+    const requiredText = eligibleSlots
+      .map((slot) => `carte ${slot.id} : minimum ${getSlotMinimumBid(slot)}`)
+      .join(", ");
+    const reason = eligibleSlots.length
+      ? `${blockedSlotId ? `après avoir été délogé de la carte ${blockedSlotId}, cette carte lui est interdite ; ` : ""}il n'a pas assez de pièces pour atteindre ${requiredText}`
+      : `aucune carte autorisée${blockedSlotId ? ` après son délogement de la carte ${blockedSlotId}` : ""}`;
+    recordLog(`${ai.name} passe automatiquement : ${reason}. Il ${rewardText} (bonus passe : ${currentPassLevel} → ${ai.passBonusLevel})${details.length ? ` (${details.join(", ")})` : ""}.`, "Enchère");
   } else {
     recordLog(`${ai.name} passe et ${rewardText} (bonus passe : ${currentPassLevel} → ${ai.passBonusLevel})${details.length ? ` (${details.join(", ")})` : ""}.`, "Enchère");
   }
@@ -4457,16 +6243,28 @@ function resolveAutomaticPasses() {
   let guard = 0;
   while (state.auction.active && guard < state.auction.order.length + 2) {
     guard += 1;
-    const ai = getCurrentBidder();
-    if (!ai) break;
-    const minimum = getCurrentMinimumBid();
-    if (ai.coins >= minimum) break;
-    applyAuctionPass(ai, { automatic: true, minimum });
+    let ai = getCurrentBidder();
+    if (!ai) {
+      if (shouldCloseDuopoly()) {
+        closeAuctionAutomatically();
+        break;
+      }
+      advanceTurn();
+      ai = getCurrentBidder();
+      if (!ai) break;
+    }
+    const eligibleSlots = getEligibleAuctionSlots(ai);
+    const minimum = eligibleSlots.length ? Math.min(...eligibleSlots.map(getSlotMinimumBid)) : Number.POSITIVE_INFINITY;
+    if (eligibleSlots.length && canAiAffordAnyEligibleSlot(ai)) break;
+    applyAuctionPass(ai, {
+      automatic: true,
+      minimum,
+      eligibleSlots,
+      blockedSlotId: state.auction.blockedSlotByAi?.[ai.id] ?? null,
+    });
     changed = true;
 
-    const stillBidding = getStillBiddingIds();
-    const onlyLeaderRemains = stillBidding.length === 1 && state.auction.winner === stillBidding[0];
-    if (stillBidding.length === 0 || onlyLeaderRemains) {
+    if (shouldCloseDuopoly()) {
       closeAuctionAutomatically();
       break;
     }
@@ -4478,15 +6276,19 @@ function resolveAutomaticPasses() {
 function closeAuctionAutomatically() {
   state.auction.active = false;
   state.auction.closed = true;
-  if (state.auction.winner) {
-    const winner = state.ais.find((ai) => ai.id === state.auction.winner);
-    winner.coins = Math.max(0, winner.coins - state.auction.currentBid);
-    winner.auctionPurchaseDelta = (Number(winner.auctionPurchaseDelta) || 0) - state.auction.currentBid;
-    recordLog(`Fin : ${winner.name} remporte ${formatCardName(state.auction.card)} pour ${state.auction.currentBid} pièces.`, "Enchère");
-    applyAuctionCloseProfileEffects(winner, state.auction.card);
-  } else {
-    recordLog(`Fin : tout le monde a passé. ${formatCardName(state.auction.card)} n'est pas attribué.`, "Enchère");
-  }
+  getAuctionSlots().forEach((slot) => {
+    if (!slot.card) return;
+    if (slot.winner) {
+      const winner = getAi(slot.winner);
+      winner.coins = Math.max(0, winner.coins - slot.currentBid);
+      winner.auctionPurchaseDelta = (Number(winner.auctionPurchaseDelta) || 0) - slot.currentBid;
+      recordLog(`Fin carte ${slot.id} : ${winner.name} remporte ${formatCardName(slot.card)} pour ${slot.currentBid} pièces.`, "Enchère");
+      applyAuctionCloseProfileEffects(winner, slot.card, slot.id);
+    } else {
+      recordLog(`Fin carte ${slot.id} : personne ne remporte ${formatCardName(slot.card)}.`, "Enchère");
+    }
+  });
+  applyDuopolyCloseProfileEffects();
   finalizeGhostParticipants();
 }
 
@@ -4502,33 +6304,42 @@ function finalizeGhostParticipants() {
   });
 }
 
-function applyAuctionCloseProfileEffects(winner, card) {
+function applyAuctionCloseProfileEffects(winner, card, slotId) {
+  const level = normalizeCardLevel(card.level);
   if (isResourceCard(card)) {
+    const resourceReward = 3 * level;
     getAliveAis()
       .filter((ai) => ai.activeProfile === "merchant")
       .forEach((ai) => {
-        ai.coins += 6;
-        ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + 6;
-        recordLog(`${ai.name} +6 : doctrine Bloc Industriel, ressource adjugée.`, "Doctrine");
+        ai.coins += resourceReward;
+        ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + resourceReward;
+        noteAuctionDoctrineEffect(ai, `Bloc Industriel : +${resourceReward}, ressource Level ${level} adjugée`);
+        recordLog(`${ai.name} +${resourceReward} : doctrine Bloc Industriel, ressource Level ${level} adjugée.`, "Doctrine");
       });
   }
 
-  if (winner.activeProfile === "sage" && (card.category === "Destruction" || card.category === "Créatures")) {
-    winner.coins = Math.max(0, winner.coins - 6);
-    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) - 6;
-    recordLog(`${winner.name} -6 : doctrine humaniste, escalade brutale remportée.`, "Doctrine");
+  if (winner.activeProfile === "sage" && (card.scale === "Destruction" || (card.scale === "Danger" && card.category.includes("Créatures")))) {
+    const cost = 3 * level;
+    winner.coins = Math.max(0, winner.coins - cost);
+    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) - cost;
+    noteAuctionDoctrineEffect(winner, `Humaniste : -${cost}, escalade brutale Level ${level} remportée`);
+    recordLog(`${winner.name} -${cost} : doctrine humaniste, escalade brutale Level ${level} remportée.`, "Doctrine");
   }
 
-  if (winner.activeProfile === "tyrant" && card.category === "Destruction") {
-    winner.coins += 8;
-    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) + 8;
-    recordLog(`${winner.name} +8 : doctrine autoritaire, démonstration de force.`, "Doctrine");
+  if (winner.activeProfile === "tyrant" && card.scale === "Destruction") {
+    const reward = 4 * level;
+    winner.coins += reward;
+    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) + reward;
+    noteAuctionDoctrineEffect(winner, `Autoritaire : +${reward}, Destruction Level ${level} remportée`);
+    recordLog(`${winner.name} +${reward} : doctrine autoritaire, Destruction Level ${level} remportée.`, "Doctrine");
   }
 
   if (winner.activeProfile === "diplomat" && card.name === "Proposer une alliance") {
-    winner.coins += 12;
-    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) + 12;
-    recordLog(`${winner.name} +12 : doctrine fédéraliste, alliance obtenue.`, "Doctrine");
+    const reward = 6 * level;
+    winner.coins += reward;
+    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) + reward;
+    noteAuctionDoctrineEffect(winner, `Fédéraliste : +${reward}, Alliance Level ${level} remportée`);
+    recordLog(`${winner.name} +${reward} : doctrine fédéraliste, Alliance Level ${level} obtenue.`, "Doctrine");
   }
 
   if (card.name === "Déclarer la guerre") {
@@ -4537,15 +6348,82 @@ function applyAuctionCloseProfileEffects(winner, card) {
       .forEach((ai) => {
         ai.coins = Math.max(0, ai.coins - 6);
         ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) - 6;
+        noteAuctionDoctrineEffect(ai, "Fédéraliste : -6, guerre déclarée");
         recordLog(`${ai.name} -6 : doctrine fédéraliste, guerre déclarée.`, "Doctrine");
       });
   }
+
+  if (winner.activeProfile === "maximalist") {
+    const effect = level === 3 ? 15 : level === 2 ? 6 : -4;
+    winner.coins = Math.max(0, winner.coins + effect);
+    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) + effect;
+    noteAuctionDoctrineEffect(winner, `Maximaliste : ${formatSigned(effect)}, carte Level ${level} remportée`);
+    recordLog(`${winner.name} ${formatSigned(effect)} : doctrine maximaliste, carte Level ${level} remportée.`, "Doctrine");
+  }
+
+  if (winner.activeProfile === "minimalist" && [1, 3].includes(level)) {
+    const effect = level === 1 ? 6 : -10;
+    winner.coins = Math.max(0, winner.coins + effect);
+    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) + effect;
+    noteAuctionDoctrineEffect(winner, `Minimaliste : ${formatSigned(effect)}, carte Level ${level} remportée`);
+    recordLog(`${winner.name} ${formatSigned(effect)} : doctrine minimaliste, carte Level ${level} remportée.`, "Doctrine");
+  }
+
+  if (winner.activeProfile === "naturalist" && card.scale === "Destruction") {
+    winner.coins = Math.max(0, winner.coins - 6);
+    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) - 6;
+    noteAuctionDoctrineEffect(winner, "Écologiste : -6, carte de Destruction remportée");
+    recordLog(`${winner.name} -6 : doctrine écologiste, carte de Destruction remportée.`, "Doctrine");
+  }
+
+  if (winner.activeProfile === "occultist" && getTraitRainSpec(card)) {
+    winner.coins += 8;
+    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) + 8;
+    noteAuctionDoctrineEffect(winner, "Théocrate : +8, pluie de traits remportée");
+    recordLog(`${winner.name} +8 : doctrine théocratique, pluie de traits remportée.`, "Doctrine");
+  }
+
+  if (winner.activeProfile === "rebuilder") {
+    if (card.category === "Contre-pouvoir") {
+      winner.coins += 10;
+      winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) + 10;
+      noteAuctionDoctrineEffect(winner, "Reconstructionniste : +10, Contre-pouvoir remporté");
+      recordLog(`${winner.name} +10 : doctrine reconstructionniste, contre-pouvoir remporté.`, "Doctrine");
+    } else if (card.scale === "Destruction") {
+      winner.coins = Math.max(0, winner.coins - 6);
+      winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) - 6;
+      noteAuctionDoctrineEffect(winner, "Reconstructionniste : -6, carte de Destruction remportée");
+      recordLog(`${winner.name} -6 : doctrine reconstructionniste, carte de Destruction remportée.`, "Doctrine");
+    }
+  }
+
+  if (winner.activeProfile === "duelist") {
+    const blockedSlotId = state.auction.blockedSlotByAi?.[winner.id] ?? null;
+    const effect = blockedSlotId && blockedSlotId !== slotId ? 8 : -4;
+    winner.coins = Math.max(0, winner.coins + effect);
+    winner.auctionEffectDelta = (Number(winner.auctionEffectDelta) || 0) + effect;
+    noteAuctionDoctrineEffect(winner, `Duelliste : ${formatSigned(effect)}, ${effect > 0 ? `victoire après délogement de ${blockedSlotId}` : "aucun délogement préalable"}`);
+    recordLog(`${winner.name} ${formatSigned(effect)} : doctrine duelliste, ${effect > 0 ? `victoire sur ${slotId} après délogement de ${blockedSlotId}` : "victoire sans délogement préalable"}.`, "Doctrine");
+  }
+}
+
+function applyDuopolyCloseProfileEffects() {
+  const cardSlots = getAuctionSlots().filter((slot) => slot.card);
+  const unclaimedCount = cardSlots.filter((slot) => !slot.winner).length;
+  getAliveAis().filter((ai) => ai.activeProfile === "scavenger").forEach((ai) => {
+    const effect = unclaimedCount ? unclaimedCount * 6 : -4;
+    ai.coins = Math.max(0, ai.coins + effect);
+    ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + effect;
+    noteAuctionDoctrineEffect(ai, `Récupérateur : ${formatSigned(effect)}, ${unclaimedCount ? `${unclaimedCount} carte(s) non attribuée(s)` : "deux cartes attribuées"}`);
+    recordLog(`${ai.name} ${formatSigned(effect)} : doctrine récupératrice, ${unclaimedCount ? `${unclaimedCount} carte(s) non attribuée(s)` : "les deux cartes sont attribuées"}.`, "Doctrine");
+  });
 }
 
 function applyManualHostileAgainst(ai) {
   if (ai.activeProfile === "paranoid") {
     ai.coins += 8;
     ai.auctionEffectDelta = (Number(ai.auctionEffectDelta) || 0) + 8;
+    noteAuctionDoctrineEffect(ai, "Sécuritaire : +8, carte hostile subie");
     recordLog(`${ai.name} +8 : doctrine sécuritaire après carte hostile subie.`, "Doctrine");
     showToast(`${ai.name} +8 doctrine`);
   } else {
@@ -4608,7 +6486,9 @@ function activateMartyrReturn(ai) {
 }
 
 function isResourceCard(card) {
-  return Boolean(card?.resource) || ["Mythril", "Adamantine", "Gold", "Coffee"].includes(card?.name);
+  return card?.scale === "Ressource"
+    || Boolean(card?.resource)
+    || ["Stone", "Ore Deposit", "Silver", "Mythril", "Adamantine", "Gold", "Coffee"].includes(card?.name);
 }
 
 function getCardCategoryLabel(card) {
@@ -4634,6 +6514,11 @@ function formatOreName(name) {
 function formatCardName(cardOrName) {
   const name = typeof cardOrName === "string" ? cardOrName : cardOrName?.name;
   return name ? formatOreName(name) : "aucune";
+}
+
+function formatCardRating(card) {
+  if (!card) return "niveau inconnu";
+  return `${card.scale ?? inferCardScale(card)} ${card.rating ?? card.danger}/20`;
 }
 
 function annotateOreMentions(text) {
@@ -4664,25 +6549,27 @@ function annotateOreMentions(text) {
 }
 
 function formatCardEffect(card) {
-  if (!card) return "Fin de l'enchère distribue les revenus privés et prépare les prompts. Nouvelle enchère ajoute 50 ans puis tire la carte suivante.";
+  if (!card) return "Fin du duopole distribue les revenus privés. La nouvelle enchère ajoute 50 ans puis tire deux nouvelles cartes.";
   const stats = card.stats ?? "Pas de statut chiffré direct connu : effet surtout par dégâts, spawn, ressource, terrain ou économie.";
-  const territoryRule = card.name === "Territoire" ? ` ${getTerritorySizingText()}` : "";
-  return `${annotateOreMentions(card.effect)} Stats appliquées : ${annotateOreMentions(stats)}${territoryRule}`;
+  const territoryRule = card.name === "Territoire" ? ` ${getTerritorySizingText(card)}` : "";
+  return `${annotateOreMentions(card.effect)} Effet Level ${normalizeCardLevel(card.level)} : ${getResolvedCardLevelEffect(card)} Stats appliquées : ${annotateOreMentions(stats)}${territoryRule}`;
 }
 
-function getTerritorySizingText() {
+function getTerritorySizingText(card = null) {
   const increment = getBidIncrement(state.settings.year);
-  return `Taille Territoire : base incluse = petite extension côtière. Le gagnant peut payer en plus avant l'application : +${increment} pièce${increment > 1 ? "s" : ""} pour une extension moyenne, +${increment * 2} pièces pour une grande extension, +${increment * 3} pièces pour une très grande extension. Ce supplément est soustrait manuellement aux pièces du gagnant en plus du prix d'enchère.`;
+  const included = card ? getResolvedCardLevelEffect(card) : "Le Level tiré fixe la taille incluse.";
+  return `Taille Territoire incluse : ${included} Le gagnant peut encore payer avant l'application : +${increment} pièce${increment > 1 ? "s" : ""} pour augmenter d'un palier, +${increment * 2} pièces pour deux paliers, dans la limite d'une très grande extension. Ce supplément est soustrait manuellement en plus du prix d'enchère.`;
 }
 
 function advanceTurn() {
   const order = state.auction.order;
   if (!order.length) return;
+  const leaders = new Set(getAuctionLeaderIds());
   for (let i = 1; i <= order.length; i += 1) {
     const next = (state.auction.turnIndex + i) % order.length;
     const id = order[next];
     const ai = getAi(id);
-    if (!state.auction.passed.includes(id) && ai && canParticipateInAuction(ai)) {
+    if (!state.auction.passed.includes(id) && !leaders.has(id) && ai && canParticipateInAuction(ai)) {
       state.auction.turnIndex = next;
       return;
     }
@@ -4690,23 +6577,35 @@ function advanceTurn() {
 }
 
 function getStillBiddingIds() {
+  const leaders = new Set(getAuctionLeaderIds());
   return state.auction.order.filter((id) => {
     const ai = getAi(id);
-    return ai && canParticipateInAuction(ai) && !state.auction.passed.includes(id);
+    return ai && canParticipateInAuction(ai) && !state.auction.passed.includes(id) && !leaders.has(id);
   });
 }
 
 function getCurrentBidder() {
   if (!state.auction.active || !state.auction.order.length) return null;
-  const id = state.auction.order[state.auction.turnIndex];
-  const ai = getAi(id);
-  return ai && canParticipateInAuction(ai) && !state.auction.passed.includes(id) ? ai : null;
+  const leaders = new Set(getAuctionLeaderIds());
+  for (let offset = 0; offset < state.auction.order.length; offset += 1) {
+    const index = (state.auction.turnIndex + offset) % state.auction.order.length;
+    const id = state.auction.order[index];
+    const ai = getAi(id);
+    if (ai && canParticipateInAuction(ai) && !state.auction.passed.includes(id) && !leaders.has(id)) {
+      state.auction.turnIndex = index;
+      return ai;
+    }
+  }
+  return null;
 }
 
 function removeFromAuction(aiId) {
   state.auction.order = state.auction.order.filter((id) => id !== aiId);
   state.auction.passed = state.auction.passed.filter((id) => id !== aiId);
-  if (state.auction.winner === aiId) state.auction.winner = null;
+  getAuctionSlots().forEach((slot) => {
+    if (slot.winner === aiId) slot.winner = null;
+  });
+  delete state.auction.blockedSlotByAi?.[aiId];
 }
 
 function getAi(id) {
@@ -4742,123 +6641,353 @@ function getParticipantNamesText() {
   return state.ais.map((ai) => ai.name).join(", ");
 }
 
-function getStoredWorldMode() {
-  return ["auto", "central", "duel", "zeta"].includes(state.settings?.worldMode) ? state.settings.worldMode : "auto";
+function normalizeWorldMapChoice(choice) {
+  return choice === "random" || WORLD_MAPS.some((map) => map.id === choice) ? choice : "random";
 }
 
-function getWorldMode() {
-  const mode = getStoredWorldMode();
-  if (mode !== "auto") return mode;
-  return state.ais.length === 2 ? "duel" : "central";
+function getWorldMapChoice() {
+  return normalizeWorldMapChoice(state.settings?.worldMapChoice);
 }
 
-function getWorldModeLabel() {
-  const labels = {
-    auto: "Auto",
-    central: "Classique - îlot central",
-    duel: "Duel Epsilon - 2 moitiés",
-    zeta: "Zeta - 16 joueurs / croix centrale",
+function getWorldMapDefinition(mapId = state.worldMap?.mapId) {
+  return WORLD_MAPS.find((map) => map.id === mapId) ?? null;
+}
+
+function shuffleWithRandom(items, randomFn = Math.random) {
+  const copy = [...items];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(randomFn() * (index + 1));
+    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+  }
+  return copy;
+}
+
+function createZoneSectorLayout(count, options = {}, randomFn = Math.random) {
+  if (count <= 1) return [{ label: "territoire entier", x: 0, y: 0, order: 0 }];
+  if (options.linear) {
+    return Array.from({ length: count }, (_, index) => {
+      const edge = index === 0 ? "extrême nord" : index === count - 1 ? "extrême sud" : `bande ${index + 1} du nord vers le sud`;
+      return { label: `${index + 1}/${count} — ${edge}`, x: 0, y: index, order: index };
+    });
+  }
+  if (count === 2) {
+    return randomFn() < 0.5
+      ? [
+        { label: "moitié nord", x: 0, y: 0, order: 0 },
+        { label: "moitié sud", x: 0, y: 1, order: 1 },
+      ]
+      : [
+        { label: "moitié ouest", x: 0, y: 0, order: 0 },
+        { label: "moitié est", x: 1, y: 0, order: 1 },
+      ];
+  }
+  if (count === 3) {
+    const layouts = [
+      [
+        { label: "tiers nord", x: 1, y: 0 },
+        { label: "tiers sud-ouest", x: 0, y: 1 },
+        { label: "tiers sud-est", x: 2, y: 1 },
+      ],
+      [
+        { label: "tiers sud", x: 1, y: 1 },
+        { label: "tiers nord-ouest", x: 0, y: 0 },
+        { label: "tiers nord-est", x: 2, y: 0 },
+      ],
+      [
+        { label: "tiers ouest", x: 0, y: 1 },
+        { label: "tiers nord-est", x: 1, y: 0 },
+        { label: "tiers sud-est", x: 1, y: 2 },
+      ],
+      [
+        { label: "tiers est", x: 1, y: 1 },
+        { label: "tiers nord-ouest", x: 0, y: 0 },
+        { label: "tiers sud-ouest", x: 0, y: 2 },
+      ],
+    ];
+    return layouts[Math.floor(randomFn() * layouts.length)].map((sector, index) => ({ ...sector, order: index }));
+  }
+  return [
+    { label: "quart nord-ouest", x: 0, y: 0, order: 0 },
+    { label: "quart nord-est", x: 1, y: 0, order: 1 },
+    { label: "quart sud-ouest", x: 0, y: 1, order: 2 },
+    { label: "quart sud-est", x: 1, y: 1, order: 3 },
+  ].slice(0, count);
+}
+
+function attachDirectPlacementNeighbors(placements) {
+  placements.forEach((placement) => { placement.neighborIds = []; });
+  const zones = new Map();
+  placements.forEach((placement) => {
+    if (!zones.has(placement.zone)) zones.set(placement.zone, []);
+    zones.get(placement.zone).push(placement);
+  });
+  zones.forEach((zonePlacements) => {
+    if (zonePlacements.length <= 1) return;
+    zonePlacements.forEach((placement) => {
+      if (zonePlacements.length === 3 && !placement.linearLayout) {
+        placement.neighborIds = zonePlacements
+          .filter((other) => other.aiId !== placement.aiId)
+          .map((other) => other.aiId);
+        return;
+      }
+      const candidates = zonePlacements
+        .filter((other) => other.aiId !== placement.aiId)
+        .map((other) => ({
+          other,
+          distance: ((placement.localX - other.localX) ** 2) + ((placement.localY - other.localY) ** 2),
+        }));
+      const nearestDistance = Math.min(...candidates.map((candidate) => candidate.distance));
+      placement.neighborIds = candidates
+        .filter((candidate) => candidate.distance === nearestDistance)
+        .map((candidate) => candidate.other.aiId);
+    });
+  });
+  return placements;
+}
+
+function distributeParticipantsAcrossZones(aiIds, zones, options = {}, randomFn = Math.random) {
+  const shuffledAis = shuffleWithRandom(aiIds, randomFn);
+  let activeZoneIndexes;
+  if (shuffledAis.length === 2 && zones.length === 4 && options.oppositePairs) {
+    activeZoneIndexes = options.oppositePairs[Math.floor(randomFn() * options.oppositePairs.length)];
+  } else if (shuffledAis.length < zones.length) {
+    activeZoneIndexes = shuffleWithRandom(zones.map((_, index) => index), randomFn).slice(0, shuffledAis.length);
+  } else {
+    activeZoneIndexes = zones.map((_, index) => index);
+  }
+
+  const counts = Array(zones.length).fill(0);
+  if (shuffledAis.length >= activeZoneIndexes.length) {
+    activeZoneIndexes.forEach((zoneIndex) => { counts[zoneIndex] = Math.floor(shuffledAis.length / activeZoneIndexes.length); });
+    const remainderZones = shuffleWithRandom(activeZoneIndexes, randomFn);
+    for (let index = 0; index < shuffledAis.length % activeZoneIndexes.length; index += 1) {
+      counts[remainderZones[index]] += 1;
+    }
+  } else {
+    activeZoneIndexes.forEach((zoneIndex) => { counts[zoneIndex] = 1; });
+  }
+
+  const placements = [];
+  let aiIndex = 0;
+  shuffleWithRandom(activeZoneIndexes, randomFn).forEach((zoneIndex) => {
+    const count = counts[zoneIndex];
+    const sectors = createZoneSectorLayout(count, options, randomFn);
+    shuffleWithRandom(sectors, randomFn).forEach((sector) => {
+      placements.push({
+        aiId: shuffledAis[aiIndex],
+        zone: zones[zoneIndex],
+        sector: sector.label,
+        position: count === 1 ? zones[zoneIndex] : `${zones[zoneIndex]} — ${sector.label}`,
+        localX: sector.x,
+        localY: sector.y,
+        linearLayout: Boolean(options.linear),
+      });
+      aiIndex += 1;
+    });
+  });
+
+  return {
+    placements: attachDirectPlacementNeighbors(placements),
+    neutralZones: zones.filter((_, index) => counts[index] === 0),
   };
-  return labels[getWorldMode()] ?? labels.auto;
 }
 
-function isDuelMode() {
-  return getWorldMode() === "duel";
+function selectRingZones(count, randomFn = Math.random) {
+  const zones = ["Nord", "Nord-Est", "Est", "Sud-Est", "Sud", "Sud-Ouest", "Ouest", "Nord-Ouest"];
+  if (count >= zones.length) return zones;
+  const offset = Math.floor(randomFn() * zones.length);
+  if (count === 2) return [zones[offset], zones[(offset + 4) % 8]];
+  if (count === 4) {
+    const diagonalOffset = Math.floor(randomFn() * 2);
+    return [0, 2, 4, 6].map((index) => zones[(index + diagonalOffset) % 8]);
+  }
+  const selected = [offset];
+  while (selected.length < count) {
+    const candidates = zones.map((_, index) => index).filter((index) => !selected.includes(index));
+    const distances = candidates.map((index) => ({
+      index,
+      distance: Math.min(...selected.map((selectedIndex) => {
+        const direct = Math.abs(index - selectedIndex);
+        return Math.min(direct, 8 - direct);
+      })),
+    }));
+    const maxDistance = Math.max(...distances.map((entry) => entry.distance));
+    const best = shuffleWithRandom(distances.filter((entry) => entry.distance === maxDistance), randomFn)[0];
+    selected.push(best.index);
+  }
+  return selected.map((index) => zones[index]);
 }
 
-function isZetaMode() {
-  return getWorldMode() === "zeta";
+function selectGridZones(count, randomFn = Math.random) {
+  const cells = Array.from({ length: 16 }, (_, index) => ({
+    row: Math.floor(index / 4),
+    column: index % 4,
+    label: `Île ${Math.floor(index / 4) + 1}-${(index % 4) + 1}`,
+  }));
+  if (count >= 16) return cells;
+  if (count === 2) {
+    return randomFn() < 0.5 ? [cells[0], cells[15]] : [cells[3], cells[12]];
+  }
+  if (count === 4) return shuffleWithRandom([cells[0], cells[3], cells[12], cells[15]], randomFn);
+
+  const selected = [cells[Math.floor(randomFn() * cells.length)]];
+  while (selected.length < count) {
+    const candidates = cells.filter((cell) => !selected.includes(cell));
+    const scored = candidates.map((cell) => ({
+      cell,
+      distance: Math.min(...selected.map((selectedCell) => (
+        ((cell.row - selectedCell.row) ** 2) + ((cell.column - selectedCell.column) ** 2)
+      ))),
+    }));
+    const maxDistance = Math.max(...scored.map((entry) => entry.distance));
+    selected.push(shuffleWithRandom(scored.filter((entry) => entry.distance === maxDistance), randomFn)[0].cell);
+  }
+  return selected;
+}
+
+function generateWorldMapPlacements(aiIds, mapId, randomFn = Math.random) {
+  if (mapId === "fracture") {
+    return distributeParticipantsAcrossZones(aiIds, ["Continent Ouest", "Continent Est"], { linear: true }, randomFn);
+  }
+  if (mapId === "cross-four" || mapId === "quinconce" || mapId === "crossroads") {
+    const prefix = mapId === "crossroads" ? "Quartier" : "Continent";
+    const result = distributeParticipantsAcrossZones(
+      aiIds,
+      [`${prefix} Nord-Ouest`, `${prefix} Nord-Est`, `${prefix} Sud-Ouest`, `${prefix} Sud-Est`],
+      { oppositePairs: [[0, 3], [1, 2]] },
+      randomFn,
+    );
+    if (mapId === "quinconce") result.neutralZones.push("Île centrale");
+    if (mapId === "crossroads") result.neutralZones.push("Croix centrale");
+    return result;
+  }
+  if (mapId === "crown-nine") {
+    const ringZones = ["Nord", "Nord-Est", "Est", "Sud-Est", "Sud", "Sud-Ouest", "Ouest", "Nord-Ouest"];
+    const activeZones = selectRingZones(Math.min(aiIds.length, 8), randomFn);
+    const result = distributeParticipantsAcrossZones(aiIds, activeZones, {}, randomFn);
+    result.neutralZones.push("Île centrale", ...ringZones.filter((zone) => !activeZones.includes(zone)).map((zone) => `Île ${zone}`));
+    result.placements.forEach((placement) => {
+      placement.zone = `Île ${placement.zone}`;
+      placement.position = placement.position.replace(/^(.*?)( —|$)/, "Île $1$2");
+    });
+    return result;
+  }
+  if (mapId === "archipelago-sixteen") {
+    const selectedCells = selectGridZones(aiIds.length, randomFn);
+    const shuffledAis = shuffleWithRandom(aiIds, randomFn);
+    const selectedLabels = new Set(selectedCells.map((cell) => cell.label));
+    return {
+      placements: selectedCells.map((cell, index) => ({
+        aiId: shuffledAis[index],
+        zone: cell.label,
+        sector: "île entière",
+        position: cell.label,
+        localX: 0,
+        localY: 0,
+        neighborIds: [],
+      })),
+      neutralZones: Array.from({ length: 16 }, (_, index) => `Île ${Math.floor(index / 4) + 1}-${(index % 4) + 1}`)
+        .filter((label) => !selectedLabels.has(label)),
+    };
+  }
+  return { placements: [], neutralZones: [] };
+}
+
+function assignCurrentWorldMapPlacements(randomFn = Math.random) {
+  if (!state.worldMap) return;
+  const assignment = generateWorldMapPlacements(state.ais.map((ai) => ai.id), state.worldMap.mapId, randomFn);
+  state.worldMap.placements = assignment.placements;
+  state.worldMap.neutralZones = [...new Set(assignment.neutralZones)];
+  state.worldMap.participantCount = state.ais.length;
+}
+
+function runWorldMapDraw(randomFn = Math.random) {
+  if (state.settings.year !== 0 || hasAuctionCards()) {
+    showToast("Carte disponible avant la première enchère");
+    return;
+  }
+  pushUndo();
+  const choice = getWorldMapChoice();
+  const map = choice === "random"
+    ? WORLD_MAPS[Math.floor(randomFn() * WORLD_MAPS.length)]
+    : getWorldMapDefinition(choice);
+  state.worldMap = {
+    mapId: map.id,
+    selectionMode: choice === "random" ? "random" : "manual",
+    placements: [],
+    neutralZones: [],
+    participantCount: state.ais.length,
+    drawnAt: new Date().toISOString(),
+  };
+  if (state.participantDraw) assignCurrentWorldMapPlacements(randomFn);
+  clearParticipantDrawPromptChecks();
+  expandedPromptGroups.add("Carte du monde");
+  saveAndRender();
+  showToast(`${map.name} sélectionnée`);
+}
+
+function runFullyRandomInitialSetup(randomFn = Math.random) {
+  if (state.settings.year !== 0 || hasAuctionCards()) {
+    showToast("Configuration disponible avant la première enchère");
+    return;
+  }
+  pushUndo();
+  const participantCount = MIN_PARTICIPANTS + Math.floor(randomFn() * (MAX_PARTICIPANTS - MIN_PARTICIPANTS + 1));
+  const map = WORLD_MAPS[Math.floor(randomFn() * WORLD_MAPS.length)];
+  resizeParticipants(participantCount);
+  state.participantCountMode = "random";
+  state.settings.worldMapChoice = "random";
+  state.participantDraw = null;
+  state.worldMap = {
+    mapId: map.id,
+    selectionMode: "random",
+    placements: [],
+    neutralZones: [],
+    participantCount,
+    drawnAt: new Date().toISOString(),
+  };
+  clearParticipantDrawPromptChecks();
+  expandedPromptGroups.add("Carte du monde");
+  saveAndRender();
+  showToast(`${participantCount} IA — ${map.name}`);
 }
 
 function getStartingPositionsText() {
-  if (isDuelMode()) {
-    return state.ais
-      .map((ai, index) => `${ai.name} : ${DUEL_POSITION_LABELS[index] ?? `moitié ${index + 1}`}`)
-      .join(" ; ");
-  }
-  if (isZetaMode()) {
-    return state.ais
-      .map((ai, index) => `${ai.name} : ${ZETA_POSITION_LABELS[index] ?? `bloc de bord ${index + 1}`}`)
-      .join(" ; ");
-  }
-  return state.ais
-    .map((ai, index) => `${ai.name} : ${STARTING_POSITION_LABELS[index] ?? `zone ${index + 1}`}`)
-    .join(" ; ");
+  if (!state.worldMap?.placements?.length) return "placements en attente du Double Tirage";
+  return state.worldMap.placements.map((placement) => (
+    `${getAiName(placement.aiId)} : ${placement.position}`
+  )).join(" ; ");
+}
+
+function buildWorldBriefingReference(ai) {
+  return `La carte, l'effectif, les participants, les placements, les voisins directs et les zones centrales ont été fixés dans le MESSAGE MONDIAL — PRÉ-SIMULATION reçu avant ce briefing. Ce message public reste la référence géographique et n'est pas répété ici.`;
 }
 
 function buildWorldRulesText() {
-  const sharedLines = [
+  const map = getWorldMapDefinition();
+  const neutralZones = state.worldMap?.neutralZones ?? [];
+  return [
     `- Civilisations participantes (${state.ais.length}) : ${getParticipantNamesText()}.`,
     "- Chaque civilisation commence avec 10 pièces et 10 population.",
-    `- Positions publiques de départ : ${getStartingPositionsText()}.`,
-    "- Ces positions sont connues par toutes les IA dès le briefing initial, sauf correction ultérieure du MJ.",
-  ];
-
-  let modeLines;
-  if (isDuelMode()) {
-    modeLines = [
-      "- Mode Duel Epsilon : la carte est divisée en deux grands territoires, une moitié par civilisation.",
-      "- Il n'y a pas d'îlot central, pas de zone neutre centrale surchargée et pas d'objectif central commun.",
-      "- Chaque IA doit raisonner comme dans une confrontation directe : frontière, profondeur défensive, ressources internes, accès maritime éventuel et pression sur l'unique rival.",
-      "- Les ressources rares existent seulement si le MJ les place dans une moitié, un biome ou une carte de pouvoir. Aucune réserve centrale gratuite n'est garantie.",
-      "- Les colons naturels sont autorisés : les royaumes peuvent développer leur moitié du monde et fonder des villes si WorldBox le permet.",
-      "- L'expansion dépend de WorldBox, des colons naturels, du terrain de chaque moitié et des conséquences des pouvoirs gagnés aux enchères.",
-    ];
-  } else if (isZetaMode()) {
-    modeLines = [
-      "- Mode Zeta 16 : le monde est un vaste océan traversé par une croix de terre massive en forme de +.",
-      "- Le + central est l'unique île centrale et la seule connexion terrestre entre les régions. Il est saturé de ressources rares : Adamantine/Adamantium, Mythril, Gems et abondance minière selon placement MJ.",
-      "- Le + divise l'océan en quatre quartiers étanches. Les quartiers n'ont pas de communication maritime directe entre eux.",
-      "- Chaque quartier contient une île principale avec 4 civilisations en voisinage terrestre direct. Il n'existe pas d'île-refuge de départ.",
-      "- Pour passer d'un quartier à l'autre, une civilisation doit d'abord contrôler une colonie portuaire sur le + central, puis traverser la mer intérieure vers un autre quartier.",
-      "- Celui qui tient durablement le + central tient les clés du monde : passage inter-quartiers, ports, minerais rares et pression stratégique globale. Il devient aussi la cible naturelle des autres.",
-      "- Réapprovisionnement MJ : à chaque nouvelle enchère, le + central doit être réapprovisionné en matériaux rares et minerais selon l'équilibre de la simulation.",
-      "- Placement officiel Zeta 16 : Quartier Nord-Ouest : Grok (Nord-Ouest), Chatgpt Delta (Nord-Est), Gemini de Beta (Sud-Ouest), Edwin (Sud-Est).",
-      "- Placement officiel Zeta 16 : Quartier Nord-Est : Deepseek Phénix Cendre-Loi (Nord-Ouest), Codex Champion Absolu (Nord-Est), Claude de Glace (Sud-Ouest), Qwen le Compteur de Couronnes (Sud-Est).",
-      "- Placement officiel Zeta 16 : Quartier Sud-Ouest : Kimi la Mille-Racines (Nord-Ouest), Le Passager Temporel (Nord-Est), Chatgpt Zeta (Sud-Ouest), Claude Memoria (Sud-Est).",
-      "- Placement officiel Zeta 16 : Quartier Sud-Est : Mistral (Nord-Ouest), Deepseek Delta (Nord-Est), Gemini le Révélateur de l'Ironie (Sud-Ouest), Deepseek Alpha (Sud-Est).",
-      "- Purge de l'An 500 : dans chaque quartier, s'il reste 4 civilisations, les 2 plus faibles en population s'affrontent et les 2 plus fortes s'affrontent.",
-      "- Purge de l'An 500 : s'il reste 3 civilisations dans un quartier, les 2 plus faibles s'affrontent et la plus forte reste spectatrice.",
-      "- Purge de l'An 500 : s'il reste 2 civilisations ou moins dans un quartier, elles sont épargnées.",
-      "- Après la purge de l'An 500, le monde peut compter au maximum 8 survivants.",
-    ];
-  } else {
-    modeLines = [
-      "- Îlot central majeur : une île neutre et vide existe au centre de la carte. Elle est volontairement surchargée en ressources : nourriture, arbres, Stone, Ore Deposit, Gold, Gems, Mythril et Adamantine.",
-      "- Posséder l'îlot central est un avantage game changer : seconde patrie, économie de guerre, accès aux meilleurs minerais et position centrale pour rayonner vers les autres territoires.",
-      "- Les colons naturels sont autorisés : les royaumes peuvent fonder de nouvelles villes sans carte, afin que leur territoire principal puisse se développer normalement.",
-      "- L'îlot central peut être atteint par colonisation naturelle si WorldBox le permet.",
-      "- L'expansion dépend de WorldBox, des colons naturels et des conséquences des pouvoirs gagnés aux enchères.",
-    ];
-  }
-
-  const territoryLines = [
-    "- La carte Territoire permet seulement d'ajouter de la terre attachée à une île existante. Elle ne crée jamais une île isolée.",
-    "- La terre ajoutée par Territoire reprend le biome de l'île à laquelle elle est collée.",
-    "- Territoire donne une petite extension de base. Le gagnant peut payer un supplément manuel pour l'agrandir : +1 incrément d'enchère = extension moyenne, +2 incréments = grande extension, +3 incréments = très grande extension.",
-    "- Ce supplément est payé en plus du prix d'enchère et doit être soustrait manuellement par le MJ avant le compte rendu.",
-  ];
-
-  const closingLines = [
-    ...(isDuelMode()
-      ? []
-      : [isZetaMode()
-        ? "- Le + central reste un objectif stratégique 20/20 s'il est possédé durablement."
-        : "- L'îlot central reste un objectif stratégique 20/20 s'il est possédé durablement."]),
+    map
+      ? `- Carte ${state.worldMap.selectionMode === "random" ? "tirée aléatoirement à chances égales" : "choisie par le MJ"} : ${map.name}. ${map.description} ${map.rules}`
+      : "- Carte du monde : tirage en attente parmi six cartes équiprobables.",
+    `- Positions publiques de départ, attribuées aléatoirement indépendamment de l'ordre des participants : ${getStartingPositionsText()}.`,
+    "- Si plusieurs civilisations partagent une même masse continentale ou un même quartier, celui-ci est divisé en secteurs natals équilibrés. Chaque secteur reçoit uniquement le biome de sa civilisation.",
+    neutralZones.length
+      ? `- Zones entièrement inoccupées au départ : ${neutralZones.join(", ")}. Elles deviennent des zones centrales neutres.`
+      : "- Aucune île ou masse continentale entière n'est inoccupée au départ.",
+    "- Toute zone centrale neutre commence en biome Grass, reste en Grass pendant toute la simulation et reçoit des ressources rares : Adamantium, Mythril, Gems et abondance minière selon placement MJ.",
+    "- À chaque nouvelle enchère, le MJ réapprovisionne toutes les zones centrales neutres en matériaux rares et minerais.",
+    "- Coloniser une zone centrale ne lui transmet jamais le biome natal du colonisateur. Un changement de biome ultérieur ne modifie que le territoire natal attribué à la civilisation.",
+    "- La carte Territoire ajoute seulement de la terre attachée à une île existante. Elle ne crée jamais une île isolée et la terre ajoutée reprend le biome du terrain auquel elle est reliée.",
+    "- Territoire donne une petite extension de base. Supplément manuel : +1 incrément = moyenne, +2 = grande, +3 = très grande.",
     "- Dès l'an 0, chaque IA reçoit 2 choix de biome et doit sélectionner son biome de départ.",
-    "- Chaque choix de biome indique sa dangerosité /20, ses matériaux générés et sa lecture stratégique.",
     `- Biomes autorisés : ${BIOMES.map(formatBiomeNameWithDanger).join(", ")}.`,
-    ...(isZetaMode()
-      ? ["- Les quartiers sont isolés par leur bassin maritime : la communication inter-quartier passe par le + central et ses ports, pas par navigation directe libre."]
-      : ["- Les territoires sont séparés par des rivières traversables par bateau, pas par des murs absolus."]),
-    "- Les rencontres de frontières, accès maritimes et voisinages créent des tensions stratégiques, mais la diplomatie naturelle est désactivée dans cette simulation.",
-    "- Les pouvoirs manuels Guerre et Alliance restent réservés aux cartes d'enchère : une IA ne peut pas les forcer sans carte.",
-    "- Les guerres, alliances, paix, complots et rébellions naturels de WorldBox sont désactivés : si une carte Guerre ou Alliance existe, c'est précisément pour contrôler ces bascules par enchère.",
-    "- Les colons naturels restent activés : l'expansion naturelle ne dépend pas d'une carte d'enchère.",
-    "- Le MJ peut stopper ou nettoyer une catastrophe incontrôlable si elle menace de détruire la simulation entière, mais ce n'est pas une garantie de sauvetage.",
-  ];
-
-  return [...sharedLines, ...modeLines, ...territoryLines, ...closingLines].join("\n");
+    "- Diplomatie, guerres, alliances, paix, complots et rébellions naturels sont désactivés. Les bascules forcées passent par les cartes ou une décision MJ explicite.",
+    "- Les colons naturels restent activés : l'expansion naturelle dépend du terrain et de WorldBox.",
+    "- Le MJ peut stopper ou nettoyer une catastrophe incontrôlable si elle menace de détruire la simulation entière, sans garantie de sauvetage.",
+  ].join("\n");
 }
 
 function buildAutonomousWorldboxRulesText() {
@@ -5128,74 +7257,105 @@ function buildStateText() {
   const current = getCurrentBidder();
   const increment = getBidIncrement(state.settings.year);
   const passBonus = current ? getAiPassBonusLevel(current) : 0;
+  const blockedSlotId = current ? state.auction.blockedSlotByAi?.[current.id] ?? null : null;
   const lines = [
     `PROMPT PRIVÉ — TOUR D'ENCHÈRE — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     `Destinataire : ${current?.name ?? "IA à qui c'est le tour"}`,
+    "À envoyer uniquement à cette IA.",
     "",
-    state.auction.card
-      ? `Carte : ${formatCardName(state.auction.card)} (${getCardCategoryLabel(state.auction.card)}, danger ${state.auction.card.danger}/20)`
-      : "Carte : aucune",
-    state.auction.card?.counterSource ? `↳ Contre-pouvoir anti-${formatCardName(state.auction.card.counterSource)}.` : null,
-    state.auction.card ? `Effet : ${annotateOreMentions(state.auction.card.effect)}` : "Effet : aucun",
-    state.auction.card ? `Stats : ${annotateOreMentions(state.auction.card.stats ?? "Pas de statut chiffré direct connu : effet surtout par dégâts, spawn, ressource, terrain ou économie.")}` : "Stats : aucune",
-    state.auction.card?.name === "Territoire" ? getTerritorySizingText() : null,
+    "Deux cartes sont proposées simultanément. Tu ne peux diriger qu'une carte.",
+    "Si tu as été délogé d'une carte, tu ne peux pas revenir immédiatement dessus : tu dois miser sur l'autre carte ou passer.",
+    "Une mise n'est pas une dépense immédiate : seule une IA encore leader à la clôture paie son enchère finale. Une IA dépassée conserve toutes les pièces de sa mise abandonnée.",
+    `Après la clôture, chaque IA vivante reçoit son revenu privé : revenu de base actuel +${state.settings.baseIncome}, éventuel bonus retardataire, effets doctrinaux et bonus de passe déjà encaissé. Les anciennes révélations économiques publiques ne permettent donc pas de connaître les trésors actuels des autres IA.`,
+    "Tu contrôles uniquement tes décisions d'enchère. Tu ne peux pas déplacer directement ta population, disperser des habitants, modifier un roi, choisir des statistiques ou appliquer un pouvoir dans WorldBox sans carte remportée ou autorisation explicite du MJ.",
+    "",
+    ...getAuctionSlots().flatMap((slot) => {
+      const card = slot.card;
+      if (!card) return [`CARTE ${slot.id} : aucune`];
+      return [
+        `CARTE ${slot.id} : ${formatCardName(card)} (${getCardCategoryLabel(card)}, ${formatCardRating(card)}, Level ${normalizeCardLevel(card.level)})`,
+        card.counterSource ? `↳ Contre-pouvoir anti-${formatCardName(card.counterSource)}.` : null,
+        `Effet : ${annotateOreMentions(card.effect)}`,
+        `Effet du Level ${normalizeCardLevel(card.level)} : ${getResolvedCardLevelEffect(card)}`,
+        `Stats : ${annotateOreMentions(card.stats ?? "Pas de statut chiffré direct connu : effet surtout par dégâts, spawn, ressource, terrain ou économie.")}`,
+        card.name === "Territoire" ? getTerritorySizingText(card) : null,
+        `Enchère carte ${slot.id} : ${slot.currentBid} — Leader : ${slot.winner ? getAiName(slot.winner) : "personne"} — prochaine mise minimum : ${getSlotMinimumBid(slot)}`,
+        "",
+      ].filter(Boolean);
+    }),
     buildPendingCountersText(),
     "",
     `Incrément actuel : ${increment} pièce(s) minimum.`,
-    `Enchère actuelle : ${state.auction.currentBid} — Leader : ${state.auction.winner ? getAiName(state.auction.winner) : "personne"}`,
     current ? `Pièces actuelles de ${current.name} : ${current.coins}` : "Pièces actuelles : inconnues",
+    blockedSlotId
+      ? `Restriction actuelle : ${current.name} a été délogé de la carte ${blockedSlotId} et ne peut pas miser dessus ce tour.`
+      : "Restriction actuelle : aucune carte bloquée.",
+    "Si aucune carte autorisée ne peut être surenchérie avec tes pièces disponibles, le système te fera passer automatiquement faute d'argent et le compte rendu public l'indiquera.",
     "",
     buildAuctionPositionText(),
   ].filter(Boolean);
   lines.push("");
-  lines.push("Tu peux enchérir ou passer.");
+  lines.push("Tu peux enchérir sur une carte autorisée ou passer. Passer te retire entièrement du duopole.");
   lines.push(`Bonus de passe si tu passes maintenant : +${passBonus} pièce(s).`);
   lines.push("");
   lines.push("Décision : Enchérir / Passer");
+  lines.push("Carte ciblée : A / B");
   lines.push("Mise : [si tu enchéris]");
   lines.push("Pourquoi :");
-  lines.push("Action prévue si je gagne :");
+  lines.push("Action prévue si je gagne cette carte :");
   return lines.join("\n");
 }
 
 function buildAuctionReportPrompt() {
   const auction = state.auction;
-  const card = auction.card;
-  const winner = auction.winner ? getAi(auction.winner) : null;
-  const action = (auction.winnerAction ?? "").trim();
+  const slots = getAuctionSlots();
+  const cardSlots = slots.filter((slot) => slot.card);
   const lines = [
     `MESSAGE MONDIAL — COMPTE RENDU D'ENCHÈRE — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     "Ne contient ni doctrine, ni population privée, ni pièces privées, ni détail de revenu.",
     "",
   ];
 
-  if (!card) {
-    lines.push("Aucune carte n'est en cours. Lance une enchère avant de produire un compte rendu.");
+  if (!cardSlots.length) {
+    lines.push("Aucune carte n'est en cours. Lance un duopole avant de produire un compte rendu.");
     return lines.join("\n");
   }
 
-  lines.push(`Carte : ${formatCardName(card)} (${getCardCategoryLabel(card)}, danger ${card.danger}/20)`);
-  lines.push(`Effet : ${annotateOreMentions(card.effect)}`);
-  lines.push(`Stats / arbitrage MJ : ${annotateOreMentions(card.stats ?? "Pas de statut chiffré direct connu : effet surtout par dégâts, spawn, ressource, terrain ou économie.")}`);
-  if (card.name === "Territoire") {
-    lines.push(getTerritorySizingText());
-  }
-  if (card.counterSource) {
-    lines.push(`Note : cette carte est une réponse anti-${formatCardName(card.counterSource)}.`);
-  }
+  lines.push(cardSlots.length > 1
+    ? "Deux cartes ont été proposées simultanément selon la règle du duopole."
+    : "Cette enchère historique provient de l'ancien système à carte unique.");
+  lines.push("Rappel économique obligatoire : une mise dépassée n'est jamais payée. Seuls les vainqueurs finaux paient les montants indiqués ci-dessous ; tous les autres conservent les pièces qu'ils avaient seulement proposées.");
+  lines.push(`Après cette enchère, chaque IA vivante reçoit séparément son revenu privé : revenu de base +${state.settings.baseIncome}, éventuel bonus retardataire dont le calcul inclut l'incrément actuel, effets doctrinaux et bonus de passe déjà encaissé.`);
+  lines.push("Les montants révélés lors d'une ancienne révélation géopolitique sont historiques et ne doivent jamais être traités comme les trésors actuels. Ce compte rendu ne révèle pas les pièces privées présentes.");
+  cardSlots.forEach((slot) => {
+    const card = slot.card;
+    if (!card) return;
+    lines.push("");
+    lines.push(`CARTE ${slot.id} : ${formatCardName(card)} (${getCardCategoryLabel(card)}, ${formatCardRating(card)}, Level ${normalizeCardLevel(card.level)})`);
+    lines.push(`Effet : ${annotateOreMentions(card.effect)}`);
+    lines.push(`Effet du Level ${normalizeCardLevel(card.level)} : ${getResolvedCardLevelEffect(card)}`);
+    lines.push(`Stats / arbitrage MJ : ${annotateOreMentions(card.stats ?? "Pas de statut chiffré direct connu : effet surtout par dégâts, spawn, ressource, terrain ou économie.")}`);
+    if (card.name === "Territoire") lines.push(getTerritorySizingText(card));
+    if (card.counterSource) lines.push(`Note : cette carte est une réponse anti-${formatCardName(card.counterSource)}.`);
+  });
   lines.push(`Le seuil de revenu faible à ${getAliveAis().length} IA restantes est à ${formatPercent(getUnderdogThreshold() * 100)}%.`);
   lines.push("");
 
   if (auction.closed) {
-    if (winner) {
-      lines.push(`Résultat : ${winner.name} remporte ${formatCardName(card)} pour ${auction.currentBid} pièce${auction.currentBid > 1 ? "s" : ""}.`);
-    } else {
-      lines.push(`Résultat : personne ne remporte ${formatCardName(card)}. Tout le monde a passé.`);
-    }
+    lines.push(cardSlots.length > 1 ? "Résultats du duopole :" : "Résultat de l'enchère :");
+    cardSlots.forEach((slot) => {
+      const winner = slot.winner ? getAi(slot.winner) : null;
+      lines.push(winner
+        ? `- Carte ${slot.id} : ${winner.name} remporte ${formatCardName(slot.card)} pour ${slot.currentBid} pièce${slot.currentBid > 1 ? "s" : ""}.`
+        : `- Carte ${slot.id} : personne ne remporte ${formatCardName(slot.card)}.`);
+    });
   } else if (auction.active) {
-    lines.push(`Statut : enchère en cours. Leader : ${winner ? winner.name : "personne"} à ${auction.currentBid}.`);
+    lines.push("Statut : duopole en cours.");
+    cardSlots.forEach((slot) => {
+      lines.push(`- Carte ${slot.id} : leader ${slot.winner ? getAiName(slot.winner) : "personne"} à ${slot.currentBid}.`);
+    });
   } else {
-    lines.push("Statut : enchère préparée, pas encore résolue.");
+    lines.push("Statut : duopole préparé, pas encore résolu.");
   }
 
   lines.push("");
@@ -5204,19 +7364,23 @@ function buildAuctionReportPrompt() {
   if (timeline.length) {
     timeline.forEach((entry) => lines.push(`- ${entry}`));
   } else {
-    lines.push("- Aucune mise ou passe enregistré pour l'instant.");
+    lines.push("- Aucune mise ou passe enregistrée pour l'instant.");
   }
 
   lines.push("");
-  lines.push("Action du gagnant avec le pouvoir :");
-  if (winner) {
-    lines.push(action || `[À compléter par le MJ : que fait ${winner.name} avec ${formatCardName(card)} ?]`);
-  } else {
-    lines.push(action || "Aucune action : la carte n'a pas été attribuée.");
-  }
+  lines.push("Actions des gagnants avec leurs pouvoirs :");
+  cardSlots.forEach((slot) => {
+    const winner = slot.winner ? getAi(slot.winner) : null;
+    const action = (slot.winnerAction ?? "").trim();
+    lines.push(`Carte ${slot.id} — ${formatCardName(slot.card)} :`);
+    lines.push(winner
+      ? action || `[À compléter par le MJ : que fait ${winner.name} avec ${formatCardName(slot.card)} ?]`
+      : "Aucune action : la carte n'a pas été attribuée.");
+  });
 
   lines.push("");
-  lines.push("Consigne : Mets à jour ta lecture stratégique. Réponds avec tes conséquences politiques, diplomatiques ou militaires, et tes priorités pour la suite. Si ton territoire, tes alliances ou ta sécurité sont concernés, précise ta réaction.");
+  lines.push("Limite d'action : tu contrôles tes décisions dans le système d'enchère, pas directement les unités de WorldBox. Tu ne peux pas disperser une population, déplacer librement des habitants, modifier un roi, choisir des statistiques ou appliquer un pouvoir sans carte remportée ou autorisation explicite du MJ.");
+  lines.push("Consigne : Mets à jour ta lecture stratégique sans inventer les trésors actuels des autres IA. Réponds avec tes conséquences politiques, diplomatiques ou militaires, et tes priorités pour la suite. Si ton territoire, tes alliances ou ta sécurité sont concernés, précise ta réaction.");
 
   return lines.join("\n");
 }
@@ -5227,10 +7391,10 @@ function getPublicAuctionReportTimeline() {
 
 function sanitizePublicAuctionTimelineEntry(line) {
   if (line.includes(" enchérit à ")) return line;
-  if (line.startsWith("Fin :")) return line;
+  if (line.startsWith("Fin :") || line.startsWith("Fin carte ")) return line;
 
-  const autoPassMatch = line.match(/^(.+?) passe automatiquement faute d'argent/);
-  if (autoPassMatch) return `${autoPassMatch[1]} passe automatiquement faute d'argent : mise minimum impossible à couvrir.`;
+  const autoPassMatch = line.match(/^(.+? passe automatiquement : .*?)(?:\. Il |$)/);
+  if (autoPassMatch) return `${autoPassMatch[1]}.`;
 
   const passMatch = line.match(/^(.+?) passe et /);
   if (passMatch) return `${passMatch[1]} passe.`;
@@ -5351,11 +7515,11 @@ function buildMemorySnapshot() {
   const total = getWorldPopulation();
   const lines = [
     `- Année actuelle : ${state.settings.year}.`,
-    `- Mode monde : ${getWorldModeLabel()}.`,
+    `- Carte du monde : ${getWorldMapDefinition()?.name ?? "non tirée"}.`,
     `- Population mondiale visible : ${total}.`,
-    state.auction.card
-      ? `- Carte en cours : ${formatCardName(state.auction.card)} (${getCardCategoryLabel(state.auction.card)}, danger ${state.auction.card.danger}/20), enchère ${state.auction.currentBid}, leader ${state.auction.winner ? getAiName(state.auction.winner) : "personne"}.`
-      : "- Carte en cours : aucune.",
+    hasAuctionCards()
+      ? `- Duopole en cours : ${getAuctionSlots().filter((slot) => slot.card).map((slot) => `carte ${slot.id} ${formatCardName(slot.card)} (${getCardCategoryLabel(slot.card)}, ${formatCardRating(slot.card)}, Level ${normalizeCardLevel(slot.card.level)} : ${getResolvedCardLevelEffect(slot.card)}), enchère ${slot.currentBid}, leader ${slot.winner ? getAiName(slot.winner) : "personne"}`).join(" ; ")}.`
+      : "- Duopole en cours : aucune carte.",
     state.fortuneWheel?.active
       ? `- Roue de la Fortune : active depuis l'an ${state.fortuneWheel.activeYear}, imprévisibilité ${getCurrentFortuneWheelUnpredictability()}%, ${getTotalFortuneWheelPendingTurns()} tour(s) en attente.`
       : `- Roue de la Fortune : prochaine apparition prévue An ${state.fortuneWheel?.nextYear ?? "inconnue"}, imprévisibilité ${getCurrentFortuneWheelUnpredictability()}%.`,
@@ -5366,8 +7530,9 @@ function buildMemorySnapshot() {
 
   state.ais.forEach((ai) => {
     const profile = getProfile(ai.activeProfile);
+    const civilization = getFoundingCivilization(ai.foundingCivilization);
     const status = ai.alive ? "vivante" : ai.ghostActive ? "exil actif" : ai.ghostReady ? "exil prêt" : "morte/retirée";
-    lines.push(`  - ${ai.name} : ${status}, ${ai.population} population, ${ai.coins} pièces, doctrine ${profile ? profile.name : "aucune doctrine active"}.`);
+    lines.push(`  - ${ai.name} : ${status}, civilisation ${civilization ? civilization.name : "non choisie"}, ${ai.population} population, ${ai.coins} pièces, doctrine ${profile ? profile.name : "aucune doctrine active"}.`);
   });
 
   return lines.join("\n");
@@ -5439,7 +7604,7 @@ function buildAllAisText() {
   const anyPopulationHidden = publicAis.some((ai) => ai.hidePopulationRevealYear === state.settings.year);
   const anyEconomyHidden = publicAis.some((ai) => ai.hideEconomyRevealYear === state.settings.year);
   const lines = [
-    `MESSAGE MONDIAL — RÉVÉLATION GÉOPOLITIQUE — An ${state.settings.year}`,
+    `MESSAGE MONDIAL — RÉVÉLATION GÉOPOLITIQUE — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     "Données publiées après choix de dissimulation. Seul prompt autorisé à révéler populations et pièces.",
     "",
     `Population mondiale : ${anyPopulationHidden ? "partiellement masquée" : total}`,
@@ -5470,7 +7635,7 @@ function buildAllAisText() {
 function buildFortuneWheelArrivalPrompt() {
   const unpredictability = getCurrentFortuneWheelUnpredictability();
   const delay = getFortuneWheelReturnDelay();
-  return `MESSAGE MONDIAL — ROUE DE LA FORTUNE — An ${state.settings.year}
+  return `MESSAGE MONDIAL — ROUE DE LA FORTUNE — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}
 
 ⚠ Ceci n'est PAS une enchère de carte. Les règles sont différentes. Lis attentivement.
 
@@ -5515,7 +7680,7 @@ function buildFortuneWheelParticipationPrompt() {
   });
 
   return [
-    `MESSAGE MONDIAL — PARTICIPATION ROUE DE LA FORTUNE — An ${state.settings.year}`,
+    `MESSAGE MONDIAL — PARTICIPATION ROUE DE LA FORTUNE — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     "",
     `Seuil minimum : ${threshold} tours au total (2 × ${state.ais.length} civilisations initiales + 1 = ${threshold}).`,
     `Participation actuelle : ${totalTurns} tour(s) acheté(s) — ${thresholdStatus}.`,
@@ -5526,6 +7691,8 @@ function buildFortuneWheelParticipationPrompt() {
     totalTurns >= threshold
       ? "Le seuil est passé : aucune pénalité de non-participation ne s'applique."
       : "Le seuil n'est pas passé : si la roue est résolue ainsi, la civilisation ayant acheté le moins de tours perd l'intégralité de ses pièces. En cas d'égalité, toutes les ex-aequo perdent tout.",
+    "",
+    "Archive ce bilan. Aucune réponse n'est attendue avant le lancement des tours.",
   ].join("\n");
 }
 
@@ -5533,7 +7700,7 @@ function buildFortuneWheelResultsPrompt() {
   const results = state.fortuneWheel?.results ?? [];
   if (!results.length) return "Aucun résultat de Roue de la Fortune à annoncer.";
   return [
-    `MESSAGE MONDIAL — RÉSULTATS DE LA ROUE — An ${state.settings.year} — Imprévisibilité ${getCurrentFortuneWheelUnpredictability()}%`,
+    `MESSAGE MONDIAL — RÉSULTATS DE LA ROUE — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()} — Imprévisibilité ${getCurrentFortuneWheelUnpredictability()}%`,
     "",
     "La Roue a tourné. Voici les résultats des tours résolus jusqu'ici. Les effets économiques ont été appliqués automatiquement. Les pouvoirs WorldBox ont été ou seront placés par le MJ dans la simulation.",
     "",
@@ -5541,7 +7708,7 @@ function buildFortuneWheelResultsPrompt() {
     "",
     ...results.map((result) => result.text),
     "",
-    "⚠ Si tu as remporté un pouvoir WorldBox, tu dois l'utiliser immédiatement. Toute décision non communiquée au MJ dans ce tour sera considérée comme abandonnée.",
+    "Si le résultat indique explicitement que tu peux choisir une cible adverse ou l'usage d'un pouvoir WorldBox, communique cette décision immédiatement au MJ. Sans décision dans ce tour, ce droit est abandonné. Les autres effets sont appliqués directement par le MJ.",
     "",
     "Mets à jour ta mémoire avec ces résultats. Si tu as subi ou bénéficié d'un effet significatif, réponds avec ta réaction diplomatique ou stratégique.",
   ].join("\n");
@@ -5555,7 +7722,8 @@ function buildIncrementPrompt(ai = null) {
   const verb = previous === next ? "reste à" : `passe de ${previous} à`;
   const recipient = ai ? `\nDestinataire : ${ai.name}` : "";
   const coinLine = ai ? `Rappel : tu as actuellement ${ai.coins} pièces.` : "Rappel : vérifie ton solde actuel avant de choisir une dissimulation.";
-  return `PROMPT PRIVÉ — PALIER D'ENCHÈRE ET DISSIMULATION — An ${year}${recipient}
+  return `PROMPT PRIVÉ — PALIER D'ENCHÈRE ET DISSIMULATION — An ${year} — Enchère ${getAuctionPromptNumber()}${recipient}
+${ai ? `À envoyer uniquement à ${ai.name}.` : ""}
 
 ${coinLine}
 
@@ -5568,6 +7736,8 @@ Avant la révélation publique, tu peux payer pour cacher des données :
 - Cacher ta population           : ${costs.population} pièce(s)
 - Cacher les deux                : ${costs.both} pièces
 
+Tu ne peux choisir qu'une dissimulation que ton solde actuel permet de payer. Sinon, la donnée concernée doit être révélée.
+
 Réponds en secret au MJ :
 Économie : cacher / révéler
 Population : cacher / révéler
@@ -5578,7 +7748,7 @@ function buildTribunalPrompt() {
   const order = getTribunalOrder();
   const first = order[0];
   const orderText = order.length ? order.map((ai) => ai.name).join(" → ") : "aucune IA vivante";
-  return `MESSAGE MONDIAL — TRIBUNAL DES NATIONS — An ${state.settings.year}
+  return `MESSAGE MONDIAL — TRIBUNAL DES NATIONS — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}
 
 Un tribunal s'ouvre. Chaque civilisation vivante accuse à son tour une autre d'une action jugée injuste, dangereuse ou déloyale.
 
@@ -5598,12 +7768,13 @@ function buildTribunalAccusationPrompt(ai) {
 }
 
 function buildTribunalAccusationTemplate(accuserName) {
-  return `PROMPT PRIVÉ — TRIBUNAL : TON ACCUSATION — An ${state.settings.year}
+  return `PROMPT PRIVÉ — TRIBUNAL : TON ACCUSATION — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}
 Accusateur : ${accuserName}
+À envoyer uniquement à ${accuserName}.
 
-C'est à toi d'ouvrir le Tribunal. Envoie ta réponse en privé au MJ.
+C'est à toi de présenter ton accusation. Envoie ta réponse en privé au MJ.
 
-Accusé : [IA au choix]
+Accusé : [autre IA vivante au choix ; tu ne peux pas t'accuser toi-même]
 Crime : [description de l'acte]
 Punition proposée : [sanction économique OU intervention WorldBox — doit être réalisable]`;
 }
@@ -5615,18 +7786,26 @@ function getTribunalOrder() {
 function buildBiomeGlobalPrompt() {
   const isInitial = state.settings.year === 0;
   const lines = [
-    `MESSAGE MONDIAL — ${isInitial ? "BIOMES INITIAUX" : "BIOMES"} — An ${state.settings.year}`,
+    `MESSAGE MONDIAL — ${isInitial ? "CIVILISATIONS ET BIOMES INITIAUX" : "BIOMES"} — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     "Les biomes choisis sont annoncés ci-dessous.",
-    "Chaque biome remplace entièrement le biome précédent de l'île natale de la civilisation. Il n'y a pas de superposition.",
-    "Le biome n'affecte que l'île natale — les colonies conservent leur propre biome indépendant.",
+    isInitial
+      ? "Les civilisations fondatrices définitives, jusque-là privées, sont révélées publiquement en même temps."
+      : "Les civilisations fondatrices restent rappelées avec les nouveaux biomes.",
+    "REMPLACEMENT TOTAL : chaque nouveau biome efface et remplace entièrement le biome précédent du territoire natal. Les propriétés, matériaux et effets de l'ancien biome disparaissent ; il n'y a jamais de superposition.",
+    "Le biome choisi n'affecte que le territoire natal attribué au départ : île entière ou secteur partagé selon la carte. Les colonies conservent toujours le biome du terrain sur lequel elles ont été fondées.",
+    "Toute île ou masse continentale entièrement inoccupée au départ devient une zone centrale définitivement en biome Grass. La coloniser ne lui transmet pas le biome natal.",
+    "Un futur changement de biome du territoire natal ne modifiera jamais les zones centrales ni les colonies extérieures.",
     "Les biomes choisis sont retirés du pool. Les options non choisies y retournent et restent disponibles.",
     "",
   ];
 
   getAliveAis().forEach((ai) => {
     const choice = getBiomeChoiceForAi(ai);
+    const civilization = getFoundingCivilization(ai.foundingCivilization);
     lines.push("");
-    lines.push(`${ai.name} — biome choisi :`);
+    lines.push(`${ai.name} :`);
+    lines.push(`  Civilisation fondatrice : ${civilization ? civilization.name : "choix non annoncé / en attente MJ"}.`);
+    lines.push("  Biome choisi :");
     if (choice) {
       const details = getBiomeDetails(choice);
       lines.push(`  ${choice} — danger ${details.danger}/20`);
@@ -5651,13 +7830,18 @@ function buildBiomeChoicePrompt(ai) {
     ? options.map((biome, index) => formatBiomeOption(biome, index)).join("\n\n")
     : "Aucun biome disponible : demande au MJ un arbitrage manuel.";
 
-  return `PROMPT PRIVÉ — ${isInitial ? "CHOIX INITIAL DE BIOME" : "ÉVÉNEMENT BIOME"} — An ${state.settings.year}
+  return `PROMPT PRIVÉ — ${isInitial ? "CHOIX INITIAL DE BIOME" : "ÉVÉNEMENT BIOME"} — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}
 Destinataire : ${ai.name}
+À envoyer uniquement à ${ai.name}.
 Les options non choisies restent invisibles pour les autres IA.
 
-Choisis un seul biome parmi les deux options. ${isInitial ? "Ce sera ton biome de départ." : "Le biome choisi remplace entièrement ton biome actuel."}
+Choisis un seul biome parmi les deux options. ${isInitial ? "Ce sera le biome de ton territoire natal." : "Le biome choisi efface et remplace entièrement le biome actuel de ton territoire natal."}
 
-Important : le biome s'applique uniquement à ton île natale, pas à tes colonies. Les colonies conservent leur propre biome. Le biome choisi est retiré du pool pour les prochains tirages. L'option non choisie y retourne.
+REMPLACEMENT TOTAL : ${isInitial ? "un futur choix de biome remplacera celui-ci" : "tu perds toutes les propriétés, matériaux et effets de ton ancien biome ; ils ne se cumulent pas avec le nouveau"}.
+Important : le biome s'applique uniquement au territoire natal qui t'a été attribué dans le message pré-simulation : île entière ou secteur partagé. Il ne s'étend jamais au reste d'une masse continentale partagée ni à tes colonies.
+Toute zone entièrement inoccupée au départ devient une zone centrale en biome Grass pendant toute la partie. Y fonder une colonie ne transforme pas Grass en ton biome natal, et changer plus tard ton biome natal ne modifie jamais cette zone.
+Le biome choisi est retiré du pool pour les prochains tirages. L'option non choisie y retourne.
+${isInitial ? "Lors de l'annonce mondiale suivante, ton biome choisi et ta civilisation fondatrice définitive seront révélés publiquement. Tes options non choisies resteront secrètes." : ""}
 
 Options :
 ${optionText}
@@ -5667,7 +7851,7 @@ La note de danger mesure le risque systémique du biome : instabilité, hostilit
 Réponds seulement :
 Biome choisi :
 Pourquoi :
-Plan d'utilisation WorldBox :`;
+Plan stratégique :`;
 }
 
 function getAuctionEffectDetailsForAi(ai, breakdown) {
@@ -5679,6 +7863,9 @@ function getAuctionEffectDetailsForAi(ai, breakdown) {
   if (ai.hidePopulationRevealYear === state.settings.year) {
     details.push(`Révélation géopolitique : dissimulation de la population (-${costs.population} pièces)`);
   }
+  (breakdown?.auctionDoctrineLines ?? ai.auctionDoctrineLines ?? []).forEach((line) => {
+    details.push(`Doctrine : ${line}`);
+  });
   if (!details.length && breakdown?.effectDelta) {
     details.push("événement MJ ou effet de carte/doctrine appliqué pendant l'enchère");
   }
@@ -5707,7 +7894,7 @@ function buildPostIncomeStatePrompt(ai) {
     "",
     "Détail de l'enchère :",
     `  - Passes reçues  : ${formatSigned(passDelta)}`,
-    `  - Achat de carte : ${formatSigned(purchaseDelta)}`,
+    `  - Achats de cartes : ${formatSigned(purchaseDelta)}`,
     ...(effectDelta ? [`  - Effet MJ / carte : ${formatSigned(effectDelta)}${effectDetails.length ? ` — ${effectDetails.join(" ; ")}` : ""}`] : []),
     ...(otherAuctionDelta ? [`  - Autres variations : ${formatSigned(otherAuctionDelta)}`] : []),
     `  = Solde avant revenus : ${bd ? bd.coinsBeforeIncome : ai.coins}`,
@@ -5745,7 +7932,7 @@ function buildPostIncomeStatePrompt(ai) {
     "Archive ces chiffres dans ta mémoire. Réponds avec :",
     "1. Ta position démographique et économique réelle (pas d'approximation).",
     "2. Ta menace principale identifiée et ta réponse prévue.",
-    "3. Ta cible prioritaire pour la prochaine enchère, avec un montant maximum que tu acceptes de payer.",
+    "3. La carte ou catégorie prioritaire pour le prochain duopole, avec le montant maximum que tu acceptes de payer.",
   ];
 
   return lines.join("\n");
@@ -5753,19 +7940,23 @@ function buildPostIncomeStatePrompt(ai) {
 
 function buildPostIncomeMemorySnapshot() {
   const total = getWorldPopulation();
-  const card = state.auction.card;
-  const winner = state.auction.winner ? getAi(state.auction.winner) : null;
+  const slots = getAuctionSlots();
   const lines = [
     `USAGE MJ — SNAPSHOT APRÈS REVENUS — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     "Entrée automatique créée quand le MJ clique sur Fin d'enchère. Elle contient les données privées nécessaires à la mémoire complète.",
     "",
-    "Enchère clôturée :",
-    card
-      ? `- Carte : ${formatCardName(card)} (${getCardCategoryLabel(card)}, danger ${card.danger}/20).`
-      : "- Carte : aucune.",
-    winner
-      ? `- Vainqueur : ${winner.name} pour ${state.auction.currentBid} pièce${state.auction.currentBid > 1 ? "s" : ""}.`
-      : "- Vainqueur : aucun, tout le monde a passé.",
+    "Duopole clôturé :",
+    ...slots.flatMap((slot) => {
+      const winner = slot.winner ? getAi(slot.winner) : null;
+      return [
+        slot.card
+          ? `- Carte ${slot.id} : ${formatCardName(slot.card)} (${getCardCategoryLabel(slot.card)}, ${formatCardRating(slot.card)}, Level ${normalizeCardLevel(slot.card.level)}). Effet du niveau : ${getResolvedCardLevelEffect(slot.card)}`
+          : `- Carte ${slot.id} : aucune.`,
+        winner
+          ? `  Vainqueur : ${winner.name} pour ${slot.currentBid} pièce${slot.currentBid > 1 ? "s" : ""}.`
+          : "  Vainqueur : aucun.",
+      ];
+    }),
     `- Résumé revenus : ${state.lastIncomeSummary || "non calculé"}`,
     `- Population mondiale visible : ${total}.`,
     "",
@@ -5774,6 +7965,7 @@ function buildPostIncomeMemorySnapshot() {
 
   state.ais.forEach((ai) => {
     const profile = getProfile(ai.activeProfile);
+    const civilization = getFoundingCivilization(ai.foundingCivilization);
     const status = ai.alive ? "vivante" : ai.ghostActive ? "exil actif" : ai.ghostReady ? "exil prêt" : "morte/retirée";
     const share = getPopulationPercentForAi(ai);
     const passBonus = getAiPassBonusLevel(ai);
@@ -5783,8 +7975,9 @@ function buildPostIncomeMemorySnapshot() {
     lines.push(`- Population : ${ai.population} (${share}% du monde).`);
     lines.push(`- Pièces : ${ai.coins}.`);
     lines.push(`- Bonus de passe : +${passBonus}.`);
+    lines.push(`- Civilisation fondatrice : ${civilization ? civilization.name : "non choisie"}.`);
     lines.push(`- Doctrine active : ${profile ? profile.name : "aucune"}.`);
-    lines.push(`- Soldats : ${ai.soldiers ?? 0}. Colonies ext. : ${ai.colonies ?? 0}. Population île natale : ${ai.homePopulation ?? 0}.`);
+    lines.push(`- Soldats : ${ai.soldiers ?? 0}. Colonies ext. : ${ai.colonies ?? 0}. Population du territoire natal : ${ai.homePopulation ?? 0}.`);
     if (ai.lastIncomeBreakdown) {
       const bd = ai.lastIncomeBreakdown;
       const effectDetails = getAuctionEffectDetailsForAi(ai, bd);
@@ -5808,12 +8001,20 @@ function buildPostIncomeMemorySnapshot() {
   return lines.join("\n");
 }
 
+function buildFoundingCivilizationOptionsText(ai) {
+  const options = getFoundingCivilizationDrawForAi(ai);
+  return options.map((civilization, index) => `${index + 1}. ${civilization.name}
+   Description : ${civilization.description}
+   Avantages : ${civilization.advantages}
+   Inconvénients : ${civilization.disadvantages}`).join("\n\n");
+}
+
 function buildPrompt(ai) {
-  return `PROMPT PRIVÉ — BRIEFING INITIAL — An 0
+  return `PROMPT PRIVÉ — BRIEFING INITIAL — An 0 — Enchère 0
 Destinataire : ${ai.name}
 À envoyer uniquement à ${ai.name}. Ce message est ta référence pour toute la partie.
 
-Tu es ${ai.name}, représentant d'une civilisation humaine dans la simulation stratégique WorldBox Beta.
+Tu es ${ai.name}, représentant d'une civilisation dont le peuple fondateur doit encore être choisi dans la simulation stratégique WorldBox Beta.
 
 ─── RÔLE ET COMMUNICATION ───────────────────────────────────────
 - Tu contrôles uniquement ta civilisation.
@@ -5824,21 +8025,47 @@ Tu es ${ai.name}, représentant d'une civilisation humaine dans la simulation st
 - En cas de contradiction entre deux messages, le plus récent fait autorité.
 - Des événements spéciaux (biomes, doctrines, événements imprévus) apparaîtront au fil de la partie. Leurs règles te seront expliquées au moment où ils surviendront.
 
+─── CHOIX DE CIVILISATION DE DÉPART ─────────────────────────────
+Deux des quatre civilisations fondatrices de WorldBox t'ont été attribuées aléatoirement. Choisis-en une seule. L'autre option est définitivement abandonnée pour ta civilisation.
+
+Les avantages et inconvénients ci-dessous sont des tendances stratégiques : l'évolution réelle dépendra aussi du biome, des ressources, des cultures, des dirigeants et des événements WorldBox.
+Tes deux options et ta décision restent privées pendant le choix. Ta civilisation définitive sera révélée publiquement à toutes les IA en même temps que les biomes initiaux. L'option abandonnée ne sera jamais révélée.
+
+${buildFoundingCivilizationOptionsText(ai)}
+
+Réponds d'abord au MJ :
+Civilisation choisie : [numéro et nom]
+Pourquoi : [justification stratégique courte]
+
 ─── CARTE ET MONDE ──────────────────────────────────────────────
-${buildWorldRulesText()}
+${buildWorldBriefingReference(ai)}
 
 Événements WorldBox sans intervention du créateur :
 ${buildAutonomousWorldboxRulesText()}
 
 ─── SYSTÈME D'ENCHÈRES ──────────────────────────────────────────
-- Une seule carte de pouvoir est proposée à la fois. Chaque carte commence à 0 pièce.
+- Deux cartes de pouvoir sont proposées simultanément. Chaque carte commence à 0 pièce et possède son propre leader.
+- Chaque carte est tirée avec un Level 1, 2 ou 3. Distribution normale : Level 1 = 70%, Level 2 = 25%, Level 3 = 5%.
+- Le Level quantifie exactement la puissance utilisable. L'effet précis du Level tiré est écrit dans chaque prompt ; tu ne peux pas demander l'effet d'un autre Level.
+- Les Level 3 sont volontairement rares et peuvent produire des effets stratégiques ou catastrophiques majeurs.
+- Portée standard des effets de zone : Level 1 = une province (une ville et son territoire immédiat), Level 2 = une région (plusieurs provinces voisines), Level 3 = une île entière.
+- Les ressources utilisent cette portée territoriale : le MJ répartit raisonnablement la ressource dans la zone sans compter chaque minerai généré.
+- Les créatures faibles sont nombreuses dès le Level 1 ; les créatures majeures apparaissent en nombres plus faibles. Le prompt indique toujours le nombre exact à faire apparaître.
+- Les pluies de traits utilisent trois catalogues distincts : 116 traits de population, 40 traits de religion et 152 traits nommés de sous-espèce. Un même tirage ne contient jamais deux fois le même trait.
+- Lorsqu'une pluie de traits apparaît, les noms exacts tirés sont inscrits dans la carte, les prévisions MJ et les prompts. Le MJ applique uniquement cette liste.
 - Tu débutes avec 10 pièces.
 - L'ordre de parole suit la population décroissante : les civilisations les plus peuplées parlent en premier.
-- À ton tour : tu enchéris au-dessus du leader actuel, ou tu passes.
-- Passer : tu quittes cette enchère et tu reçois immédiatement ton bonus de passe personnel.
-- Le dernier joueur encore en course remporte la carte et paie son enchère finale.
-- Enchérir ne donne pas de pièces : cela tente de gagner la carte et restaure ton bonus de passe de +1.
-- Si une carte de danger 16/20 ou plus apparaît, le MJ peut programmer dans les 1 à 3 enchères suivantes un contre-pouvoir capable de la limiter, nettoyer ou compenser.
+- À ton tour : tu choisis une carte autorisée, tu enchéris au-dessus de son leader actuel, ou tu passes.
+- Une civilisation ne peut être leader que d'une seule carte à la fois.
+- Si tu es délogé d'une carte, tu ne peux pas surenchérir immédiatement sur cette même carte. Tu dois miser sur l'autre carte ou passer.
+- Si tu prends la tête de l'autre carte puis que tu en es délogé, tu peux de nouveau revenir sur la première.
+- Passer : tu quittes entièrement le duopole et tu reçois immédiatement ton bonus de passe personnel.
+- À la clôture, chaque leader remporte sa carte et paie son enchère finale. Deux civilisations différentes peuvent donc payer et gagner pendant la même enchère.
+- Enchérir ne dépense pas immédiatement les pièces : une mise est seulement une proposition. Si tu es dépassé, tu ne paies rien et ton trésor reste intact. Seuls les leaders finaux paient.
+- Enchérir ne donne pas de pièces : cela tente de gagner la carte ciblée et restaure ton bonus de passe de +1.
+- Passer verse immédiatement ton bonus de passe. À la fin de l'enchère, toutes les IA vivantes reçoivent en privé le revenu de base, puis les éventuels bonus retardataires et effets doctrinaux.
+- Une révélation géopolitique ne montre qu'un état historique à une année précise. Entre deux révélations, n'utilise jamais un ancien montant public comme trésor actuel d'un rival.
+- Si une carte hostile ou destructive de puissance 16/20 ou plus apparaît, le MJ peut programmer dans les 1 à 3 enchères suivantes un contre-pouvoir capable de la limiter, nettoyer ou compenser.
 
 Incrément minimum (surenchère minimale, pas un multiple obligatoire) :
   An 0–249 = 1 pièce | 250–499 = 5 | 500–749 = 10 | 750–999 = 15 | 1000+ = 20
@@ -5855,7 +8082,10 @@ Bonus de passe personnel :
 - Détail de tes revenus après chaque enchère : tu recevras un prompt privé dédié.
 
 ─── RÈGLES D'ACTION ─────────────────────────────────────────────
-- Propose uniquement des actions réalisables dans WorldBox ou via les cartes du shop.
+- Ton seul contrôle direct porte sur le système d'enchère : enchérir, passer, choisir une cible et proposer l'usage d'une carte que tu remportes.
+- Tu ne contrôles pas directement les habitants, armées, rois, villes ou statistiques dans WorldBox. Tu ne peux pas ordonner librement de disperser une population, déplacer des habitants, tuer ou remplacer un roi, modifier son autorité, choisir des traits ou changer des statistiques.
+- Toute modification de WorldBox doit provenir d'une carte remportée, de la Roue, du Tribunal, d'un événement naturel ou d'une autorisation explicite du MJ.
+- Propose uniquement des actions réalisables dans WorldBox et strictement couvertes par l'effet reçu.
 - Tu ne peux utiliser une carte que si tu la remportes aux enchères, ou si le MJ te l'autorise explicitement.
 - Tu peux promettre une action si tu gagnes, mais elle ne s'applique que si tu remportes réellement la carte.
 - La carte Territoire doit préciser : île ciblée, bord d'attache, intention stratégique, et supplément payé si tu veux agrandir la terre ajoutée.
@@ -5864,9 +8094,12 @@ Bonus de passe personnel :
 
 ─── FORMAT DE RÉPONSE À CHAQUE TOUR ────────────────────────────
 Décision : Enchérir / Passer
+Carte ciblée : A / B
 Mise : [nombre de pièces si tu enchéris]
 Pourquoi : [justification stratégique courte]
-Action prévue si je gagne : [cible et usage exact dans WorldBox]
+Action prévue si je gagne cette carte : [cible et usage exact dans WorldBox]
+
+Pour ce briefing initial, réponds uniquement avec ton choix de civilisation fondatrice et sa justification. N'envoie aucune décision d'enchère avant de recevoir un PROMPT PRIVÉ — TOUR D'ENCHÈRE.
 
 Tu recevras après ce briefing les Mémoires des simulations antérieures.
 Ces archives ne sont pas des règles : elles sont la mémoire du monde dans lequel tu entres.
@@ -5912,6 +8145,10 @@ function copyFortuneWheelArrivalPrompt() {
 
 function copyFortuneWheelResultsPrompt() {
   copyText(buildFortuneWheelResultsPrompt(), "Résultats roue copiés");
+}
+
+function copyChartsTextSupport() {
+  copyText(buildChartsTextSupport(), "Support écrit des graphiques copié");
 }
 
 function copyAllAis() {

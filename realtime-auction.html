@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./realtime-styles.css?v=death-marker-1">
+    <link rel="stylesheet" href="./realtime-styles.css?v=9.2">
     <style>
       /* --- IMMERSION & ANIMATIONS WORLD BOX --- */
       @keyframes wb-cardReveal {
@@ -645,10 +645,13 @@
               <h2>Représentants</h2>
               <p>Définis le nombre de civilisations et leurs noms avant d'envoyer les briefings de l'an 0.</p>
             </div>
-            <label class="participant-count-field">
-              Nombre
-              <input id="participantCountInput" type="number" min="2" max="16" step="1">
-            </label>
+            <div class="participant-count-actions">
+              <label class="participant-count-field">
+                Nombre
+                <input id="participantCountInput" type="number" min="2" max="16" step="1">
+              </label>
+              <button id="randomParticipantCountBtn" class="secondary" type="button">Effectif aléatoire 2–16</button>
+            </div>
           </div>
           <div id="participantNamesGrid" class="participant-names-grid"></div>
         </section>
@@ -656,9 +659,9 @@
         <section class="panel auction-panel">
           <div class="auction-top">
             <div>
-              <p class="eyebrow">Carte en cours</p>
-              <h2 id="cardName">Aucune carte</h2>
-              <p id="cardMeta">Lance une nouvelle enchère.</p>
+              <p class="eyebrow">Duopole en cours</p>
+              <h2>Deux cartes, deux vainqueurs possibles</h2>
+              <p>Une IA délogée d'une carte doit miser sur l'autre carte ou passer.</p>
             </div>
             <label class="command-year-field auction-year-field">
               <span>Année actuelle</span>
@@ -666,10 +669,30 @@
             </label>
           </div>
 
-          <p id="cardEffect" class="card-effect">Fin de l'enchère distribue les revenus privés et prépare les prompts. Nouvelle enchère ajoute 50 ans puis tire la carte suivante.</p>
+          <div class="auction-card-grid">
+            <article id="auctionCardA" class="auction-card-slot" data-auction-slot="A">
+              <div class="auction-card-slot-head">
+                <span>Carte A</span>
+                <strong id="currentBidA">0</strong>
+              </div>
+              <h2 id="cardNameA">Aucune carte</h2>
+              <p id="cardMetaA">Lance une nouvelle enchère.</p>
+              <p id="cardEffectA" class="card-effect">Première carte du duopole.</p>
+              <p class="auction-card-leader">Leader : <strong id="currentWinnerA">Personne</strong></p>
+            </article>
+            <article id="auctionCardB" class="auction-card-slot" data-auction-slot="B">
+              <div class="auction-card-slot-head">
+                <span>Carte B</span>
+                <strong id="currentBidB">0</strong>
+              </div>
+              <h2 id="cardNameB">Aucune carte</h2>
+              <p id="cardMetaB">Lance une nouvelle enchère.</p>
+              <p id="cardEffectB" class="card-effect">Seconde carte du duopole.</p>
+              <p class="auction-card-leader">Leader : <strong id="currentWinnerB">Personne</strong></p>
+            </article>
+          </div>
 
           <div hidden>
-            <strong id="currentWinner">Personne</strong>
             <strong id="currentTurn">-</strong>
           </div>
 
@@ -678,11 +701,14 @@
 
         <section class="panel auction-controls-panel">
           <button id="newAuctionBtn" type="button">Nouvelle enchère</button>
-          <div class="control-field current-bid-field">
-            <span>Enchère actuelle</span>
-            <strong id="currentBid">0</strong>
-          </div>
           <div class="turn-controls">
+            <label>
+              Carte ciblée
+              <select id="bidTargetSelect">
+                <option value="A">Carte A</option>
+                <option value="B">Carte B</option>
+              </select>
+            </label>
             <label>
               Mise proposée
               <input id="bidInput" type="number" min="0" step="1" value="0">
@@ -721,6 +747,19 @@
               <canvas id="economyChartCanvas" width="420" height="180"></canvas>
             </button>
           </div>
+          <div class="history-chart-controls">
+            <div class="history-chart-control-group">
+              <h3>Valeurs population</h3>
+              <div id="populationChartPointToggles" class="history-chart-toggle-list"></div>
+            </div>
+            <div class="history-chart-control-group">
+              <h3>Valeurs pièces</h3>
+              <div id="economyChartPointToggles" class="history-chart-toggle-list"></div>
+            </div>
+          </div>
+          <div class="history-chart-copy-row">
+            <button id="copyChartsTextBtn" class="secondary" type="button">Copier support écrit des graphiques</button>
+          </div>
         </section>
 
         <section class="panel utility-panel">
@@ -752,11 +791,14 @@
               <strong id="incrementOutput">1 pièce</strong>
             </div>
             <div class="settings-grid">
-              <label>Mode monde <select id="worldModeSelect">
-                <option value="auto">Auto</option>
-                <option value="central">Classique - îlot central</option>
-                <option value="duel">Duel Epsilon - 2 moitiés</option>
-                <option value="zeta">Zeta - 16 joueurs / croix centrale</option>
+              <label>Carte du monde <select id="worldMapSelect">
+                <option value="random">Tirage aléatoire équiprobable</option>
+                <option value="fracture">Fracture duelle</option>
+                <option value="cross-four">Croix des Quatre</option>
+                <option value="quinconce">Le Quinconce</option>
+                <option value="crown-nine">Couronne des Neuf</option>
+                <option value="crossroads">Carrefour des Quatre Mers</option>
+                <option value="archipelago-sixteen">Archipel des Seize</option>
               </select></label>
               <label>Revenu base <input id="incomeInput" type="number" min="0" step="1"></label>
               <label>Bonus faible MJ <input id="underdogInput" type="number" min="0" step="1"></label>
@@ -767,6 +809,12 @@
                 <option value="5">Voir les 5 prochaines</option>
               </select></label>
               <label class="wide-setting">Carte forcée prochaine enchère <select id="forcedPowerSelect"></select></label>
+              <label>Niveau forcé <select id="forcedPowerLevelSelect">
+                <option value="0">Aléatoire</option>
+                <option value="1">Level 1</option>
+                <option value="2">Level 2</option>
+                <option value="3">Level 3</option>
+              </select></label>
             </div>
             <div id="futureCardsPanel" class="future-cards-panel" hidden></div>
             <section id="fortuneWheelPanel" class="fortune-wheel-panel"></section>
@@ -850,8 +898,12 @@
         </div>
         <section id="reportPromptBlock" class="report-block" hidden>
           <label class="winner-action-field">
-            Action du gagnant avec le pouvoir
-            <textarea id="winnerActionInput" placeholder="Ex. Le gagnant utilise Volcano sur la frontière d'un rival pour couper son expansion ou isoler une zone stratégique."></textarea>
+            Action du gagnant de la carte A
+            <textarea id="winnerActionInputA" placeholder="Action appliquée avec la carte A."></textarea>
+          </label>
+          <label class="winner-action-field">
+            Action du gagnant de la carte B
+            <textarea id="winnerActionInputB" placeholder="Action appliquée avec la carte B."></textarea>
           </label>
           <button id="copyReportBtn" class="prompt-button secondary" type="button">
             <span>Message mondial après enchère</span>
@@ -927,6 +979,6 @@
     </div>
 
     <div id="toast" class="toast"></div>
-    <script src="./realtime-app.js?v=death-marker-1"></script>
+    <script src="./realtime-app.js?v=11.7"></script>
   </body>
 </html>
