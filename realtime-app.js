@@ -102,6 +102,12 @@ const WORLD_MAPS = [
     description: "Une grille 4x4 de seize îles indépendantes, sans centre prédéfini.",
     rules: "Les positions de départ maximisent les distances ; chaque île inutilisée devient une zone centrale neutre.",
   },
+  {
+    id: "pangea",
+    name: "La Pangée",
+    description: "Un unique supercontinent entièrement terrestre, sans mer, rivière, île ni zone neutre.",
+    rules: "Toute la surface est partagée en secteurs natals équilibrés. Toutes les frontières et communications entre civilisations sont terrestres.",
+  },
 ];
 const FOUNDING_CIVILIZATIONS = [
   {
@@ -4279,10 +4285,10 @@ Ce message précède les briefings initiaux et fixe publiquement la configuratio
 
 Effectif ${state.participantCountMode === "random" ? "tiré aléatoirement entre 2 et 16" : "choisi par le MJ"} : ${draw.slots} IA.
 
-Les six cartes possibles étaient strictement équiprobables en cas de tirage aléatoire :
+Les sept cartes possibles étaient strictement équiprobables en cas de tirage aléatoire :
 ${mapCatalogLines.join("\n")}
 
-Carte ${state.worldMap?.selectionMode === "random" ? "tirée aléatoirement parmi six cartes équiprobables" : "choisie par le MJ"} : ${map?.name ?? "en attente"}.
+Carte ${state.worldMap?.selectionMode === "random" ? "tirée aléatoirement parmi sept cartes équiprobables" : "choisie par le MJ"} : ${map?.name ?? "en attente"}.
 ${map ? `${map.description} ${map.rules}` : ""}
 
 Pré-tirage : 2 paires distinctes ont été tirées uniformément parmi 17. Chaque paire avait une probabilité de 2/17, soit environ 11,76 %, d'entrer dans le pool final :
@@ -4338,14 +4344,14 @@ function renderPromptHub() {
     addPromptGroup("Carte du monde", [
       {
         label: "Lancement aléatoire complet : effectif + carte",
-        hint: "Tire indépendamment un effectif entre 2 et 16 et l'une des six cartes équiprobables.",
+        hint: "Tire indépendamment un effectif entre 2 et 16 et l'une des sept cartes équiprobables.",
         onClick: () => runFullyRandomInitialSetup(),
       },
       {
         label: map ? `Carte retenue : ${map.name} — retirer / réappliquer` : "Tirer / appliquer la carte du monde",
         checklistLabel: "Tirer / appliquer la carte du monde",
         hint: getWorldMapChoice() === "random"
-          ? "Tirage strictement équiprobable parmi les six cartes."
+          ? "Tirage strictement équiprobable parmi les sept cartes."
           : `Applique la carte choisie dans les paramètres : ${getWorldMapDefinition(getWorldMapChoice())?.name ?? "inconnue"}.`,
         onClick: () => runWorldMapDraw(),
       },
@@ -6670,6 +6676,19 @@ function createZoneSectorLayout(count, options = {}, randomFn = Math.random) {
       return { label: `${index + 1}/${count} — ${edge}`, x: 0, y: index, order: index };
     });
   }
+  if (options.grid && count > 4) {
+    const columns = Math.ceil(Math.sqrt(count));
+    return Array.from({ length: count }, (_, index) => {
+      const row = Math.floor(index / columns);
+      const column = index % columns;
+      return {
+        label: `secteur ${row + 1}-${column + 1}`,
+        x: column,
+        y: row,
+        order: index,
+      };
+    });
+  }
   if (count === 2) {
     return randomFn() < 0.5
       ? [
@@ -6846,6 +6865,9 @@ function selectGridZones(count, randomFn = Math.random) {
 }
 
 function generateWorldMapPlacements(aiIds, mapId, randomFn = Math.random) {
+  if (mapId === "pangea") {
+    return distributeParticipantsAcrossZones(aiIds, ["Pangée"], { grid: true }, randomFn);
+  }
   if (mapId === "fracture") {
     return distributeParticipantsAcrossZones(aiIds, ["Continent Ouest", "Continent Est"], { linear: true }, randomFn);
   }
@@ -6971,7 +6993,7 @@ function buildWorldRulesText() {
     "- Chaque civilisation commence avec 10 pièces et 10 population.",
     map
       ? `- Carte ${state.worldMap.selectionMode === "random" ? "tirée aléatoirement à chances égales" : "choisie par le MJ"} : ${map.name}. ${map.description} ${map.rules}`
-      : "- Carte du monde : tirage en attente parmi six cartes équiprobables.",
+      : "- Carte du monde : tirage en attente parmi sept cartes équiprobables.",
     `- Positions publiques de départ, attribuées aléatoirement indépendamment de l'ordre des participants : ${getStartingPositionsText()}.`,
     "- Si plusieurs civilisations partagent une même masse continentale ou un même quartier, celui-ci est divisé en secteurs natals équilibrés. Chaque secteur reçoit uniquement le biome de sa civilisation.",
     neutralZones.length
