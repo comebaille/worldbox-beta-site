@@ -903,6 +903,24 @@ label > strong:first-child {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.participant-names-details {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 9px;
+}
+
+.participant-names-details summary {
+  width: fit-content;
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.participant-names-details[open] summary {
+  color: var(--accent-teal);
+  margin-bottom: 10px;
+}
+
 /* ─── AI Cards Panel ─── */
 .ais-panel {
   container: ais-panel / inline-size;

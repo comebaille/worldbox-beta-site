@@ -1241,6 +1241,7 @@ let state = loadState();
 let undoStack = [];
 let expandedPromptGroups = new Set();
 if (state.auction?.active) expandedPromptGroups.add("Tour d’enchère");
+if (state.settings?.year === 0 && !hasAuctionCards()) expandedPromptGroups.add("Configuration initiale");
 let serverSaveTimer = null;
 let wbCurrentRotation = 0;
 let wbLastRenderedCardKeys = {};
@@ -1274,7 +1275,6 @@ const els = {
   profilesGuideList: document.querySelector("#profilesGuideList"),
   participantsPanel: document.querySelector("#participantsPanel"),
   participantCountInput: document.querySelector("#participantCountInput"),
-  randomParticipantCountBtn: document.querySelector("#randomParticipantCountBtn"),
   participantNamesGrid: document.querySelector("#participantNamesGrid"),
   auctionCardA: document.querySelector("#auctionCardA"),
   auctionCardB: document.querySelector("#auctionCardB"),
@@ -1412,7 +1412,6 @@ els.profilesCloseBtn.addEventListener("click", () => {
 });
 els.participantCountInput.addEventListener("input", handleParticipantCountChange);
 els.participantCountInput.addEventListener("change", handleParticipantCountChange);
-els.randomParticipantCountBtn.addEventListener("click", randomizeParticipantCount);
 
 function toggleUtilityPanel(panelName) {
   const panels = {
@@ -1462,7 +1461,7 @@ function renderMobilePanelSummaries() {
   );
   setText("#mobileActionSummary", state.auction.active ? "Enchérir ou passer" : canFinishAuctionCycle() ? "Terminer le duopole" : "Lancer une enchère");
   setText("#mobileAisSummary", `${aliveCount} vivantes sur ${state.ais.length}`);
-  setText("#mobilePromptsSummary", `${promptCount} action${promptCount > 1 ? "s" : ""} à copier`);
+  setText("#mobilePromptsSummary", `${promptCount} action${promptCount > 1 ? "s" : ""} disponible${promptCount > 1 ? "s" : ""}`);
 }
 
 function handleParticipantCountChange() {
@@ -1478,19 +1477,6 @@ function handleParticipantCountChange() {
   state.participantDraw = null;
   state.worldMap = null;
   saveAndRender();
-}
-
-function randomizeParticipantCount() {
-  if (state.settings.year !== 0 || hasAuctionCards()) return;
-  pushUndo();
-  const nextCount = MIN_PARTICIPANTS + Math.floor(Math.random() * (MAX_PARTICIPANTS - MIN_PARTICIPANTS + 1));
-  resizeParticipants(nextCount);
-  state.participantCountMode = "random";
-  state.participantDraw = null;
-  state.worldMap = null;
-  clearParticipantDrawPromptChecks();
-  saveAndRender();
-  showToast(`Effectif tiré : ${nextCount} IA`);
 }
 
 ["yearInput", "incomeInput", "underdogInput", "passRewardInput", "worldMapSelect", "previewCardsSelect", "forcedPowerSelect", "forcedPowerLevelSelect"].forEach((key) => {
@@ -3793,7 +3779,7 @@ function getDisplayAis() {
     const remaining = state.ais.filter((ai) => !state.auction.order.includes(ai.id));
     return [...ordered, ...remaining];
   }
-  return [...state.ais].sort((a, b) => Number(b.alive) - Number(a.alive) || b.population - a.population || a.name.localeCompare(b.name));
+  return [...state.ais].sort((a, b) => Number(b.alive) - Number(a.alive) || b.population - a.population);
 }
 
 function removeLegacyBiomePanel() {
@@ -4054,7 +4040,7 @@ function renderMjSummary() {
   els.mjSummaryResources.textContent = `${aliveAis.length} IA vivantes • ${getWorldPopulation()} habitants • ${totalCoins} pièces au total • ${mapText}.`;
 
   if (state.settings.year === 0 && !state.worldMap) {
-    els.mjSummaryAction.textContent = "Tirer l’effectif et la carte du monde.";
+    els.mjSummaryAction.textContent = "Ouvrir Actions, puis utiliser « Tout tirer au sort ».";
   } else if (state.settings.year === 0 && !state.participantDraw) {
     els.mjSummaryAction.textContent = "Lancer le Double Tirage, puis envoyer le message pré-simulation.";
   } else if (state.auction.active) {
@@ -4235,17 +4221,7 @@ function applyParticipantDrawSelection(selectedChampionIds) {
   ensureFoundingCivilizationDraws();
 }
 
-function runDoubleParticipantDraw(randomFn = Math.random) {
-  if (state.settings.year !== 0 || hasAuctionCards()) {
-    showToast("Double Tirage disponible avant la première enchère");
-    return;
-  }
-  if (!state.worldMap) {
-    showToast("Tire ou applique d'abord la carte du monde");
-    return;
-  }
-
-  pushUndo();
+function performDoubleParticipantDraw(randomFn = Math.random) {
   const slots = getParticipantDrawSlots();
   const preDrawnPairs = sampleParticipantPairs(randomFn);
   const selectedIds = [];
@@ -4311,21 +4287,36 @@ function runDoubleParticipantDraw(randomFn = Math.random) {
     if (selectedIds.length < slots) selectedIds.push(reserve.id);
   });
 
-  applyParticipantDrawSelection(selectedIds);
+  const randomizedSelectedIds = shuffleWithRandom(selectedIds, randomFn);
+  applyParticipantDrawSelection(randomizedSelectedIds);
   state.participantDraw = {
     slots,
     preDrawnPairIds: preDrawnPairs.map((pair) => pair.id),
     drawSteps,
-    selectedChampionIds: selectedIds,
-    selectedNames: selectedIds.map((id) => getDoubleDrawChampion(id)?.name ?? id),
+    selectedChampionIds: randomizedSelectedIds,
+    selectedNames: randomizedSelectedIds.map((id) => getDoubleDrawChampion(id)?.name ?? id),
     completedAt: new Date().toISOString(),
   };
   assignCurrentWorldMapPlacements(randomFn);
   clearParticipantDrawPromptChecks();
   recordMemory("Double Tirage", buildParticipantDrawAnnouncement(), { important: true, year: 0 });
-  expandedPromptGroups.add("Sélection des participants");
+  expandedPromptGroups.add("Configuration initiale");
+}
+
+function runDoubleParticipantDraw(randomFn = Math.random) {
+  if (state.settings.year !== 0 || hasAuctionCards()) {
+    showToast("Double Tirage disponible avant la première enchère");
+    return;
+  }
+  if (!state.worldMap) {
+    showToast("Tire ou applique d'abord la carte du monde");
+    return;
+  }
+
+  pushUndo();
+  performDoubleParticipantDraw(randomFn);
   saveAndRender();
-  showToast(`${slots} participants sélectionnés`);
+  showToast(`${state.ais.length} participants sélectionnés`);
 }
 
 function buildParticipantDrawAnnouncement() {
@@ -4436,6 +4427,8 @@ function copyParticipantDrawAnnouncement() {
 function renderPromptHub() {
   els.promptHub.innerHTML = "";
   const promptAis = getAliveAis();
+  const initialSetupCommunicated = state.settings.year !== 0
+    || Boolean(state.participantDraw && hasCopiedPrompt(getParticipantDrawAnnouncementKey()));
 
   if (state.auction.active && getCurrentBidder()) {
     const current = getCurrentBidder();
@@ -4456,32 +4449,18 @@ function renderPromptHub() {
   }
 
   if (state.settings.year === 0 && !hasAuctionCards()) {
-    const map = getWorldMapDefinition();
-    addPromptGroup("Carte du monde", [
+    const drawComplete = Boolean(state.participantDraw && state.worldMap?.placements?.length);
+    addPromptGroup("Configuration initiale", [
       {
-        label: "Lancement aléatoire complet : effectif + carte",
-        hint: "Tire indépendamment un effectif entre 2 et 16 et l'une des sept cartes équiprobables.",
+        label: drawComplete ? "Tout retirer au sort" : "Tout tirer au sort",
+        hint: "Un seul clic : effectif, carte, champions, ordre des IA, placements et voisins.",
         onClick: () => runFullyRandomInitialSetup(),
+        primary: true,
       },
       {
-        label: map ? `Carte retenue : ${map.name} — retirer / réappliquer` : "Tirer / appliquer la carte du monde",
-        checklistLabel: "Tirer / appliquer la carte du monde",
-        hint: getWorldMapChoice() === "random"
-          ? "Tirage strictement équiprobable parmi les sept cartes."
-          : `Applique la carte choisie dans les paramètres : ${getWorldMapDefinition(getWorldMapChoice())?.name ?? "inconnue"}.`,
-        onClick: () => runWorldMapDraw(),
-      },
-    ]);
-  }
-
-  if (state.settings.year === 0 && !hasAuctionCards() && state.worldMap) {
-    const drawComplete = Boolean(state.participantDraw);
-    addPromptGroup("Sélection des participants", [
-      {
-        label: drawComplete ? "Relancer le Double Tirage" : "Lancer le Double Tirage",
-        checklistLabel: "Lancer le Double Tirage",
-        hint: "Tire 2 paires, puis remplit automatiquement l'effectif choisi avec le tirage pondéré.",
-        onClick: () => runDoubleParticipantDraw(),
+        label: "Appliquer le nombre et la carte choisis",
+        hint: `Utilise ${state.ais.length} IA et ${getWorldMapChoice() === "random" ? "tire seulement la carte" : `la carte ${getWorldMapDefinition(getWorldMapChoice())?.name ?? "choisie"}`}, puis tire champions et placements.`,
+        onClick: () => runConfiguredInitialSetup(),
       },
       ...(drawComplete ? [{
         label: "Message pré-simulation : carte, participants et placements",
@@ -4499,7 +4478,7 @@ function renderPromptHub() {
     })));
   }
 
-  if (isProfileMilestone(state.settings.year)) {
+  if (isProfileMilestone(state.settings.year) && initialSetupCommunicated) {
     const doctrineAis = promptAis.filter((ai) => ai.profileHand.length);
     const hasOutgoingDoctrines = doctrineAis.some((ai) => Boolean(ai.previousProfileOnDraw));
     const revealPromptKey = getDoctrineRevealPromptKey();
@@ -4573,7 +4552,7 @@ function renderPromptHub() {
     ]);
   }
 
-  if (isBiomeYear(state.settings.year)) {
+  if (isBiomeYear(state.settings.year) && initialSetupCommunicated) {
     addPromptGroup("Biomes", [
       {
         label: "Tirer 2 biomes pour chaque IA",
@@ -4687,7 +4666,7 @@ function getDoctrineRevealPromptKey() {
 }
 
 function getParticipantDrawAnnouncementKey() {
-  return getPromptChecklistKey("Sélection des participants", "Message pré-simulation : carte, participants et placements");
+  return getPromptChecklistKey("Configuration initiale", "Message pré-simulation : carte, participants et placements");
 }
 
 function hasCopiedPrompt(key) {
@@ -5951,8 +5930,8 @@ function newAuction() {
   if (useForecastPair) {
     state.pendingCounters = clonePendingCounters(forecastEntries[1].pendingCountersAfterSchedule ?? state.pendingCounters);
   }
-  const order = getAuctionAis()
-    .sort((a, b) => b.population - a.population || a.name.localeCompare(b.name))
+  const order = shuffleWithRandom(getAuctionAis())
+    .sort((a, b) => b.population - a.population)
     .map((ai) => ai.id);
 
   state.auction = {
@@ -7085,10 +7064,38 @@ function runFullyRandomInitialSetup(randomFn = Math.random) {
     participantCount,
     drawnAt: new Date().toISOString(),
   };
+  performDoubleParticipantDraw(randomFn);
   clearParticipantDrawPromptChecks();
-  expandedPromptGroups.add("Carte du monde");
+  expandedPromptGroups.add("Configuration initiale");
   saveAndRender();
-  showToast(`${participantCount} IA — ${map.name}`);
+  showToast(`${participantCount} IA — ${map.name} — participants et placements tirés`);
+}
+
+function runConfiguredInitialSetup(randomFn = Math.random) {
+  if (state.settings.year !== 0 || hasAuctionCards()) {
+    showToast("Configuration disponible avant la première enchère");
+    return;
+  }
+  pushUndo();
+  state.settings = readSettings();
+  const choice = getWorldMapChoice();
+  const map = choice === "random"
+    ? WORLD_MAPS[Math.floor(randomFn() * WORLD_MAPS.length)]
+    : getWorldMapDefinition(choice);
+  state.participantCountMode = "manual";
+  state.worldMap = {
+    mapId: map.id,
+    selectionMode: choice === "random" ? "random" : "manual",
+    placements: [],
+    neutralZones: [],
+    participantCount: state.ais.length,
+    drawnAt: new Date().toISOString(),
+  };
+  performDoubleParticipantDraw(randomFn);
+  clearParticipantDrawPromptChecks();
+  expandedPromptGroups.add("Configuration initiale");
+  saveAndRender();
+  showToast(`${state.ais.length} IA — ${map.name} — configuration appliquée`);
 }
 
 function getStartingPositionsText() {

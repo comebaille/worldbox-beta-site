@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./realtime-styles.css?v=12.0">
+    <link rel="stylesheet" href="./realtime-styles.css?v=12.1">
     <style>
       /* --- IMMERSION & ANIMATIONS WORLD BOX --- */
       @keyframes wb-cardReveal {
@@ -646,18 +646,20 @@
           <div class="panel-head">
             <div>
               <p class="eyebrow">Configuration initiale</p>
-              <h2>Représentants</h2>
-              <p>Définis le nombre de civilisations et leurs noms avant d'envoyer les briefings de l'an 0.</p>
+              <h2>Participants</h2>
+              <p>Choisis seulement le nombre en mode manuel. Le tirage complet remplace automatiquement les noms, la carte et les placements.</p>
             </div>
             <div class="participant-count-actions">
               <label class="participant-count-field">
                 Nombre
                 <input id="participantCountInput" type="number" min="2" max="16" step="1">
               </label>
-              <button id="randomParticipantCountBtn" class="secondary" type="button">Effectif aléatoire 2–16</button>
             </div>
           </div>
-          <div id="participantNamesGrid" class="participant-names-grid"></div>
+          <details class="participant-names-details">
+            <summary>Modifier les noms manuellement</summary>
+            <div id="participantNamesGrid" class="participant-names-grid"></div>
+          </details>
         </section>
 
         <section id="mjSummaryPanel" class="mj-summary-panel" aria-labelledby="mjSummaryTitle">
@@ -951,16 +953,16 @@
 
       <aside id="commandPanel" class="panel command-panel">
         <button class="mobile-panel-toggle secondary" type="button" data-mobile-panel-toggle="commandPanel" aria-expanded="false">
-          <span><strong>Prompts IA</strong><small id="mobilePromptsSummary">Actions prêtes à copier</small></span>
+          <span><strong>Actions</strong><small id="mobilePromptsSummary">Configuration et prompts</small></span>
           <span class="mobile-panel-chevron" aria-hidden="true"></span>
         </button>
         <div class="prompt-panel-head">
           <p class="eyebrow prompt-panel-eyebrow">
             <svg class="tab-icon" style="opacity:0.8;" aria-hidden="true"><use href="#icon-prompt"/></svg>
-            Envois aux IA
+            Pilotage
           </p>
-          <h2>Actions à copier</h2>
-          <p>Chaque bouton copie le prompt IA intégral sans l’afficher dans l’interface.</p>
+          <h2>Actions & prompts</h2>
+          <p>Les actions pilotent la partie. Les boutons d’envoi copient le prompt IA intégral sans l’afficher.</p>
         </div>
         <section id="reportPromptBlock" class="report-block" hidden>
           <div class="prompt-zone-label prompt-zone-world">Message mondial complet</div>
@@ -1046,6 +1048,6 @@
     </div>
 
     <div id="toast" class="toast"></div>
-    <script src="./realtime-app.js?v=12.0"></script>
+    <script src="./realtime-app.js?v=12.1"></script>
   </body>
 </html>
