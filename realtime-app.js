@@ -1240,6 +1240,7 @@ const PROFILE_DECK = [
 let state = loadState();
 let undoStack = [];
 let expandedPromptGroups = new Set();
+if (state.auction?.active) expandedPromptGroups.add("Tour d’enchère");
 let serverSaveTimer = null;
 let wbCurrentRotation = 0;
 let wbLastRenderedCardKeys = {};
@@ -1322,6 +1323,13 @@ const els = {
   promptHub: document.querySelector("#promptHub"),
   reportPromptBlock: document.querySelector("#reportPromptBlock"),
   copyReportBtn: document.querySelector("#copyReportBtn"),
+  mjSummaryPanel: document.querySelector("#mjSummaryPanel"),
+  mjSummaryYear: document.querySelector("#mjSummaryYear"),
+  mjSummarySituation: document.querySelector("#mjSummarySituation"),
+  mjSummaryChanges: document.querySelector("#mjSummaryChanges"),
+  mjSummaryRisks: document.querySelector("#mjSummaryRisks"),
+  mjSummaryResources: document.querySelector("#mjSummaryResources"),
+  mjSummaryAction: document.querySelector("#mjSummaryAction"),
   toast: document.querySelector("#toast"),
   sessionPersistenceStatus: document.querySelector("#sessionPersistenceStatus"),
   yearInput: document.querySelector("#yearInput"),
@@ -1420,6 +1428,43 @@ function toggleUtilityPanel(panelName) {
   target.hidden = !shouldOpen;
 }
 
+function setupMobilePanels() {
+  document.querySelectorAll("[data-mobile-panel-toggle]").forEach((button) => {
+    const panel = document.getElementById(button.dataset.mobilePanelToggle);
+    if (!panel) return;
+    const expanded = button.getAttribute("aria-expanded") === "true";
+    panel.classList.toggle("mobile-panel-collapsed", !expanded);
+    button.addEventListener("click", () => {
+      const shouldExpand = panel.classList.contains("mobile-panel-collapsed");
+      panel.classList.toggle("mobile-panel-collapsed", !shouldExpand);
+      button.setAttribute("aria-expanded", String(shouldExpand));
+    });
+  });
+}
+
+function renderMobilePanelSummaries() {
+  const aliveCount = getAliveAis().length;
+  const current = getCurrentBidder();
+  const map = getWorldMapDefinition();
+  const promptCount = els.promptHub?.querySelectorAll(".prompt-button").length ?? 0;
+  const setText = (selector, text) => {
+    const element = document.querySelector(selector);
+    if (element) element.textContent = text;
+  };
+
+  setText("#mobileParticipantsSummary", `${state.ais.length} IA${map ? ` • ${map.name}` : " • carte à tirer"}`);
+  setText("#mobileMjSummary", `An ${state.settings.year} • ${aliveCount} IA vivantes`);
+  setText(
+    "#mobileAuctionSummary",
+    state.auction.active
+      ? `Tour : ${current?.name ?? "en attente"}`
+      : state.auction.endProcessed ? "Revenus distribués" : hasAuctionCards() ? "Duopole clôturé" : "Aucune carte active",
+  );
+  setText("#mobileActionSummary", state.auction.active ? "Enchérir ou passer" : canFinishAuctionCycle() ? "Terminer le duopole" : "Lancer une enchère");
+  setText("#mobileAisSummary", `${aliveCount} vivantes sur ${state.ais.length}`);
+  setText("#mobilePromptsSummary", `${promptCount} action${promptCount > 1 ? "s" : ""} à copier`);
+}
+
 function handleParticipantCountChange() {
   const nextCount = readNumberInput(els.participantCountInput, state.ais.length, MIN_PARTICIPANTS, MAX_PARTICIPANTS);
   if (nextCount === state.ais.length) {
@@ -1500,6 +1545,7 @@ els.bidTargetSelect?.addEventListener("change", () => {
 });
 
 handleAgeMilestones();
+setupMobilePanels();
 persistState({ remote: false, touch: false });
 render();
 hydrateStateFromServer();
@@ -2116,10 +2162,12 @@ function render() {
   renderHistoryCharts();
   renderTurnOrder();
   renderLog();
+  renderMjSummary();
   renderReportBlock();
   renderMemoryPanel();
   renderProfilesGuide();
   renderPromptHub();
+  renderMobilePanelSummaries();
   renderFortuneWheelTrigger();
   wbRenderWheelModal();
 }
@@ -3962,6 +4010,64 @@ function renderLog() {
   els.auctionLog.value = buildAuctionReportPrompt();
 }
 
+function renderMjSummary() {
+  if (!els.mjSummaryPanel) return;
+  const aliveAis = getAliveAis();
+  const current = getCurrentBidder();
+  const map = getWorldMapDefinition();
+  const totalCoins = aliveAis.reduce((sum, ai) => sum + Math.max(0, Number(ai.coins) || 0), 0);
+  const slots = getAuctionSlots().filter((slot) => slot.card);
+  const leaders = slots
+    .filter((slot) => slot.winner)
+    .map((slot) => `${slot.id} : ${getAiName(slot.winner)} à ${slot.currentBid}`);
+
+  els.mjSummaryYear.textContent = `An ${state.settings.year}`;
+  if (state.auction.active) {
+    els.mjSummarySituation.textContent = `Duopole actif. Tour de ${current?.name ?? "personne"}. ${leaders.length ? `Leaders : ${leaders.join(" ; ")}.` : "Aucun leader."}`;
+  } else if (state.auction.closed && !state.auction.endProcessed) {
+    els.mjSummarySituation.textContent = `Duopole clôturé. ${leaders.length ? `Vainqueurs : ${leaders.join(" ; ")}.` : "Aucune carte attribuée."}`;
+  } else if (state.auction.endProcessed) {
+    els.mjSummarySituation.textContent = "Revenus distribués. Les états privés des IA sont prêts à être envoyés.";
+  } else {
+    els.mjSummarySituation.textContent = state.settings.year === 0
+      ? `Préparation initiale${map ? ` sur ${map.name}` : ""}.`
+      : "Aucune enchère active.";
+  }
+
+  const recentLogs = state.log.slice(-2).map((line) => shorten(String(line), 145));
+  const lastMemory = state.simulationMemory?.at(-1)?.text;
+  els.mjSummaryChanges.textContent = recentLogs.length
+    ? recentLogs.join(" • ")
+    : lastMemory ? shorten(lastMemory, 180) : "Aucun changement enregistré depuis le dernier bilan.";
+
+  const risks = [];
+  const dangerousCards = slots.filter((slot) => Number(slot.card?.rating ?? slot.card?.danger) >= 16);
+  if (dangerousCards.length) risks.push(`Pouvoir majeur : ${dangerousCards.map((slot) => `${slot.id} ${formatCardName(slot.card)}`).join(", ")}`);
+  if (state.pendingCounters?.length) risks.push(`${state.pendingCounters.length} contre-pouvoir(s) programmé(s)`);
+  const dueEvents = getDueEvents(state.settings.year);
+  if (dueEvents.length) risks.push(dueEvents.join(", "));
+  const deadCount = state.ais.length - aliveAis.length;
+  if (deadCount) risks.push(`${deadCount} IA morte(s) ou retirée(s)`);
+  els.mjSummaryRisks.textContent = risks.length ? risks.join(" • ") : "Aucune menace immédiate signalée.";
+
+  const mapText = map ? map.name : "carte non fixée";
+  els.mjSummaryResources.textContent = `${aliveAis.length} IA vivantes • ${getWorldPopulation()} habitants • ${totalCoins} pièces au total • ${mapText}.`;
+
+  if (state.settings.year === 0 && !state.worldMap) {
+    els.mjSummaryAction.textContent = "Tirer l’effectif et la carte du monde.";
+  } else if (state.settings.year === 0 && !state.participantDraw) {
+    els.mjSummaryAction.textContent = "Lancer le Double Tirage, puis envoyer le message pré-simulation.";
+  } else if (state.auction.active) {
+    els.mjSummaryAction.textContent = `Envoyer le prompt de tour à ${current?.name ?? "l’IA active"}, puis appliquer sa décision.`;
+  } else if (state.auction.closed && !state.auction.endProcessed) {
+    els.mjSummaryAction.textContent = "Renseigner les actions des gagnants, copier le compte rendu, puis terminer le duopole.";
+  } else if (state.auction.endProcessed) {
+    els.mjSummaryAction.textContent = "Envoyer les états après revenus à chaque IA vivante, puis lancer l’enchère suivante.";
+  } else {
+    els.mjSummaryAction.textContent = "Lancer la prochaine enchère.";
+  }
+}
+
 function renderMemoryPanel() {
   const memory = state.simulationMemory ?? [];
   const query = normalizeMemorySearch(els.memorySearchInput?.value ?? "");
@@ -4330,6 +4436,16 @@ function copyParticipantDrawAnnouncement() {
 function renderPromptHub() {
   els.promptHub.innerHTML = "";
   const promptAis = getAliveAis();
+
+  if (state.auction.active && getCurrentBidder()) {
+    const current = getCurrentBidder();
+    addPromptGroup("Tour d’enchère", [{
+      label: `Décision attendue — ${current.name}`,
+      hint: "PRIVÉ : prompt complet du tour actuel avec cartes, argent, contraintes et format de réponse.",
+      onClick: () => copyState(),
+      primary: true,
+    }]);
+  }
 
   if (state.postIncomePromptYear === state.settings.year) {
     addPromptGroup("États IA après revenus", promptAis.map((ai) => ({
@@ -5852,6 +5968,7 @@ function newAuction() {
     ghostParticipants: getAuctionAis().filter((ai) => ai.ghostActive).map((ai) => ai.id),
     endProcessed: false,
   };
+  expandedPromptGroups.add("Tour d’enchère");
   state.log = [
     `An ${state.settings.year} - Nouvelle enchère.`,
     shouldAdvanceTime ? "50 ans passent depuis la fin de l'enchère précédente. Aucun revenu n'est appliqué ici : les revenus privés ont déjà été donnés à la fin de l'enchère." : null,

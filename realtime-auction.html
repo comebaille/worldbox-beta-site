@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./realtime-styles.css?v=9.2">
+    <link rel="stylesheet" href="./realtime-styles.css?v=12.0">
     <style>
       /* --- IMMERSION & ANIMATIONS WORLD BOX --- */
       @keyframes wb-cardReveal {
@@ -639,6 +639,10 @@
     <main class="layout">
       <div class="main-column">
         <section id="participantsPanel" class="panel participants-panel">
+          <button class="mobile-panel-toggle secondary" type="button" data-mobile-panel-toggle="participantsPanel" aria-expanded="false">
+            <span><strong>Configuration</strong><small id="mobileParticipantsSummary">Participants et carte</small></span>
+            <span class="mobile-panel-chevron" aria-hidden="true"></span>
+          </button>
           <div class="panel-head">
             <div>
               <p class="eyebrow">Configuration initiale</p>
@@ -656,7 +660,47 @@
           <div id="participantNamesGrid" class="participant-names-grid"></div>
         </section>
 
-        <section class="panel auction-panel">
+        <section id="mjSummaryPanel" class="mj-summary-panel" aria-labelledby="mjSummaryTitle">
+          <button class="mobile-panel-toggle secondary" type="button" data-mobile-panel-toggle="mjSummaryPanel" aria-expanded="true">
+            <span><strong>Vue MJ</strong><small id="mobileMjSummary">Situation et prochaine décision</small></span>
+            <span class="mobile-panel-chevron" aria-hidden="true"></span>
+          </button>
+          <div class="mj-summary-head">
+            <div>
+              <p class="eyebrow">Vue MJ</p>
+              <h2 id="mjSummaryTitle">Résumé opérationnel</h2>
+            </div>
+            <span id="mjSummaryYear" class="mj-summary-year">An 0</span>
+          </div>
+          <div class="mj-summary-grid">
+            <div class="mj-summary-item">
+              <span>Situation actuelle</span>
+              <p id="mjSummarySituation">Préparation de la simulation.</p>
+            </div>
+            <div class="mj-summary-item">
+              <span>Changements récents</span>
+              <p id="mjSummaryChanges">Aucun changement enregistré.</p>
+            </div>
+            <div class="mj-summary-item">
+              <span>Risques / menaces</span>
+              <p id="mjSummaryRisks">Aucune menace immédiate.</p>
+            </div>
+            <div class="mj-summary-item">
+              <span>Ressources clés</span>
+              <p id="mjSummaryResources">Données en attente.</p>
+            </div>
+            <div class="mj-summary-item mj-summary-action">
+              <span>Décision attendue</span>
+              <p id="mjSummaryAction">Configurer la partie.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="auctionPanel" class="panel auction-panel">
+          <button class="mobile-panel-toggle secondary" type="button" data-mobile-panel-toggle="auctionPanel" aria-expanded="false">
+            <span><strong>Enchère</strong><small id="mobileAuctionSummary">Deux cartes</small></span>
+            <span class="mobile-panel-chevron" aria-hidden="true"></span>
+          </button>
           <div class="auction-top">
             <div>
               <p class="eyebrow">Duopole en cours</p>
@@ -699,7 +743,11 @@
           <div id="turnOrder" class="turn-order" hidden></div>
         </section>
 
-        <section class="panel auction-controls-panel">
+        <section id="auctionControlsPanel" class="panel auction-controls-panel">
+          <button class="mobile-panel-toggle secondary" type="button" data-mobile-panel-toggle="auctionControlsPanel" aria-expanded="false">
+            <span><strong>Action du tour</strong><small id="mobileActionSummary">Miser ou passer</small></span>
+            <span class="mobile-panel-chevron" aria-hidden="true"></span>
+          </button>
           <button id="newAuctionBtn" type="button">Nouvelle enchère</button>
           <div class="turn-controls">
             <label>
@@ -720,7 +768,11 @@
           <textarea id="auctionLog" readonly hidden></textarea>
         </section>
 
-        <section class="panel ais-panel">
+        <section id="aisPanel" class="panel ais-panel">
+          <button class="mobile-panel-toggle secondary" type="button" data-mobile-panel-toggle="aisPanel" aria-expanded="false">
+            <span><strong>Civilisations</strong><small id="mobileAisSummary">Population, pièces et doctrines</small></span>
+            <span class="mobile-panel-chevron" aria-hidden="true"></span>
+          </button>
           <div class="panel-head">
             <div>
               <h2>Civilisations</h2>
@@ -730,7 +782,11 @@
           <div id="aiGrid" class="ai-grid"></div>
         </section>
 
-        <section class="panel history-chart-panel">
+        <section id="historyPanel" class="panel history-chart-panel">
+          <button class="mobile-panel-toggle secondary" type="button" data-mobile-panel-toggle="historyPanel" aria-expanded="false">
+            <span><strong>Graphiques</strong><small>Population et économie</small></span>
+            <span class="mobile-panel-chevron" aria-hidden="true"></span>
+          </button>
           <div class="panel-head">
             <div>
               <h2>Évolutions</h2>
@@ -762,7 +818,11 @@
           </div>
         </section>
 
-        <section class="panel utility-panel">
+        <section id="utilityPanel" class="panel utility-panel">
+          <button class="mobile-panel-toggle secondary" type="button" data-mobile-panel-toggle="utilityPanel" aria-expanded="false">
+            <span><strong>Outils MJ</strong><small>Paramètres, mémoire et doctrines</small></span>
+            <span class="mobile-panel-chevron" aria-hidden="true"></span>
+          </button>
           <div class="utility-tabs">
             <button id="settingsToggleBtn" class="secondary" type="button">
               <svg class="tab-icon" aria-hidden="true"><use href="#icon-gear"/></svg>
@@ -889,15 +949,21 @@
 
       </div>
 
-      <aside class="panel command-panel">
+      <aside id="commandPanel" class="panel command-panel">
+        <button class="mobile-panel-toggle secondary" type="button" data-mobile-panel-toggle="commandPanel" aria-expanded="false">
+          <span><strong>Prompts IA</strong><small id="mobilePromptsSummary">Actions prêtes à copier</small></span>
+          <span class="mobile-panel-chevron" aria-hidden="true"></span>
+        </button>
         <div class="prompt-panel-head">
-          <p class="eyebrow" style="display:flex;align-items:center;gap:6px;">
+          <p class="eyebrow prompt-panel-eyebrow">
             <svg class="tab-icon" style="opacity:0.8;" aria-hidden="true"><use href="#icon-prompt"/></svg>
-            Panneau de prompts
+            Envois aux IA
           </p>
-          <h2>Prompts à copier</h2>
+          <h2>Actions à copier</h2>
+          <p>Chaque bouton copie le prompt IA intégral sans l’afficher dans l’interface.</p>
         </div>
         <section id="reportPromptBlock" class="report-block" hidden>
+          <div class="prompt-zone-label prompt-zone-world">Message mondial complet</div>
           <label class="winner-action-field">
             Action du gagnant de la carte A
             <textarea id="winnerActionInputA" placeholder="Action appliquée avec la carte A."></textarea>
@@ -980,6 +1046,6 @@
     </div>
 
     <div id="toast" class="toast"></div>
-    <script src="./realtime-app.js?v=11.8"></script>
+    <script src="./realtime-app.js?v=12.0"></script>
   </body>
 </html>
