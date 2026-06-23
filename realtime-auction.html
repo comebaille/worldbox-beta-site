@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./realtime-styles.css?v=12.1">
+    <link rel="stylesheet" href="./realtime-styles.css?v=13.0">
     <style>
       /* --- IMMERSION & ANIMATIONS WORLD BOX --- */
       @keyframes wb-cardReveal {
@@ -716,7 +716,7 @@
           </div>
 
           <div class="auction-card-grid">
-            <article id="auctionCardA" class="auction-card-slot" data-auction-slot="A">
+            <article id="auctionCardA" class="auction-card-slot" data-auction-slot="A" role="button" tabindex="0" aria-label="Sélectionner la carte A">
               <div class="auction-card-slot-head">
                 <span>Carte A</span>
                 <strong id="currentBidA">0</strong>
@@ -726,7 +726,7 @@
               <p id="cardEffectA" class="card-effect">Première carte du duopole.</p>
               <p class="auction-card-leader">Leader : <strong id="currentWinnerA">Personne</strong></p>
             </article>
-            <article id="auctionCardB" class="auction-card-slot" data-auction-slot="B">
+            <article id="auctionCardB" class="auction-card-slot" data-auction-slot="B" role="button" tabindex="0" aria-label="Sélectionner la carte B">
               <div class="auction-card-slot-head">
                 <span>Carte B</span>
                 <strong id="currentBidB">0</strong>
@@ -1048,6 +1048,7 @@
     </div>
 
     <div id="toast" class="toast"></div>
-    <script src="./realtime-app.js?v=12.1"></script>
+    <script src="./realtime-runtime.js?v=13.0"></script>
+    <script src="./realtime-app.js?v=13.0"></script>
   </body>
 </html>

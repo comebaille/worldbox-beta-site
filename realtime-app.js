@@ -1254,6 +1254,12 @@ let activeHistoryChartType = null;
 let historyChartHover = null;
 const historyChartHitMaps = new WeakMap();
 const HISTORY_CHART_COLORS = ["#2dd4bf", "#f59e0b", "#60a5fa", "#f472b6", "#a78bfa", "#34d399", "#fb7185", "#facc15", "#38bdf8", "#c084fc", "#4ade80", "#f97316", "#818cf8", "#14b8a6", "#e879f9", "#eab308"];
+const wbRuntime = window.WorldBoxRuntime ?? {
+  isCompactLayout: () => window.matchMedia("(max-width: 900px)").matches,
+  isPanelVisible: (element) => Boolean(element && !element.hidden),
+  schedule: (_key, task) => task(),
+  cancel: () => {},
+};
 let serverPersistence = {
   checked: false,
   available: null,
@@ -1274,6 +1280,12 @@ const els = {
   profilesCloseBtn: document.querySelector("#profilesCloseBtn"),
   profilesGuideList: document.querySelector("#profilesGuideList"),
   participantsPanel: document.querySelector("#participantsPanel"),
+  auctionPanel: document.querySelector("#auctionPanel"),
+  auctionControlsPanel: document.querySelector("#auctionControlsPanel"),
+  aisPanel: document.querySelector("#aisPanel"),
+  historyPanel: document.querySelector("#historyPanel"),
+  utilityPanel: document.querySelector("#utilityPanel"),
+  commandPanel: document.querySelector("#commandPanel"),
   participantCountInput: document.querySelector("#participantCountInput"),
   participantNamesGrid: document.querySelector("#participantNamesGrid"),
   auctionCardA: document.querySelector("#auctionCardA"),
@@ -1372,6 +1384,14 @@ els.wbAutoWheelBtn?.addEventListener("click", wbToggleWheelAutoMode);
 els.wbCloseWheelBtn?.addEventListener("click", wbCloseWheel);
 els.wbEndWheelBtn?.addEventListener("click", closeFortuneWheelEvent);
 els.wbCopyWheelResultsBtn?.addEventListener("click", copyFortuneWheelResultsPrompt);
+[["A", els.auctionCardA], ["B", els.auctionCardB]].forEach(([slotId, card]) => {
+  card?.addEventListener("click", () => selectAuctionSlotFromCard(slotId));
+  card?.addEventListener("keydown", (event) => {
+    if (!["Enter", " "].includes(event.key)) return;
+    event.preventDefault();
+    selectAuctionSlotFromCard(slotId);
+  });
+});
 document.querySelectorAll("[data-chart-open]").forEach((button) => {
   button.addEventListener("click", () => openHistoryChart(button.dataset.chartOpen));
 });
@@ -1425,6 +1445,7 @@ function toggleUtilityPanel(panelName) {
     panel.hidden = true;
   });
   target.hidden = !shouldOpen;
+  if (shouldOpen) renderDeferredPanel(panelName);
 }
 
 function setupMobilePanels() {
@@ -1437,15 +1458,47 @@ function setupMobilePanels() {
       const shouldExpand = panel.classList.contains("mobile-panel-collapsed");
       panel.classList.toggle("mobile-panel-collapsed", !shouldExpand);
       button.setAttribute("aria-expanded", String(shouldExpand));
+      if (shouldExpand) renderDeferredPanel(panel.id);
     });
   });
 }
+
+function renderDeferredPanel(panelId) {
+  const renderers = {
+    participantsPanel: renderParticipantsSetup,
+    aisPanel: renderAis,
+    historyPanel: () => renderHistoryCharts({ immediate: true }),
+    commandPanel: renderPromptHub,
+    settings: renderSettings,
+    memory: renderMemoryPanel,
+    profiles: renderProfilesGuide,
+  };
+  renderers[panelId]?.();
+  renderMobilePanelSummaries();
+}
+
+function isPanelContentVisible(element) {
+  return wbRuntime.isPanelVisible(element);
+}
+
+let layoutRefreshTimer = null;
+window.addEventListener("resize", () => {
+  window.clearTimeout(layoutRefreshTimer);
+  layoutRefreshTimer = window.setTimeout(() => {
+    renderParticipantsSetup();
+    renderAis();
+    renderHistoryCharts();
+    renderPromptHub();
+  }, 120);
+});
 
 function renderMobilePanelSummaries() {
   const aliveCount = getAliveAis().length;
   const current = getCurrentBidder();
   const map = getWorldMapDefinition();
-  const promptCount = els.promptHub?.querySelectorAll(".prompt-button").length ?? 0;
+  const promptCount = els.promptHub?.dataset.loaded === "true"
+    ? els.promptHub.querySelectorAll(".prompt-button").length
+    : null;
   const setText = (selector, text) => {
     const element = document.querySelector(selector);
     if (element) element.textContent = text;
@@ -1461,7 +1514,12 @@ function renderMobilePanelSummaries() {
   );
   setText("#mobileActionSummary", state.auction.active ? "Enchérir ou passer" : canFinishAuctionCycle() ? "Terminer le duopole" : "Lancer une enchère");
   setText("#mobileAisSummary", `${aliveCount} vivantes sur ${state.ais.length}`);
-  setText("#mobilePromptsSummary", `${promptCount} action${promptCount > 1 ? "s" : ""} disponible${promptCount > 1 ? "s" : ""}`);
+  setText(
+    "#mobilePromptsSummary",
+    promptCount === null
+      ? "Ouvrir pour charger"
+      : `${promptCount} action${promptCount > 1 ? "s" : ""} disponible${promptCount > 1 ? "s" : ""}`,
+  );
 }
 
 function handleParticipantCountChange() {
@@ -2161,6 +2219,7 @@ function render() {
 function renderParticipantsSetup() {
   els.participantsPanel.hidden = state.settings.year !== 0 || hasAuctionCards();
   els.participantCountInput.value = state.ais.length;
+  if (!isPanelContentVisible(els.participantsPanel)) return;
   els.participantNamesGrid.innerHTML = "";
 
   state.ais.forEach((ai, index) => {
@@ -2199,8 +2258,9 @@ function syncRepresentativeNameDisplays(ai) {
 function renderSettings() {
   ensureCardForecast();
   ensureFortuneWheelSchedule();
-  renderForcedPowerSelect();
   els.yearInput.value = state.settings.year;
+  if (!isPanelContentVisible(els.settingsPanel)) return;
+  renderForcedPowerSelect();
   els.incomeInput.value = state.settings.baseIncome;
   els.underdogInput.value = state.settings.underdogBonus;
   els.thresholdInput.value = `${formatPercent(getUnderdogThreshold() * 100)}%`;
@@ -2240,7 +2300,7 @@ function renderForcedPowerSelect() {
 }
 
 function renderFutureCardsPanel() {
-  if (!els.futureCardsPanel) return;
+  if (!els.futureCardsPanel || !isPanelContentVisible(els.settingsPanel)) return;
   const count = getPreviewCardCount();
   els.futureCardsPanel.hidden = !count;
   els.futureCardsPanel.innerHTML = "";
@@ -2276,7 +2336,7 @@ function renderFutureCardsPanel() {
 }
 
 function renderFortuneWheelPanel() {
-  if (!els.fortuneWheelPanel) return;
+  if (!els.fortuneWheelPanel || !isPanelContentVisible(els.settingsPanel)) return;
   const wheel = state.fortuneWheel;
   els.fortuneWheelPanel.innerHTML = "";
 
@@ -2931,8 +2991,12 @@ function renderCard() {
   }
   getAuctionSlots().forEach((slot) => {
     const panel = slotElements[slot.id]?.panel;
-    panel?.classList.toggle("selected", slot.id === auction.selectedSlotId);
-    panel?.classList.toggle("blocked", Boolean(current && auction.blockedSlotByAi?.[current.id] === slot.id));
+    const selected = slot.id === auction.selectedSlotId;
+    const blocked = Boolean(current && auction.blockedSlotByAi?.[current.id] === slot.id);
+    panel?.classList.toggle("selected", selected);
+    panel?.classList.toggle("blocked", blocked);
+    panel?.setAttribute("aria-pressed", String(selected));
+    panel?.setAttribute("aria-disabled", String(blocked || !slot.card));
   });
   els.bidBtn.disabled = !auction.active || !current || !availableSlots.length;
   els.passBtn.disabled = !auction.active || !current;
@@ -2944,7 +3008,40 @@ function renderCard() {
   els.bidInput.value = minBid;
 }
 
+function selectAuctionSlotFromCard(slotId) {
+  const slot = getAuctionSlot(slotId);
+  if (!slot?.card) {
+    showToast(`La carte ${slotId} n'est pas encore active`);
+    return;
+  }
+
+  const current = getCurrentBidder();
+  if (state.auction.active && current) {
+    const eligible = getEligibleAuctionSlots(current).some((available) => available.id === slotId);
+    if (!eligible) {
+      const blockedSlotId = state.auction.blockedSlotByAi?.[current.id];
+      showToast(blockedSlotId === slotId
+        ? `${current.name} vient d'être délogée de cette carte et doit viser l'autre`
+        : `${current.name} ne peut pas enchérir sur la carte ${slotId}`);
+      return;
+    }
+  }
+
+  state.auction.selectedSlotId = slotId;
+  persistState();
+  renderCard();
+
+  if (wbRuntime.isCompactLayout() && els.auctionControlsPanel) {
+    els.auctionControlsPanel.classList.remove("mobile-panel-collapsed");
+    const toggle = els.auctionControlsPanel.querySelector("[data-mobile-panel-toggle]");
+    toggle?.setAttribute("aria-expanded", "true");
+    els.auctionControlsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  window.setTimeout(() => els.bidInput?.focus({ preventScroll: true }), 180);
+}
+
 function renderAis() {
+  if (!isPanelContentVisible(els.aisPanel)) return;
   els.aiGrid.innerHTML = "";
   const template = document.querySelector("#aiTemplate");
   const total = getWorldPopulation();
@@ -3144,13 +3241,17 @@ function getHistoryChartSnapshots() {
     : [...snapshots, currentSnapshot].sort((a, b) => a.year - b.year);
 }
 
-function renderHistoryCharts() {
-  renderHistoryChartControls();
-  drawHistoryChart(els.populationChartCanvas, "population");
-  drawHistoryChart(els.economyChartCanvas, "economy");
-  if (activeHistoryChartType && els.chartOverlay && !els.chartOverlay.hidden) {
-    drawHistoryChart(els.chartOverlayCanvas, activeHistoryChartType, { full: true });
-  }
+function renderHistoryCharts(options = {}) {
+  const overlayVisible = Boolean(activeHistoryChartType && els.chartOverlay && !els.chartOverlay.hidden);
+  if (!isPanelContentVisible(els.historyPanel) && !overlayVisible) return;
+  wbRuntime.schedule("history-charts", () => {
+    renderHistoryChartControls();
+    drawHistoryChart(els.populationChartCanvas, "population");
+    drawHistoryChart(els.economyChartCanvas, "economy");
+    if (activeHistoryChartType && els.chartOverlay && !els.chartOverlay.hidden) {
+      drawHistoryChart(els.chartOverlayCanvas, activeHistoryChartType, { full: true });
+    }
+  }, options);
 }
 
 function renderHistoryChartControls() {
@@ -3217,7 +3318,7 @@ function setChartPointLabelEnabled(type, aiId, enabled) {
   labels[key] = [...ids];
   state.chartPointLabels = labels;
   persistState();
-  renderHistoryCharts();
+  renderHistoryCharts({ immediate: true });
 }
 
 function openHistoryChart(type) {
@@ -4056,12 +4157,13 @@ function renderMjSummary() {
 
 function renderMemoryPanel() {
   const memory = state.simulationMemory ?? [];
+  const importantCount = memory.filter((entry) => entry.important).length;
+  els.memoryCount.textContent = `${memory.length} entrée${memory.length > 1 ? "s" : ""}${importantCount ? ` - ${importantCount} clé${importantCount > 1 ? "s" : ""}` : ""}`;
+  if (!isPanelContentVisible(els.memoryPanel)) return;
   const query = normalizeMemorySearch(els.memorySearchInput?.value ?? "");
   const visibleMemory = query
     ? memory.filter((entry) => getMemorySearchText(entry).includes(query))
     : memory;
-  const importantCount = memory.filter((entry) => entry.important).length;
-  els.memoryCount.textContent = `${memory.length} entrée${memory.length > 1 ? "s" : ""}${importantCount ? ` - ${importantCount} clé${importantCount > 1 ? "s" : ""}` : ""}`;
   els.memoryPreview.innerHTML = "";
 
   if (!visibleMemory.length) {
@@ -4112,6 +4214,7 @@ function renderMemoryPanel() {
 }
 
 function renderProfilesGuide() {
+  if (!isPanelContentVisible(els.profilesPanel)) return;
   els.profilesGuideList.innerHTML = "";
 
   state.ais.forEach((ai) => {
@@ -4425,7 +4528,12 @@ function copyParticipantDrawAnnouncement() {
 }
 
 function renderPromptHub() {
+  if (!isPanelContentVisible(els.commandPanel)) {
+    if (els.promptHub) els.promptHub.dataset.loaded = "false";
+    return;
+  }
   els.promptHub.innerHTML = "";
+  els.promptHub.dataset.loaded = "true";
   const promptAis = getAliveAis();
   const initialSetupCommunicated = state.settings.year !== 0
     || Boolean(state.participantDraw && hasCopiedPrompt(getParticipantDrawAnnouncementKey()));

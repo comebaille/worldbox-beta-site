@@ -562,6 +562,27 @@ label > strong:first-child {
   background: var(--bg-elevated);
 }
 
+.auction-card-slot[role="button"] {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.auction-card-slot[role="button"]:focus-visible {
+  outline: 3px solid rgba(45, 212, 191, 0.72);
+  outline-offset: 3px;
+}
+
+.auction-card-slot.blocked[role="button"] {
+  cursor: not-allowed;
+}
+
+.panel,
+.utility-content-panel,
+.prompt-group {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 360px;
+}
+
 .auction-card-slot.selected {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.12);
