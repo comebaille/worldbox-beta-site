@@ -931,6 +931,7 @@ function createDefaultAi(index, name = DEFAULT_REPRESENTATIVE_NAMES[index] ?? `R
     hideEconomyRevealYear: null,
     hidePopulationRevealYear: null,
     auctionDoctrineLines: [],
+    retirementBackup: null,
   };
 }
 
@@ -1800,7 +1801,32 @@ function normalizeAis(ais) {
     hidePopulationRevealYear: ai.hidePopulationRevealYear ?? null,
     passBonusLevel: ai.passBonusLevel ?? 5,
     auctionDoctrineLines: Array.isArray(ai.auctionDoctrineLines) ? ai.auctionDoctrineLines : [],
+    retirementBackup: normalizeRetirementBackup(ai.retirementBackup),
   }));
+}
+
+function normalizeRetirementBackup(backup) {
+  if (!backup || typeof backup !== "object") return null;
+  return {
+    auctionYear: Math.max(0, Math.floor(Number(backup.auctionYear) || 0)),
+    auctionSignature: String(backup.auctionSignature ?? ""),
+    turnsTaken: Math.max(0, Math.floor(Number(backup.turnsTaken) || 0)),
+    turnIndex: Math.max(0, Math.floor(Number(backup.turnIndex) || 0)),
+    orderIndex: Math.max(-1, Math.floor(Number(backup.orderIndex) || -1)),
+    wasInOrder: Boolean(backup.wasInOrder),
+    wasPassed: Boolean(backup.wasPassed),
+    winningSlotIds: Array.isArray(backup.winningSlotIds)
+      ? backup.winningSlotIds.filter((id) => ["A", "B"].includes(id))
+      : [],
+    blockedSlotId: ["A", "B"].includes(backup.blockedSlotId) ? backup.blockedSlotId : null,
+    population: Math.max(0, Math.floor(Number(backup.population) || 0)),
+    soldiers: Math.max(0, Math.floor(Number(backup.soldiers) || 0)),
+    homePopulation: Math.max(0, Math.floor(Number(backup.homePopulation) || 0)),
+    coins: Math.max(0, Math.floor(Number(backup.coins) || 0)),
+    ghostReady: Boolean(backup.ghostReady),
+    ghostActive: Boolean(backup.ghostActive),
+    ghostUsed: Boolean(backup.ghostUsed),
+  };
 }
 
 function sanitizeRepresentativeName(name, index) {
@@ -3144,8 +3170,14 @@ function renderAis() {
     renderBiomeChoices(ai, biomeSlot);
 
     aliveInput.addEventListener("change", () => {
+      const nextAlive = aliveInput.checked;
+      if (!nextAlive && !window.confirm(`Confirmer la mort ou le retrait de ${ai.name} ?\n\nCette IA disparaîtra immédiatement des prompts et de l'enchère en cours.`)) {
+        aliveInput.checked = true;
+        return;
+      }
       pushUndo();
-      ai.alive = aliveInput.checked;
+      if (!nextAlive) ai.retirementBackup = captureRetirementBackup(ai);
+      ai.alive = nextAlive;
       if (!ai.alive) {
         if (ai.activeProfile === "martyr" && !ai.ghostUsed) {
           triggerMartyrGhost(ai);
@@ -3154,6 +3186,7 @@ function renderAis() {
       } else {
         ai.ghostReady = false;
         ai.ghostActive = false;
+        restoreRetiredAi(ai);
       }
       recordHistorySnapshot(ai.alive ? "Retour vivant" : "Mort / retrait");
       saveAndRender();
@@ -6816,6 +6849,77 @@ function removeFromAuction(aiId) {
     if (slot.winner === aiId) slot.winner = null;
   });
   delete state.auction.blockedSlotByAi?.[aiId];
+}
+
+function getAuctionIdentity() {
+  return getAuctionSlots()
+    .map((slot) => `${slot.id}:${slot.card ? formatCardName(slot.card) : "-"}:${slot.currentBid}`)
+    .join("|");
+}
+
+function captureRetirementBackup(ai) {
+  return {
+    auctionYear: state.settings.year,
+    auctionSignature: getAuctionIdentity(),
+    turnsTaken: state.auction.turnsTaken ?? 0,
+    turnIndex: state.auction.turnIndex ?? 0,
+    orderIndex: state.auction.order.indexOf(ai.id),
+    wasInOrder: state.auction.order.includes(ai.id),
+    wasPassed: state.auction.passed.includes(ai.id),
+    winningSlotIds: getAuctionSlots().filter((slot) => slot.winner === ai.id).map((slot) => slot.id),
+    blockedSlotId: state.auction.blockedSlotByAi?.[ai.id] ?? null,
+    population: ai.population,
+    soldiers: ai.soldiers,
+    homePopulation: ai.homePopulation,
+    coins: ai.coins,
+    ghostReady: ai.ghostReady,
+    ghostActive: ai.ghostActive,
+    ghostUsed: ai.ghostUsed,
+  };
+}
+
+function restoreRetiredAi(ai) {
+  const backup = normalizeRetirementBackup(ai.retirementBackup);
+  ai.retirementBackup = null;
+  if (backup) {
+    ai.population = backup.population;
+    ai.soldiers = backup.soldiers;
+    ai.homePopulation = backup.homePopulation;
+    ai.coins = backup.coins;
+    ai.ghostReady = backup.ghostReady;
+    ai.ghostActive = backup.ghostActive;
+    ai.ghostUsed = backup.ghostUsed;
+  }
+  if (!state.auction.active) return;
+
+  const auctionUnchanged = backup
+    && backup.auctionYear === state.settings.year
+    && backup.auctionSignature === getAuctionIdentity()
+    && backup.turnsTaken === (state.auction.turnsTaken ?? 0);
+
+  if (auctionUnchanged && backup.wasInOrder) {
+    const insertAt = Math.min(Math.max(0, backup.orderIndex), state.auction.order.length);
+    if (!state.auction.order.includes(ai.id)) state.auction.order.splice(insertAt, 0, ai.id);
+    if (backup.wasPassed && !state.auction.passed.includes(ai.id)) state.auction.passed.push(ai.id);
+    backup.winningSlotIds.forEach((slotId) => {
+      const slot = getAuctionSlot(slotId);
+      if (slot && !slot.winner) slot.winner = ai.id;
+    });
+    if (backup.blockedSlotId) state.auction.blockedSlotByAi[ai.id] = backup.blockedSlotId;
+    state.auction.turnIndex = Math.min(backup.turnIndex, Math.max(0, state.auction.order.length - 1));
+    showToast(`${ai.name} restaurée dans l'enchère en cours`);
+    return;
+  }
+
+  if ((state.auction.turnsTaken ?? 0) === 0 && !state.auction.order.includes(ai.id)) {
+    state.auction.order.push(ai.id);
+    state.auction.order.sort((a, b) => (getAi(b)?.population ?? 0) - (getAi(a)?.population ?? 0));
+    state.auction.turnIndex = 0;
+    showToast(`${ai.name} réintégrée avant le premier tour`);
+    return;
+  }
+
+  showToast(`${ai.name} revient vivante et participera à la prochaine enchère`);
 }
 
 function getAi(id) {
