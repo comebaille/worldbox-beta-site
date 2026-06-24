@@ -1250,6 +1250,8 @@ let wbLastRenderedBidValues = {};
 let wbAudioCtx = null;
 let wbWheelAutoMode = false;
 let wbWheelAutoTimer = null;
+let initialDrawWheelRotation = 0;
+let initialDrawRunning = false;
 let wbSeenChronicleEntryIds = new Set((state.simulationMemory ?? []).map((entry) => entry.id));
 let activeHistoryChartType = null;
 let historyChartHover = null;
@@ -1336,13 +1338,6 @@ const els = {
   promptHub: document.querySelector("#promptHub"),
   reportPromptBlock: document.querySelector("#reportPromptBlock"),
   copyReportBtn: document.querySelector("#copyReportBtn"),
-  mjSummaryPanel: document.querySelector("#mjSummaryPanel"),
-  mjSummaryYear: document.querySelector("#mjSummaryYear"),
-  mjSummarySituation: document.querySelector("#mjSummarySituation"),
-  mjSummaryChanges: document.querySelector("#mjSummaryChanges"),
-  mjSummaryRisks: document.querySelector("#mjSummaryRisks"),
-  mjSummaryResources: document.querySelector("#mjSummaryResources"),
-  mjSummaryAction: document.querySelector("#mjSummaryAction"),
   toast: document.querySelector("#toast"),
   sessionPersistenceStatus: document.querySelector("#sessionPersistenceStatus"),
   yearInput: document.querySelector("#yearInput"),
@@ -1355,6 +1350,16 @@ const els = {
   forcedPowerSelect: document.querySelector("#forcedPowerSelect"),
   forcedPowerLevelSelect: document.querySelector("#forcedPowerLevelSelect"),
   futureCardsPanel: document.querySelector("#futureCardsPanel"),
+  initialDrawPanel: document.querySelector("#initialDrawPanel"),
+  initialDrawModal: document.querySelector("#initial-draw-modal"),
+  initialDrawCloseBtn: document.querySelector("#initial-draw-close-btn"),
+  initialDrawWheel: document.querySelector("#initial-draw-wheel"),
+  initialDrawPointerWest: document.querySelector("#initial-draw-pointer-west"),
+  initialDrawPointerEast: document.querySelector("#initial-draw-pointer-east"),
+  initialDrawCenter: document.querySelector("#initial-draw-center"),
+  initialDrawPhase: document.querySelector("#initial-draw-phase"),
+  initialDrawStatus: document.querySelector("#initial-draw-status"),
+  initialDrawResults: document.querySelector("#initial-draw-results"),
   fortuneWheelPanel: document.querySelector("#fortuneWheelPanel"),
   wbTriggerWheel: document.querySelector("#wb-trigger-wheel"),
   wbWheelModal: document.querySelector("#wb-wheel-modal"),
@@ -1385,6 +1390,7 @@ els.wbAutoWheelBtn?.addEventListener("click", wbToggleWheelAutoMode);
 els.wbCloseWheelBtn?.addEventListener("click", wbCloseWheel);
 els.wbEndWheelBtn?.addEventListener("click", closeFortuneWheelEvent);
 els.wbCopyWheelResultsBtn?.addEventListener("click", copyFortuneWheelResultsPrompt);
+els.initialDrawCloseBtn?.addEventListener("click", closeInitialDrawModal);
 [["A", els.auctionCardA], ["B", els.auctionCardB]].forEach(([slotId, card]) => {
   card?.addEventListener("click", () => selectAuctionSlotFromCard(slotId));
   card?.addEventListener("keydown", (event) => {
@@ -1506,7 +1512,6 @@ function renderMobilePanelSummaries() {
   };
 
   setText("#mobileParticipantsSummary", `${state.ais.length} IA${map ? ` • ${map.name}` : " • carte à tirer"}`);
-  setText("#mobileMjSummary", `An ${state.settings.year} • ${aliveCount} IA vivantes`);
   setText(
     "#mobileAuctionSummary",
     state.auction.active
@@ -1620,6 +1625,7 @@ function createFreshState() {
     biomeDraws: {},
     biomeChoices: {},
     foundingCivilizationDraws: {},
+    doubleDrawChampionWeights: {},
     participantDraw: null,
     participantCountMode: "manual",
     worldMap: null,
@@ -1651,6 +1657,7 @@ function normalizeStateShape(parsed = {}) {
     biomeDraws: parsed.biomeDraws ?? {},
     biomeChoices: parsed.biomeChoices ?? {},
     foundingCivilizationDraws: normalizeFoundingCivilizationDraws(parsed.foundingCivilizationDraws),
+    doubleDrawChampionWeights: normalizeDoubleDrawChampionWeights(parsed.doubleDrawChampionWeights),
     participantDraw: normalizeParticipantDraw(parsed.participantDraw),
     participantCountMode: parsed.participantCountMode === "random" ? "random" : "manual",
     worldMap: normalizeWorldMap(parsed.worldMap, settings),
@@ -1685,6 +1692,15 @@ function normalizeParticipantDraw(value) {
     selectedNames: Array.isArray(value.selectedNames) ? value.selectedNames.map(String) : [],
     completedAt: String(value.completedAt ?? ""),
   };
+}
+
+function normalizeDoubleDrawChampionWeights(value = {}) {
+  if (!value || typeof value !== "object") return {};
+  return Object.fromEntries(DOUBLE_DRAW_CHAMPIONS.map((champion) => {
+    const raw = Number(value[champion.id]);
+    const weight = Number.isFinite(raw) ? Math.max(1, Math.min(99, Math.round(raw))) : champion.weight;
+    return [champion.id, weight];
+  }).filter(([, weight], index) => weight !== DOUBLE_DRAW_CHAMPIONS[index].weight));
 }
 
 function normalizeWorldMap(value, settings = {}) {
@@ -1982,10 +1998,55 @@ function normalizeSettings(settings) {
 
 function createDefaultFortuneWheel(year = 0) {
   const scheduledFromYear = Math.max(0, Math.floor(Number(year) || 0));
-  const nextYear = getNextFortuneWheelYear(scheduledFromYear);
+  let realScheduledFromYear = scheduledFromYear;
+  let nextYear = getNextFortuneWheelYear(realScheduledFromYear);
+  let initialVoidYear = null;
+  if (scheduledFromYear === 0) {
+    initialVoidYear = nextYear;
+    realScheduledFromYear = initialVoidYear;
+    nextYear = getNextFortuneWheelYear(realScheduledFromYear);
+  }
   return {
     nextYear,
+    scheduledFromYear: realScheduledFromYear,
+    initialVoidYear,
+    initialVoidCycleDone: scheduledFromYear === 0,
+    unpredictability: getFortuneWheelUnpredictability(realScheduledFromYear, nextYear),
+    active: false,
+    activeYear: null,
+    pendingTurns: {},
+    purchaseLedger: {},
+    lastResolvedAiId: null,
+    spinning: false,
+    currentSpinOptions: [],
+    currentSpinIndex: 0,
+    lastResultText: "",
+    results: [],
+  };
+}
+
+function hasFortuneWheelActivity(wheel) {
+  const pendingTurns = Object.values(wheel?.pendingTurns ?? {}).some((value) => Math.max(0, Math.floor(Number(value) || 0)) > 0);
+  const purchases = Object.values(wheel?.purchaseLedger ?? {}).some((entry) => {
+    if (!entry || typeof entry !== "object") return false;
+    return Math.max(0, Math.floor(Number(entry.turns) || 0)) > 0 || Math.max(0, Math.floor(Number(entry.spent) || 0)) > 0;
+  });
+  return pendingTurns || purchases || Boolean(wheel?.lastResultText) || (Array.isArray(wheel?.results) && wheel.results.length > 0);
+}
+
+function consumeInitialFortuneWheelVoidCycle(wheel, currentYear = 0) {
+  const voidYear = Math.max(
+    WHEEL_MIN_OFFSET,
+    Math.floor(Number(wheel.activeYear ?? wheel.nextYear) || WHEEL_MIN_OFFSET),
+  );
+  const scheduledFromYear = Math.max(voidYear, Math.max(0, Math.floor(Number(currentYear) || 0)));
+  const nextYear = getNextFortuneWheelYear(scheduledFromYear);
+  return {
+    ...wheel,
+    nextYear,
     scheduledFromYear,
+    initialVoidYear: voidYear,
+    initialVoidCycleDone: true,
     unpredictability: getFortuneWheelUnpredictability(scheduledFromYear, nextYear),
     active: false,
     activeYear: null,
@@ -2001,6 +2062,7 @@ function createDefaultFortuneWheel(year = 0) {
 }
 
 function normalizeFortuneWheel(wheel, year = 0) {
+  const isLegacyWheel = Boolean(wheel && typeof wheel === "object" && !Object.prototype.hasOwnProperty.call(wheel, "initialVoidCycleDone"));
   const normalized = {
     ...createDefaultFortuneWheel(year),
     ...(wheel ?? {}),
@@ -2023,6 +2085,13 @@ function normalizeFortuneWheel(wheel, year = 0) {
   normalized.currentSpinIndex = Math.max(0, Math.floor(Number(normalized.currentSpinIndex) || 0));
   normalized.lastResultText = String(normalized.lastResultText ?? "");
   normalized.results = Array.isArray(normalized.results) ? normalized.results.slice(-80) : [];
+  normalized.initialVoidCycleDone = Boolean(normalized.initialVoidCycleDone);
+  normalized.initialVoidYear = normalized.initialVoidYear === null || normalized.initialVoidYear === undefined
+    ? null
+    : Math.max(0, Math.floor(Number(normalized.initialVoidYear) || 0));
+  if ((isLegacyWheel || !normalized.initialVoidCycleDone) && normalized.scheduledFromYear === 0 && !hasFortuneWheelActivity(normalized)) {
+    return consumeInitialFortuneWheelVoidCycle(normalized, year);
+  }
   return normalized;
 }
 
@@ -2232,7 +2301,6 @@ function render() {
   renderHistoryCharts();
   renderTurnOrder();
   renderLog();
-  renderMjSummary();
   renderReportBlock();
   renderMemoryPanel();
   renderProfilesGuide();
@@ -2272,6 +2340,78 @@ function renderParticipantsSetup() {
     label.appendChild(input);
     els.participantNamesGrid.appendChild(label);
   });
+  renderInitialDrawPanel();
+}
+
+function renderInitialDrawPanel() {
+  if (!els.initialDrawPanel) return;
+  els.initialDrawPanel.innerHTML = "";
+  const summary = document.createElement("p");
+  summary.className = "initial-draw-summary";
+  const map = getWorldMapDefinition();
+  const pairText = state.participantDraw?.preDrawnPairIds?.length
+    ? state.participantDraw.preDrawnPairIds
+      .map((id) => DOUBLE_DRAW_PAIRS.find((pair) => pair.id === id))
+      .filter(Boolean)
+      .map(getDoubleDrawPairLabel)
+      .join(" / ")
+    : "paires en attente";
+  summary.textContent = state.participantDraw && map
+    ? `Actuel : ${state.ais.length} IA - ${map.name} - ${pairText}.`
+    : "Tirage animé conseillé avant le briefing : carte, paires, puis champions pondérés.";
+
+  const actions = document.createElement("div");
+  actions.className = "initial-draw-actions";
+  const randomButton = document.createElement("button");
+  randomButton.type = "button";
+  randomButton.className = "primary";
+  randomButton.textContent = state.participantDraw ? "Tout retirer animé" : "Tout tirer animé";
+  randomButton.disabled = initialDrawRunning;
+  randomButton.addEventListener("click", () => runAnimatedInitialSetup("full"));
+
+  const configuredButton = document.createElement("button");
+  configuredButton.type = "button";
+  configuredButton.className = "secondary";
+  configuredButton.textContent = "Nombre + carte choisis";
+  configuredButton.disabled = initialDrawRunning;
+  configuredButton.addEventListener("click", () => runAnimatedInitialSetup("configured"));
+  actions.append(randomButton, configuredButton);
+
+  const weightsTitle = document.createElement("p");
+  weightsTitle.className = "initial-draw-summary";
+  weightsTitle.textContent = "Poids des champions individuels. Les paires fixes prennent automatiquement la somme de leurs deux membres.";
+
+  const weights = document.createElement("div");
+  weights.className = "initial-draw-weight-list";
+  [...DOUBLE_DRAW_CHAMPIONS]
+    .sort((a, b) => getDoubleDrawChampionWeight(b.id) - getDoubleDrawChampionWeight(a.id) || a.shortName.localeCompare(b.shortName))
+    .forEach((champion) => {
+      const row = document.createElement("label");
+      row.className = "initial-draw-weight-row";
+      const name = document.createElement("span");
+      name.textContent = champion.shortName;
+      const input = document.createElement("input");
+      input.type = "number";
+      input.min = "1";
+      input.max = "99";
+      input.step = "1";
+      input.value = getDoubleDrawChampionWeight(champion.id);
+      input.addEventListener("change", () => {
+        const nextWeight = Math.max(1, Math.min(99, Math.round(Number(input.value) || champion.weight)));
+        pushUndo();
+        state.doubleDrawChampionWeights = state.doubleDrawChampionWeights ?? {};
+        if (nextWeight === champion.weight) {
+          delete state.doubleDrawChampionWeights[champion.id];
+        } else {
+          state.doubleDrawChampionWeights[champion.id] = nextWeight;
+        }
+        saveAndRender();
+      });
+      row.append(name, input);
+      weights.appendChild(row);
+    });
+
+  els.initialDrawPanel.append(summary, actions, weightsTitle, weights);
 }
 
 function syncRepresentativeNameDisplays(ai) {
@@ -4130,64 +4270,6 @@ function renderLog() {
   els.auctionLog.value = buildAuctionReportPrompt();
 }
 
-function renderMjSummary() {
-  if (!els.mjSummaryPanel) return;
-  const aliveAis = getAliveAis();
-  const current = getCurrentBidder();
-  const map = getWorldMapDefinition();
-  const totalCoins = aliveAis.reduce((sum, ai) => sum + Math.max(0, Number(ai.coins) || 0), 0);
-  const slots = getAuctionSlots().filter((slot) => slot.card);
-  const leaders = slots
-    .filter((slot) => slot.winner)
-    .map((slot) => `${slot.id} : ${getAiName(slot.winner)} à ${slot.currentBid}`);
-
-  els.mjSummaryYear.textContent = `An ${state.settings.year}`;
-  if (state.auction.active) {
-    els.mjSummarySituation.textContent = `Duopole actif. Tour de ${current?.name ?? "personne"}. ${leaders.length ? `Leaders : ${leaders.join(" ; ")}.` : "Aucun leader."}`;
-  } else if (state.auction.closed && !state.auction.endProcessed) {
-    els.mjSummarySituation.textContent = `Duopole clôturé. ${leaders.length ? `Vainqueurs : ${leaders.join(" ; ")}.` : "Aucune carte attribuée."}`;
-  } else if (state.auction.endProcessed) {
-    els.mjSummarySituation.textContent = "Revenus distribués. Les états privés des IA sont prêts à être envoyés.";
-  } else {
-    els.mjSummarySituation.textContent = state.settings.year === 0
-      ? `Préparation initiale${map ? ` sur ${map.name}` : ""}.`
-      : "Aucune enchère active.";
-  }
-
-  const recentLogs = state.log.slice(-2).map((line) => shorten(String(line), 145));
-  const lastMemory = state.simulationMemory?.at(-1)?.text;
-  els.mjSummaryChanges.textContent = recentLogs.length
-    ? recentLogs.join(" • ")
-    : lastMemory ? shorten(lastMemory, 180) : "Aucun changement enregistré depuis le dernier bilan.";
-
-  const risks = [];
-  const dangerousCards = slots.filter((slot) => Number(slot.card?.rating ?? slot.card?.danger) >= 16);
-  if (dangerousCards.length) risks.push(`Pouvoir majeur : ${dangerousCards.map((slot) => `${slot.id} ${formatCardName(slot.card)}`).join(", ")}`);
-  if (state.pendingCounters?.length) risks.push(`${state.pendingCounters.length} contre-pouvoir(s) programmé(s)`);
-  const dueEvents = getDueEvents(state.settings.year);
-  if (dueEvents.length) risks.push(dueEvents.join(", "));
-  const deadCount = state.ais.length - aliveAis.length;
-  if (deadCount) risks.push(`${deadCount} IA morte(s) ou retirée(s)`);
-  els.mjSummaryRisks.textContent = risks.length ? risks.join(" • ") : "Aucune menace immédiate signalée.";
-
-  const mapText = map ? map.name : "carte non fixée";
-  els.mjSummaryResources.textContent = `${aliveAis.length} IA vivantes • ${getWorldPopulation()} habitants • ${totalCoins} pièces au total • ${mapText}.`;
-
-  if (state.settings.year === 0 && !state.worldMap) {
-    els.mjSummaryAction.textContent = "Ouvrir Actions, puis utiliser « Tout tirer au sort ».";
-  } else if (state.settings.year === 0 && !state.participantDraw) {
-    els.mjSummaryAction.textContent = "Lancer le Double Tirage, puis envoyer le message pré-simulation.";
-  } else if (state.auction.active) {
-    els.mjSummaryAction.textContent = `Envoyer le prompt de tour à ${current?.name ?? "l’IA active"}, puis appliquer sa décision.`;
-  } else if (state.auction.closed && !state.auction.endProcessed) {
-    els.mjSummaryAction.textContent = "Renseigner les actions des gagnants, copier le compte rendu, puis terminer le duopole.";
-  } else if (state.auction.endProcessed) {
-    els.mjSummaryAction.textContent = "Envoyer les états après revenus à chaque IA vivante, puis lancer l’enchère suivante.";
-  } else {
-    els.mjSummaryAction.textContent = "Lancer la prochaine enchère.";
-  }
-}
-
 function renderMemoryPanel() {
   const memory = state.simulationMemory ?? [];
   const importantCount = memory.filter((entry) => entry.important).length;
@@ -4311,6 +4393,17 @@ function getDoubleDrawChampion(id) {
     ?? null;
 }
 
+function getDoubleDrawChampionWeight(id) {
+  const champion = DOUBLE_DRAW_CHAMPIONS.find((entry) => entry.id === id);
+  if (!champion) return 0;
+  const override = Number(state.doubleDrawChampionWeights?.[id]);
+  return Number.isFinite(override) ? Math.max(1, Math.round(override)) : champion.weight;
+}
+
+function getDoubleDrawPairWeight(pair) {
+  return pair.memberIds.reduce((sum, id) => sum + getDoubleDrawChampionWeight(id), 0);
+}
+
 function getDoubleDrawPairLabel(pair) {
   return pair.memberIds
     .map((id) => getDoubleDrawChampion(id)?.shortName ?? getDoubleDrawChampion(id)?.name ?? id)
@@ -4357,9 +4450,7 @@ function applyParticipantDrawSelection(selectedChampionIds) {
   ensureFoundingCivilizationDraws();
 }
 
-function performDoubleParticipantDraw(randomFn = Math.random) {
-  const slots = getParticipantDrawSlots();
-  const preDrawnPairs = sampleParticipantPairs(randomFn);
+function buildDoubleParticipantDrawResult(slots, preDrawnPairs, randomFn = Math.random) {
   const selectedIds = [];
   const selectedSet = new Set();
   const usedEntries = new Set();
@@ -4370,14 +4461,14 @@ function performDoubleParticipantDraw(randomFn = Math.random) {
       type: "champion",
       memberIds: [champion.id],
       label: champion.shortName,
-      weight: champion.weight,
+      weight: getDoubleDrawChampionWeight(champion.id),
     })),
     ...preDrawnPairs.map((pair) => ({
       id: `pair:${pair.id}`,
       type: "pair",
       memberIds: pair.memberIds,
       label: getDoubleDrawPairLabel(pair),
-      weight: pair.memberIds.reduce((sum, id) => sum + (getDoubleDrawChampion(id)?.weight ?? 0), 0),
+      weight: getDoubleDrawPairWeight(pair),
     })),
   ];
 
@@ -4414,7 +4505,7 @@ function performDoubleParticipantDraw(randomFn = Math.random) {
         entryId: `champion:${champion.id}`,
         type: "fallback",
         label: champion.shortName,
-        weight: champion.weight,
+        weight: getDoubleDrawChampionWeight(champion.id),
         memberIds: [champion.id],
       });
     }
@@ -4424,19 +4515,217 @@ function performDoubleParticipantDraw(randomFn = Math.random) {
   });
 
   const randomizedSelectedIds = shuffleWithRandom(selectedIds, randomFn);
-  applyParticipantDrawSelection(randomizedSelectedIds);
-  state.participantDraw = {
+  return {
     slots,
-    preDrawnPairIds: preDrawnPairs.map((pair) => pair.id),
+    preDrawnPairs,
     drawSteps,
     selectedChampionIds: randomizedSelectedIds,
-    selectedNames: randomizedSelectedIds.map((id) => getDoubleDrawChampion(id)?.name ?? id),
+  };
+}
+
+function applyDoubleParticipantDrawResult(result, randomFn = Math.random) {
+  applyParticipantDrawSelection(result.selectedChampionIds);
+  state.participantDraw = {
+    slots: result.slots,
+    preDrawnPairIds: result.preDrawnPairs.map((pair) => pair.id),
+    drawSteps: result.drawSteps,
+    selectedChampionIds: result.selectedChampionIds,
+    selectedNames: result.selectedChampionIds.map((id) => getDoubleDrawChampion(id)?.name ?? id),
     completedAt: new Date().toISOString(),
   };
   assignCurrentWorldMapPlacements(randomFn);
   clearParticipantDrawPromptChecks();
   recordMemory("Double Tirage", buildParticipantDrawAnnouncement(), { important: true, year: 0 });
   expandedPromptGroups.add("Configuration initiale");
+}
+
+function performDoubleParticipantDraw(randomFn = Math.random) {
+  const result = buildDoubleParticipantDrawResult(getParticipantDrawSlots(), sampleParticipantPairs(randomFn), randomFn);
+  applyDoubleParticipantDrawResult(result, randomFn);
+}
+
+function closeInitialDrawModal() {
+  if (initialDrawRunning) return;
+  els.initialDrawModal?.classList.add("hidden");
+  if (els.initialDrawModal) els.initialDrawModal.setAttribute("aria-hidden", "true");
+}
+
+function wait(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function getInitialDrawEntryColor(index, selected = false) {
+  if (selected) return "#d97706";
+  return index % 2 ? "#172033" : "#253247";
+}
+
+function orderInitialWheelEntries(entries, resultLabels = [], mode = "single") {
+  const remaining = entries.filter((entry) => !resultLabels.includes(entry.label));
+  const ordered = [];
+  if (mode === "double" && resultLabels.length >= 2) {
+    const westIndex = Math.max(1, Math.floor(entries.length / 2));
+    ordered[0] = entries.find((entry) => entry.label === resultLabels[0]);
+    ordered[westIndex] = entries.find((entry) => entry.label === resultLabels[1]);
+    let cursor = 0;
+    remaining.forEach((entry) => {
+      while (ordered[cursor]) cursor += 1;
+      ordered[cursor] = entry;
+    });
+    return ordered.filter(Boolean);
+  }
+  const selected = entries.find((entry) => entry.label === resultLabels[0]);
+  return selected ? [selected, ...remaining] : entries;
+}
+
+function renderInitialDrawWheel(entries, resultLabels = [], mode = "single") {
+  if (!els.initialDrawWheel) return;
+  const ordered = orderInitialWheelEntries(entries, resultLabels, mode);
+  const totalWeight = ordered.reduce((sum, entry) => sum + Math.max(1, Number(entry.weight) || 1), 0);
+  let cursor = 0;
+  const gradients = [];
+  els.initialDrawWheel.querySelectorAll(".initial-draw-label").forEach((node) => node.remove());
+  ordered.forEach((entry, index) => {
+    const span = Math.max(1, Number(entry.weight) || 1) / totalWeight * 360;
+    const start = cursor;
+    const end = cursor + span;
+    const color = getInitialDrawEntryColor(index, resultLabels.includes(entry.label));
+    gradients.push(`${color} ${start.toFixed(2)}deg ${Math.max(start, end - 0.9).toFixed(2)}deg`, `#050914 ${Math.max(start, end - 0.9).toFixed(2)}deg ${end.toFixed(2)}deg`);
+    const label = document.createElement("span");
+    label.className = "initial-draw-label";
+    const angle = start + span / 2;
+    label.style.transform = `rotate(${angle}deg) translateX(calc(var(--initial-wheel-size) * 0.34)) rotate(${-angle}deg) translate(-50%, -50%)`;
+    label.textContent = entry.shortLabel ?? entry.label;
+    els.initialDrawWheel.appendChild(label);
+    cursor = end;
+  });
+  els.initialDrawWheel.style.background = `conic-gradient(${gradients.join(", ")})`;
+  if (els.initialDrawPointerWest) els.initialDrawPointerWest.hidden = mode !== "double";
+}
+
+async function animateInitialDrawStep({ phase, entries, resultLabels, mode = "single", center = "An 0", status }) {
+  if (!els.initialDrawModal || !els.initialDrawWheel) return;
+  els.initialDrawPhase.textContent = phase;
+  els.initialDrawStatus.textContent = status;
+  els.initialDrawCenter.textContent = center;
+  renderInitialDrawWheel(entries, resultLabels, mode);
+  const base = ((initialDrawWheelRotation % 360) + 360) % 360;
+  els.initialDrawWheel.style.transition = "none";
+  els.initialDrawWheel.style.transform = `rotate(${base}deg)`;
+  void els.initialDrawWheel.offsetWidth;
+  initialDrawWheelRotation += 1080 + Math.floor(Math.random() * 540);
+  els.initialDrawWheel.style.transition = "transform 2.7s cubic-bezier(0.22, 0.52, 0.08, 1)";
+  els.initialDrawWheel.style.transform = `rotate(${initialDrawWheelRotation}deg)`;
+  await wait(2850);
+  resultLabels.forEach((label) => {
+    const item = document.createElement("li");
+    item.textContent = `${phase} : ${label}`;
+    els.initialDrawResults?.appendChild(item);
+  });
+}
+
+function getWeightedDrawEntries(preDrawnPairs) {
+  return [
+    ...DOUBLE_DRAW_CHAMPIONS.map((champion) => ({
+      label: champion.shortName,
+      shortLabel: `${champion.shortName} ${getDoubleDrawChampionWeight(champion.id)}`,
+      weight: getDoubleDrawChampionWeight(champion.id),
+    })),
+    ...preDrawnPairs.map((pair) => ({
+      label: getDoubleDrawPairLabel(pair),
+      shortLabel: `Paire ${getDoubleDrawPairWeight(pair)}`,
+      weight: getDoubleDrawPairWeight(pair),
+    })),
+  ];
+}
+
+async function runAnimatedInitialSetup(mode = "full", randomFn = Math.random) {
+  if (initialDrawRunning) return;
+  if (state.settings.year !== 0 || hasAuctionCards()) {
+    showToast("Configuration disponible avant la première enchère");
+    return;
+  }
+  initialDrawRunning = true;
+  const configured = mode === "configured";
+  const nextSettings = configured ? readSettings() : { ...state.settings, worldMapChoice: "random" };
+  const participantCount = configured
+    ? state.ais.length
+    : MIN_PARTICIPANTS + Math.floor(randomFn() * (MAX_PARTICIPANTS - MIN_PARTICIPANTS + 1));
+  const mapChoice = normalizeWorldMapChoice(nextSettings.worldMapChoice);
+  const selectedMap = mapChoice === "random"
+    ? WORLD_MAPS[Math.floor(randomFn() * WORLD_MAPS.length)]
+    : getWorldMapDefinition(mapChoice);
+  const preDrawnPairs = sampleParticipantPairs(randomFn);
+  const drawResult = buildDoubleParticipantDrawResult(participantCount, preDrawnPairs, randomFn);
+
+  if (els.initialDrawModal) {
+    els.initialDrawModal.classList.remove("hidden");
+    els.initialDrawModal.setAttribute("aria-hidden", "false");
+  }
+  if (els.initialDrawResults) els.initialDrawResults.innerHTML = "";
+  try {
+    await animateInitialDrawStep({
+      phase: "Nombre de champions",
+      entries: Array.from({ length: MAX_PARTICIPANTS - MIN_PARTICIPANTS + 1 }, (_, index) => {
+        const count = MIN_PARTICIPANTS + index;
+        return { label: String(count), shortLabel: `${count} IA`, weight: 1 };
+      }),
+      resultLabels: [String(participantCount)],
+      center: "Nombre",
+      status: configured
+        ? `Nombre choisi par le MJ : ${participantCount} champions entrants.`
+        : "La roue tire le nombre de champions entrants, de 2 à 16.",
+    });
+    await animateInitialDrawStep({
+      phase: "Carte du monde",
+      entries: WORLD_MAPS.map((map) => ({ label: map.name, shortLabel: map.name, weight: 1 })),
+      resultLabels: [selectedMap.name],
+      center: "Carte",
+      status: "La roue de la carte tourne parmi les cartes équiprobables.",
+    });
+    await animateInitialDrawStep({
+      phase: "Pré-tirage des paires",
+      entries: DOUBLE_DRAW_PAIRS.map((pair) => ({ label: getDoubleDrawPairLabel(pair), shortLabel: getDoubleDrawPairLabel(pair), weight: 1 })),
+      resultLabels: preDrawnPairs.map(getDoubleDrawPairLabel),
+      mode: "double",
+      center: "Paires",
+      status: "Deux curseurs retiennent deux paires distinctes et équiprobables.",
+    });
+    for (const [index, step] of drawResult.drawSteps.entries()) {
+      await animateInitialDrawStep({
+        phase: `Tirage pondéré ${index + 1}`,
+        entries: getWeightedDrawEntries(preDrawnPairs),
+        resultLabels: [step.label],
+        center: "Poids",
+        status: `Pool pondéré : champions modifiables + paires pré-tirées. Sélection : ${step.label}.`,
+      });
+    }
+
+    pushUndo();
+    if (!configured) {
+      resizeParticipants(participantCount);
+      state.participantCountMode = "random";
+      state.settings.worldMapChoice = "random";
+    } else {
+      state.settings = nextSettings;
+      state.participantCountMode = "manual";
+    }
+    state.worldMap = {
+      mapId: selectedMap.id,
+      selectionMode: mapChoice === "random" ? "random" : "manual",
+      placements: [],
+      neutralZones: [],
+      participantCount,
+      drawnAt: new Date().toISOString(),
+    };
+    applyDoubleParticipantDrawResult(drawResult, randomFn);
+    clearParticipantDrawPromptChecks();
+    expandedPromptGroups.add("Configuration initiale");
+    saveAndRender();
+    showToast(`${participantCount} IA - ${selectedMap.name} - tirage animé terminé`);
+  } finally {
+    initialDrawRunning = false;
+    renderInitialDrawPanel();
+  }
 }
 
 function runDoubleParticipantDraw(randomFn = Math.random) {
@@ -4462,11 +4751,11 @@ function buildParticipantDrawAnnouncement() {
     .map((id) => DOUBLE_DRAW_PAIRS.find((pair) => pair.id === id))
     .filter(Boolean);
   const pairPoolLines = preDrawnPairs.map((pair) => {
-    const weight = pair.memberIds.reduce((sum, id) => sum + (getDoubleDrawChampion(id)?.weight ?? 0), 0);
+    const weight = getDoubleDrawPairWeight(pair);
     return `- ${getDoubleDrawPairLabel(pair)} : poids final ${weight}`;
   });
   const championPoolLines = DOUBLE_DRAW_CHAMPIONS.map((champion) => (
-    `- ${champion.shortName} : poids ${champion.weight}`
+    `- ${champion.shortName} : poids ${getDoubleDrawChampionWeight(champion.id)}`
   ));
   const drawLines = draw.drawSteps.map((step, index) => (
     `${index + 1}. ${step.type === "pair"
@@ -4594,14 +4883,14 @@ function renderPromptHub() {
     addPromptGroup("Configuration initiale", [
       {
         label: drawComplete ? "Tout retirer au sort" : "Tout tirer au sort",
-        hint: "Un seul clic : effectif, carte, champions, ordre des IA, placements et voisins.",
-        onClick: () => runFullyRandomInitialSetup(),
+        hint: "Animation : effectif, carte, deux paires, champions pondérés, placements et voisins.",
+        onClick: () => runAnimatedInitialSetup("full"),
         primary: true,
       },
       {
         label: "Appliquer le nombre et la carte choisis",
-        hint: `Utilise ${state.ais.length} IA et ${getWorldMapChoice() === "random" ? "tire seulement la carte" : `la carte ${getWorldMapDefinition(getWorldMapChoice())?.name ?? "choisie"}`}, puis tire champions et placements.`,
-        onClick: () => runConfiguredInitialSetup(),
+        hint: `Animation : utilise ${state.ais.length} IA et ${getWorldMapChoice() === "random" ? "tire seulement la carte" : `la carte ${getWorldMapDefinition(getWorldMapChoice())?.name ?? "choisie"}`}, puis tire champions et placements.`,
+        onClick: () => runAnimatedInitialSetup("configured"),
       },
       ...(drawComplete ? [{
         label: "Message pré-simulation : carte, participants et placements",
@@ -5335,7 +5624,7 @@ function getFortuneWheelAverageValue() {
 }
 
 function getFortuneWheelMinimumTurns() {
-  return Math.max(1, state.ais.length * 2 + 1);
+  return Math.max(1, getAliveAis().length * 2 + 1);
 }
 
 function getWheelEvent(eventId) {
@@ -8007,7 +8296,7 @@ La roue tire ${WHEEL_VISIBLE_OPTIONS} options visibles parmi ${WHEEL_EVENTS.leng
 La roue a mis ${delay} ans à revenir. Imprévisibilité actuelle : ${unpredictability}%. Plus ce pourcentage est élevé, plus les extrêmes sont probables : très gros gains, pertes lourdes, vols violents ou effets WorldBox dangereux.
 
 ─── SEUIL MINIMUM ───────────────────────────────────────────────
-La Roue est capricieuse. Un seuil minimum de participation existe : ${getFortuneWheelMinimumTurns()} tours au total (2 × ${state.ais.length} civilisations initiales + 1 = ${getFortuneWheelMinimumTurns()}). Si ce seuil n'est pas atteint, la civilisation ayant acheté le moins de tours perd l'intégralité de ses pièces. En cas d'égalité, toutes les ex-aequo perdent tout.
+La Roue est capricieuse. Un seuil minimum de participation existe : ${getFortuneWheelMinimumTurns()} tours au total (2 × ${getAliveAis().length} civilisations vivantes + 1 = ${getFortuneWheelMinimumTurns()}). Si ce seuil n'est pas atteint, la civilisation ayant acheté le moins de tours perd l'intégralité de ses pièces. En cas d'égalité, toutes les ex-aequo perdent tout.
 
 ─── RÉSOLUTION ──────────────────────────────────────────────────
 Les tours se résolvent un par un en ordre démographique décroissant, avec rotation. Une civilisation ne rejoue pas immédiatement si une autre possède encore un tour en attente. Les effets économiques sont appliqués automatiquement par le MJ. Les effets WorldBox (pouvoirs, monstres, catastrophes) sont placés manuellement par le MJ : ce n'est pas toi qui les joues. Le résultat peut t'être favorable ou défavorable selon ce que la roue tire.
@@ -8040,7 +8329,7 @@ function buildFortuneWheelParticipationPrompt() {
   return [
     `MESSAGE MONDIAL — PARTICIPATION ROUE DE LA FORTUNE — An ${state.settings.year} — Enchère ${getAuctionPromptNumber()}`,
     "",
-    `Seuil minimum : ${threshold} tours au total (2 × ${state.ais.length} civilisations initiales + 1 = ${threshold}).`,
+    `Seuil minimum : ${threshold} tours au total (2 × ${getAliveAis().length} civilisations vivantes + 1 = ${threshold}).`,
     `Participation actuelle : ${totalTurns} tour(s) acheté(s) — ${thresholdStatus}.`,
     "",
     "Détail des achats :",

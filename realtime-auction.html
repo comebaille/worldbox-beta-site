@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./realtime-styles.css?v=13.1">
+    <link rel="stylesheet" href="./realtime-styles.css?v=13.3">
     <style>
       /* --- IMMERSION & ANIMATIONS WORLD BOX --- */
       @keyframes wb-cardReveal {
@@ -660,42 +660,7 @@
             <summary>Modifier les noms manuellement</summary>
             <div id="participantNamesGrid" class="participant-names-grid"></div>
           </details>
-        </section>
-
-        <section id="mjSummaryPanel" class="mj-summary-panel" aria-labelledby="mjSummaryTitle">
-          <button class="mobile-panel-toggle secondary" type="button" data-mobile-panel-toggle="mjSummaryPanel" aria-expanded="true">
-            <span><strong>Vue MJ</strong><small id="mobileMjSummary">Situation et prochaine décision</small></span>
-            <span class="mobile-panel-chevron" aria-hidden="true"></span>
-          </button>
-          <div class="mj-summary-head">
-            <div>
-              <p class="eyebrow">Vue MJ</p>
-              <h2 id="mjSummaryTitle">Résumé opérationnel</h2>
-            </div>
-            <span id="mjSummaryYear" class="mj-summary-year">An 0</span>
-          </div>
-          <div class="mj-summary-grid">
-            <div class="mj-summary-item">
-              <span>Situation actuelle</span>
-              <p id="mjSummarySituation">Préparation de la simulation.</p>
-            </div>
-            <div class="mj-summary-item">
-              <span>Changements récents</span>
-              <p id="mjSummaryChanges">Aucun changement enregistré.</p>
-            </div>
-            <div class="mj-summary-item">
-              <span>Risques / menaces</span>
-              <p id="mjSummaryRisks">Aucune menace immédiate.</p>
-            </div>
-            <div class="mj-summary-item">
-              <span>Ressources clés</span>
-              <p id="mjSummaryResources">Données en attente.</p>
-            </div>
-            <div class="mj-summary-item mj-summary-action">
-              <span>Décision attendue</span>
-              <p id="mjSummaryAction">Configurer la partie.</p>
-            </div>
-          </div>
+          <section id="initialDrawPanel" class="initial-draw-panel"></section>
         </section>
 
         <section id="auctionPanel" class="panel auction-panel">
@@ -1047,8 +1012,33 @@
       </div>
     </div>
 
+    <div id="initial-draw-modal" class="initial-draw-modal hidden" aria-hidden="true">
+      <div class="initial-draw-dialog" role="dialog" aria-modal="true" aria-labelledby="initial-draw-title">
+        <div class="initial-draw-header">
+          <div>
+            <p class="eyebrow">An 0</p>
+            <h2 id="initial-draw-title">Tirage de la simulation</h2>
+          </div>
+          <button id="initial-draw-close-btn" class="secondary" type="button">Fermer</button>
+        </div>
+        <div class="initial-draw-body">
+          <div class="initial-draw-wheel-stage">
+            <div id="initial-draw-pointer-west" class="initial-draw-pointer west" hidden></div>
+            <div id="initial-draw-pointer-east" class="initial-draw-pointer east"></div>
+            <div id="initial-draw-wheel" class="initial-draw-wheel"></div>
+            <div id="initial-draw-center" class="initial-draw-center">An 0</div>
+          </div>
+          <div class="initial-draw-side">
+            <h3 id="initial-draw-phase">Prêt</h3>
+            <p id="initial-draw-status">Le tirage n'a pas encore commencé.</p>
+            <ol id="initial-draw-results" class="initial-draw-results"></ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="toast" class="toast"></div>
-    <script src="./realtime-runtime.js?v=13.1"></script>
-    <script src="./realtime-app.js?v=13.1"></script>
+    <script src="./realtime-runtime.js?v=13.3"></script>
+    <script src="./realtime-app.js?v=13.3"></script>
   </body>
 </html>
