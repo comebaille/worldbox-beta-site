@@ -258,6 +258,9 @@ const WB_WHEEL_AUTO_COOLDOWN_MS = 900;
 const WB_WHEEL_MIN_EXTRA_SPINS = 3;
 const WB_WHEEL_EXTRA_SPIN_VARIANCE = 3;
 const WB_WHEEL_SEGMENT_BORDER_DEG = 1.1;
+const INITIAL_DRAW_SPIN_MS = 4800;
+const INITIAL_DRAW_STEP_PAUSE_MS = 1000;
+const INITIAL_DRAW_START_PAUSE_MS = 700;
 const WB_WHEEL_SEGMENT_COLORS = {
   positive: ["#15803d", "#16a34a", "#059669", "#22c55e"],
   negative: ["#b91c1c", "#dc2626", "#be123c", "#e11d48"],
@@ -4410,6 +4413,46 @@ function getDoubleDrawPairLabel(pair) {
     .join(" & ");
 }
 
+function getInitialDrawWheelChampionLabel(champion) {
+  if (!champion) return "";
+  return champion.shortName
+    .replace("Claude de Glace", "Claude Glace")
+    .replace("Gemini le Révélateur", "Gemini Révélateur")
+    .replace("Gemini de Beta", "Gemini Beta");
+}
+
+function getInitialDrawWheelPairLabel(pair) {
+  return pair.memberIds
+    .map((id) => getInitialDrawWheelChampionLabel(getDoubleDrawChampion(id)))
+    .join(" + ");
+}
+
+function getInitialDrawWheelMapLabel(map) {
+  const labels = {
+    fracture: "Fracture duelle",
+    "cross-four": "Croix 4",
+    quinconce: "Le Quinconce",
+    "crown-nine": "Couronne 9",
+    crossroads: "Carrefour 4 Mers",
+    "archipelago-sixteen": "Archipel 16",
+    pangea: "Pangée",
+  };
+  return labels[map.id] ?? map.name;
+}
+
+function getInitialDrawMapPower(map) {
+  const powers = {
+    fracture: 2,
+    "cross-four": 4,
+    quinconce: 5,
+    "crown-nine": 9,
+    crossroads: 12,
+    "archipelago-sixteen": 16,
+    pangea: 16,
+  };
+  return powers[map.id] ?? 1;
+}
+
 function weightedParticipantPick(entries, randomFn = Math.random) {
   const totalWeight = entries.reduce((sum, entry) => sum + entry.weight, 0);
   let cursor = randomFn() * totalWeight;
@@ -4554,33 +4597,41 @@ function wait(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
-function getInitialDrawEntryColor(index, selected = false) {
-  if (selected) return "#d97706";
-  return index % 2 ? "#172033" : "#253247";
+function getInitialDrawEntryColor(entry, index, maxPower = 1) {
+  const power = Math.max(1, Number(entry.power ?? entry.weight) || 1);
+  const ratio = Math.max(0, Math.min(1, power / Math.max(1, maxPower)));
+  const hue = Math.round(205 - ratio * 160);
+  const lightness = Math.round(25 + ratio * 13);
+  const saturation = Math.round(52 + ratio * 34);
+  return `hsl(${hue} ${saturation}% ${lightness}%)`;
 }
 
-function orderInitialWheelEntries(entries, resultLabels = [], mode = "single") {
-  const remaining = entries.filter((entry) => !resultLabels.includes(entry.label));
+function interleaveInitialDrawEntries(entries) {
+  const sorted = [...entries].sort((a, b) => (
+    (Number(b.power ?? b.weight) || 1) - (Number(a.power ?? a.weight) || 1)
+  ));
   const ordered = [];
-  if (mode === "double" && resultLabels.length >= 2) {
-    const westIndex = Math.max(1, Math.floor(entries.length / 2));
-    ordered[0] = entries.find((entry) => entry.label === resultLabels[0]);
-    ordered[westIndex] = entries.find((entry) => entry.label === resultLabels[1]);
-    let cursor = 0;
-    remaining.forEach((entry) => {
-      while (ordered[cursor]) cursor += 1;
-      ordered[cursor] = entry;
-    });
-    return ordered.filter(Boolean);
+  while (sorted.length) {
+    const high = sorted.shift();
+    if (high) ordered.push(high);
+    const low = sorted.pop();
+    if (low) ordered.push(low);
   }
-  const selected = entries.find((entry) => entry.label === resultLabels[0]);
-  return selected ? [selected, ...remaining] : entries;
+  return ordered;
 }
 
-function renderInitialDrawWheel(entries, resultLabels = [], mode = "single") {
+function orderInitialWheelEntries(entries) {
+  if (entries.some((entry) => entry.visualOrder === "mixed")) return interleaveInitialDrawEntries(entries);
+  return [...entries].sort((a, b) => (
+    (Number(a.power ?? a.weight) || 1) - (Number(b.power ?? b.weight) || 1)
+  ));
+}
+
+function renderInitialDrawWheel(entries, resultLabels = []) {
   if (!els.initialDrawWheel) return;
-  const ordered = orderInitialWheelEntries(entries, resultLabels, mode);
+  const ordered = orderInitialWheelEntries(entries, resultLabels);
   const totalWeight = ordered.reduce((sum, entry) => sum + Math.max(1, Number(entry.weight) || 1), 0);
+  const maxPower = ordered.reduce((max, entry) => Math.max(max, Math.max(1, Number(entry.power ?? entry.weight) || 1)), 1);
   let cursor = 0;
   const gradients = [];
   els.initialDrawWheel.querySelectorAll(".initial-draw-label").forEach((node) => node.remove());
@@ -4588,53 +4639,88 @@ function renderInitialDrawWheel(entries, resultLabels = [], mode = "single") {
     const span = Math.max(1, Number(entry.weight) || 1) / totalWeight * 360;
     const start = cursor;
     const end = cursor + span;
-    const color = getInitialDrawEntryColor(index, resultLabels.includes(entry.label));
+    const color = getInitialDrawEntryColor(entry, index, maxPower);
     gradients.push(`${color} ${start.toFixed(2)}deg ${Math.max(start, end - 0.9).toFixed(2)}deg`, `#050914 ${Math.max(start, end - 0.9).toFixed(2)}deg ${end.toFixed(2)}deg`);
     const label = document.createElement("span");
     label.className = "initial-draw-label";
     const angle = start + span / 2;
-    label.style.transform = `rotate(${angle}deg) translateX(calc(var(--initial-wheel-size) * 0.34)) rotate(${-angle}deg) translate(-50%, -50%)`;
-    label.textContent = entry.shortLabel ?? entry.label;
+    label.style.setProperty("--initial-label-angle", `${angle - 90}deg`);
+    const text = document.createElement("span");
+    text.textContent = entry.shortLabel ?? entry.label;
+    label.appendChild(text);
     els.initialDrawWheel.appendChild(label);
     cursor = end;
   });
   els.initialDrawWheel.style.background = `conic-gradient(${gradients.join(", ")})`;
-  if (els.initialDrawPointerWest) els.initialDrawPointerWest.hidden = mode !== "double";
 }
 
-async function animateInitialDrawStep({ phase, entries, resultLabels, mode = "single", center = "An 0", status }) {
+function getInitialDrawResultCenterAngle(entries, resultLabels = []) {
+  const ordered = orderInitialWheelEntries(entries, resultLabels);
+  const totalWeight = ordered.reduce((sum, entry) => sum + Math.max(1, Number(entry.weight) || 1), 0);
+  let cursor = 0;
+  for (const entry of ordered) {
+    const span = Math.max(1, Number(entry.weight) || 1) / totalWeight * 360;
+    if (resultLabels.includes(entry.label)) return cursor + span / 2;
+    cursor += span;
+  }
+  return Math.random() * 360;
+}
+
+async function animateInitialDrawStep({ phase, entries, resultLabels, center = "An 0", status }) {
   if (!els.initialDrawModal || !els.initialDrawWheel) return;
   els.initialDrawPhase.textContent = phase;
   els.initialDrawStatus.textContent = status;
   els.initialDrawCenter.textContent = center;
-  renderInitialDrawWheel(entries, resultLabels, mode);
+  renderInitialDrawWheel(entries, resultLabels);
   const base = ((initialDrawWheelRotation % 360) + 360) % 360;
   els.initialDrawWheel.style.transition = "none";
   els.initialDrawWheel.style.transform = `rotate(${base}deg)`;
   void els.initialDrawWheel.offsetWidth;
-  initialDrawWheelRotation += 1080 + Math.floor(Math.random() * 540);
-  els.initialDrawWheel.style.transition = "transform 2.7s cubic-bezier(0.22, 0.52, 0.08, 1)";
+  const targetRotation = 90 - getInitialDrawResultCenterAngle(entries, resultLabels);
+  const spinFloor = initialDrawWheelRotation + 1440 + Math.floor(Math.random() * 360);
+  initialDrawWheelRotation = spinFloor + ((targetRotation - (spinFloor % 360) + 360) % 360);
+  els.initialDrawWheel.style.transition = `transform ${INITIAL_DRAW_SPIN_MS}ms cubic-bezier(0.16, 0.68, 0.08, 1)`;
   els.initialDrawWheel.style.transform = `rotate(${initialDrawWheelRotation}deg)`;
-  await wait(2850);
+  await wait(INITIAL_DRAW_SPIN_MS + 120);
   resultLabels.forEach((label) => {
     const item = document.createElement("li");
     item.textContent = `${phase} : ${label}`;
     els.initialDrawResults?.appendChild(item);
   });
+  await wait(INITIAL_DRAW_STEP_PAUSE_MS);
 }
 
-function getWeightedDrawEntries(preDrawnPairs) {
+function getWeightedDrawEntries(preDrawnPairs, completedSteps = [], slots = MAX_PARTICIPANTS) {
+  const selectedSet = new Set();
+  const usedEntries = new Set();
+  completedSteps.forEach((step) => {
+    usedEntries.add(step.entryId);
+    step.memberIds.forEach((id) => selectedSet.add(id));
+  });
+  const remainingSlots = Math.max(0, Math.min(slots, DOUBLE_DRAW_CHAMPIONS.length) - selectedSet.size);
   return [
-    ...DOUBLE_DRAW_CHAMPIONS.map((champion) => ({
-      label: champion.shortName,
-      shortLabel: `${champion.shortName} ${getDoubleDrawChampionWeight(champion.id)}`,
-      weight: getDoubleDrawChampionWeight(champion.id),
-    })),
-    ...preDrawnPairs.map((pair) => ({
-      label: getDoubleDrawPairLabel(pair),
-      shortLabel: `Paire ${getDoubleDrawPairWeight(pair)}`,
-      weight: getDoubleDrawPairWeight(pair),
-    })),
+    ...DOUBLE_DRAW_CHAMPIONS
+      .filter((champion) => !usedEntries.has(`champion:${champion.id}`) && !selectedSet.has(champion.id) && remainingSlots >= 1)
+      .map((champion) => ({
+        label: champion.shortName,
+        shortLabel: `${getInitialDrawWheelChampionLabel(champion)} ${getDoubleDrawChampionWeight(champion.id)}`,
+        weight: getDoubleDrawChampionWeight(champion.id),
+        power: getDoubleDrawChampionWeight(champion.id),
+        visualOrder: "mixed",
+      })),
+    ...preDrawnPairs
+      .filter((pair) => (
+        !usedEntries.has(`pair:${pair.id}`)
+        && pair.memberIds.length <= remainingSlots
+        && pair.memberIds.every((id) => !selectedSet.has(id))
+      ))
+      .map((pair) => ({
+        label: getDoubleDrawPairLabel(pair),
+        shortLabel: `Paire ${getDoubleDrawPairWeight(pair)}`,
+        weight: getDoubleDrawPairWeight(pair),
+        power: getDoubleDrawPairWeight(pair),
+        visualOrder: "mixed",
+      })),
   ];
 }
 
@@ -4663,11 +4749,22 @@ async function runAnimatedInitialSetup(mode = "full", randomFn = Math.random) {
   }
   if (els.initialDrawResults) els.initialDrawResults.innerHTML = "";
   try {
+    els.initialDrawPhase.textContent = "Lancement";
+    els.initialDrawStatus.textContent = "Préparation des roues : carte, nombre, paires, puis champions pondérés.";
+    els.initialDrawCenter.textContent = "An 0";
+    await wait(INITIAL_DRAW_START_PAUSE_MS);
+    await animateInitialDrawStep({
+      phase: "Carte du monde",
+      entries: WORLD_MAPS.map((map) => ({ label: map.name, shortLabel: getInitialDrawWheelMapLabel(map), weight: 1, power: getInitialDrawMapPower(map) })),
+      resultLabels: [selectedMap.name],
+      center: "Carte",
+      status: "La roue de la carte tourne parmi les cartes équiprobables.",
+    });
     await animateInitialDrawStep({
       phase: "Nombre de champions",
       entries: Array.from({ length: MAX_PARTICIPANTS - MIN_PARTICIPANTS + 1 }, (_, index) => {
         const count = MIN_PARTICIPANTS + index;
-        return { label: String(count), shortLabel: `${count} IA`, weight: 1 };
+        return { label: String(count), shortLabel: `${count} IA`, weight: 1, power: count };
       }),
       resultLabels: [String(participantCount)],
       center: "Nombre",
@@ -4676,24 +4773,25 @@ async function runAnimatedInitialSetup(mode = "full", randomFn = Math.random) {
         : "La roue tire le nombre de champions entrants, de 2 à 16.",
     });
     await animateInitialDrawStep({
-      phase: "Carte du monde",
-      entries: WORLD_MAPS.map((map) => ({ label: map.name, shortLabel: map.name, weight: 1 })),
-      resultLabels: [selectedMap.name],
-      center: "Carte",
-      status: "La roue de la carte tourne parmi les cartes équiprobables.",
+      phase: "Pré-tirage paire 1",
+      entries: DOUBLE_DRAW_PAIRS.map((pair) => ({ label: getDoubleDrawPairLabel(pair), shortLabel: getInitialDrawWheelPairLabel(pair), weight: 1, power: getDoubleDrawPairWeight(pair) })),
+      resultLabels: [getDoubleDrawPairLabel(preDrawnPairs[0])],
+      center: "Paire 1",
+      status: "Première paire tirée uniformément parmi les 17 paires fixes.",
     });
     await animateInitialDrawStep({
-      phase: "Pré-tirage des paires",
-      entries: DOUBLE_DRAW_PAIRS.map((pair) => ({ label: getDoubleDrawPairLabel(pair), shortLabel: getDoubleDrawPairLabel(pair), weight: 1 })),
-      resultLabels: preDrawnPairs.map(getDoubleDrawPairLabel),
-      mode: "double",
-      center: "Paires",
-      status: "Deux curseurs retiennent deux paires distinctes et équiprobables.",
+      phase: "Pré-tirage paire 2",
+      entries: DOUBLE_DRAW_PAIRS
+        .filter((pair) => pair.id !== preDrawnPairs[0].id)
+        .map((pair) => ({ label: getDoubleDrawPairLabel(pair), shortLabel: getInitialDrawWheelPairLabel(pair), weight: 1, power: getDoubleDrawPairWeight(pair) })),
+      resultLabels: [getDoubleDrawPairLabel(preDrawnPairs[1])],
+      center: "Paire 2",
+      status: "Deuxième paire tirée parmi les paires restantes, sans doublon.",
     });
     for (const [index, step] of drawResult.drawSteps.entries()) {
       await animateInitialDrawStep({
         phase: `Tirage pondéré ${index + 1}`,
-        entries: getWeightedDrawEntries(preDrawnPairs),
+        entries: getWeightedDrawEntries(preDrawnPairs, drawResult.drawSteps.slice(0, index), drawResult.slots),
         resultLabels: [step.label],
         center: "Poids",
         status: `Pool pondéré : champions modifiables + paires pré-tirées. Sélection : ${step.label}.`,
